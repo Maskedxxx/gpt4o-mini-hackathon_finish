@@ -1,0 +1,4 @@
+__pycache__/
+docs.txt
+.env
+LOGS/
