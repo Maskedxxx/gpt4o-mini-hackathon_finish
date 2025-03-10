@@ -29,3 +29,12 @@ async def get_auth_code_api():
     if auth_code:
         return JSONResponse({"code": auth_code})
     return JSONResponse({"code": None}, status_code=404)
+
+@app.post("/api/reset_code")
+async def reset_auth_code_api():
+    """API эндпоинт для сброса кода авторизации."""
+    global auth_code
+    old_code = auth_code
+    auth_code = None
+    logger.info(f"Код авторизации сброшен: {old_code}")
+    return JSONResponse({"status": "success"})

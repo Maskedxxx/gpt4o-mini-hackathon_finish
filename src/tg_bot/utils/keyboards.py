@@ -28,3 +28,12 @@ auth_waiting_keyboard = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True
 )
+
+# Клавиатура для авторизованного состояния (кнопки Старт и Редактировать резюме)
+authorized_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="Редактировать резюме")],
+        [KeyboardButton(text="Старт")]
+    ],
+    resize_keyboard=True
+)

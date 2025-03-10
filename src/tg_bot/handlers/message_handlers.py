@@ -2,13 +2,34 @@
 
 import logging
 from aiogram import types
+from pathlib import Path
 from aiogram.fsm.context import FSMContext
 
-from src.tg_bot.handlers.command import cmd_start, cmd_auth
-from src.tg_bot.utils import UserState, INITIAL_STATE_MESSAGES, UNAUTHORIZED_STATE_MESSAGES, AUTH_WAITING_MESSAGES, start_keyboard, auth_keyboard, auth_waiting_keyboard
+from src.tg_bot.handlers.command_handlers import cmd_start, cmd_auth
+from src.tg_bot.utils import (UserState, 
+    INITIAL_STATE_MESSAGES, 
+    UNAUTHORIZED_STATE_MESSAGES, 
+    AUTH_WAITING_MESSAGES, 
+    AUTHORIZED_STATE_MESSAGES,
+    start_keyboard, 
+    auth_keyboard, 
+    auth_waiting_keyboard, 
+    authorized_keyboard)
+
 from src.hh.auth import HHAuthService
 
+log_dir = Path("LOGS")
+log_dir.mkdir(exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s",
+    handlers=[
+        logging.FileHandler(log_dir / "message_handlers.log"),
+        logging.StreamHandler()
+    ]
+)
 logger = logging.getLogger("message_handlers")
+
 
 # Создаём экземпляр сервиса
 hh_auth_service = HHAuthService()
@@ -56,3 +77,10 @@ async def handle_auth_waiting_message(message: types.Message):
     auth_message = f"{AUTH_WAITING_MESSAGES['reply_auth_instructions']}\n🔗 Ссылка для авторизации: {auth_url}"
     
     await message.answer(auth_message, reply_markup=auth_waiting_keyboard)
+    
+async def handle_authorized_message(message: types.Message):
+    """Обработчик текстовых сообщений в авторизованном состоянии."""
+    user_id = message.from_user.id
+    logger.info(f"Пользователь {user_id} отправил сообщение в авторизованном состоянии")
+    
+    await message.answer(AUTHORIZED_STATE_MESSAGES["text_message_reply"], reply_markup=authorized_keyboard)

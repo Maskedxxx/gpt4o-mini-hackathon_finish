@@ -1,11 +1,24 @@
 # src/tg_bot/handlers/command.py
 import logging
 from aiogram import types
+from pathlib import Path
 from aiogram.fsm.context import FSMContext
+import asyncio
+from src.tg_bot.handlers.auth_handler import start_auth_polling
 
 from src.tg_bot.utils import UserState, UNAUTHORIZED_STATE_MESSAGES, AUTH_WAITING_MESSAGES, auth_keyboard, auth_waiting_keyboard
 from src.hh.auth import HHAuthService
 
+log_dir = Path("LOGS")
+log_dir.mkdir(exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s",
+    handlers=[
+        logging.FileHandler(log_dir / "command_handlers.log"),
+        logging.StreamHandler()
+    ]
+)
 logger = logging.getLogger("command_handlers")
 
 # Создаём экземпляр сервиса авторизации
@@ -35,3 +48,5 @@ async def cmd_auth(message: types.Message, state: FSMContext):
     await message.answer(auth_message, reply_markup=auth_waiting_keyboard )
     await state.set_state(UserState.AUTH_WAITING)
     logger.info(f"Пользователь {user_id} переведен в состояние AUTH_WAITING")
+    
+    asyncio.create_task(start_auth_polling(user_id, state))
