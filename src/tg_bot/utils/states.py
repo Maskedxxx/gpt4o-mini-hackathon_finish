@@ -11,3 +11,4 @@ class UserState(StatesGroup):
     UNAUTHORIZED = State()      # Состояние после нажатия /start (не авторизован)
     AUTH_WAITING = State()      # Ожидание авторизации
     AUTHORIZED = State()        # Состояние после успешной авторизации
+    RESUME_PREPARATION = State() # Подготовка данных для обновления резюме

@@ -11,10 +11,12 @@ from src.tg_bot.utils import (UserState,
     UNAUTHORIZED_STATE_MESSAGES, 
     AUTH_WAITING_MESSAGES, 
     AUTHORIZED_STATE_MESSAGES,
+    RESUME_PREPARATION_MESSAGES,
     start_keyboard, 
     auth_keyboard, 
     auth_waiting_keyboard, 
-    authorized_keyboard)
+    authorized_keyboard,
+    resume_preparation_keyboard)
 
 from src.hh.auth import HHAuthService
 
@@ -78,9 +80,28 @@ async def handle_auth_waiting_message(message: types.Message):
     
     await message.answer(auth_message, reply_markup=auth_waiting_keyboard)
     
+    
 async def handle_authorized_message(message: types.Message):
     """Обработчик текстовых сообщений в авторизованном состоянии."""
     user_id = message.from_user.id
     logger.info(f"Пользователь {user_id} отправил сообщение в авторизованном состоянии")
     
     await message.answer(AUTHORIZED_STATE_MESSAGES["text_message_reply"], reply_markup=authorized_keyboard)
+    
+    
+# Добавим обработчик для кнопки "Редактировать резюме"
+async def handle_edit_resume_button(message: types.Message, state: FSMContext):
+    """Обработчик нажатия кнопки 'Редактировать резюме'."""
+    user_id = message.from_user.id
+    logger.info(f"Пользователь {user_id} запросил редактирование резюме (нажал кнопку)")
+    
+    await message.answer(RESUME_PREPARATION_MESSAGES["request_link"], reply_markup=resume_preparation_keyboard)
+    await state.set_state(UserState.RESUME_PREPARATION)
+    logger.info(f"Пользователь {user_id} переведен в состояние RESUME_PREPARATION")
+    
+    
+async def handle_resume_preparation_message(message: types.Message, state: FSMContext):
+    """Обработчик текстовых сообщений в состоянии подготовки резюме."""
+    # Делегируем обработку специализированному обработчику из resume_handler
+    from src.tg_bot.handlers.spec_handlers.resume_handler import handle_resume_link
+    await handle_resume_link(message, state)

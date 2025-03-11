@@ -4,7 +4,7 @@ from aiogram import types
 from pathlib import Path
 from aiogram.fsm.context import FSMContext
 import asyncio
-from src.tg_bot.handlers.auth_handler import start_auth_polling
+from src.tg_bot.handlers.spec_handlers.auth_handler import start_auth_polling
 
 from src.tg_bot.utils import UserState, UNAUTHORIZED_STATE_MESSAGES, AUTH_WAITING_MESSAGES, auth_keyboard, auth_waiting_keyboard
 from src.hh.auth import HHAuthService

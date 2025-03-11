@@ -37,3 +37,11 @@ authorized_keyboard = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True
 )
+
+# Клавиатура для состояния подготовки резюме (только кнопка Старт)
+resume_preparation_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="Старт")]
+    ],
+    resize_keyboard=True
+)
