@@ -6,7 +6,7 @@ from aiogram.filters import StateFilter, Command
 
 from src.tg_bot.utils.states import UserState
 from src.tg_bot.handlers.command_handlers import cmd_start, cmd_auth
-from src.tg_bot.handlers.message_handlers import initial_greeting, handle_initial_message, handle_unauthorized_message, handle_auth_waiting_message, handle_start_button, handle_auth_button, handle_authorized_message, handle_edit_resume_button, handle_resume_preparation_message
+from src.tg_bot.handlers.message_handlers import initial_greeting, handle_initial_message, handle_unauthorized_message, handle_auth_waiting_message, handle_start_button, handle_auth_button, handle_authorized_message, handle_edit_resume_button, handle_resume_preparation_message, handle_vacancy_preparation_message
 
 
 log_dir = Path("LOGS")
@@ -36,6 +36,8 @@ def register_handlers(dp: Dispatcher):
     dp.message.register(handle_auth_waiting_message, StateFilter(UserState.AUTH_WAITING))
     dp.message.register(handle_authorized_message, StateFilter(UserState.AUTHORIZED))
     dp.message.register(handle_resume_preparation_message, StateFilter(UserState.RESUME_PREPARATION))
+    dp.message.register(handle_vacancy_preparation_message, StateFilter(UserState.VACANCY_PREPARATION))
+
 
     
     logger.info("Все обработчики успешно зарегистрированы")

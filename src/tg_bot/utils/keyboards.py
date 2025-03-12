@@ -45,3 +45,11 @@ resume_preparation_keyboard = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True
 )
+
+# Клавиатура для состояния подготовки вакансии (только кнопка Старт)
+vacancy_preparation_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="Старт")]
+    ],
+    resize_keyboard=True
+)

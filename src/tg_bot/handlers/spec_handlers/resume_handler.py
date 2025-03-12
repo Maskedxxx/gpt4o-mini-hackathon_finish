@@ -5,9 +5,10 @@ from aiogram import types
 from pathlib import Path
 from aiogram.fsm.context import FSMContext
 
-from src.tg_bot.utils import UserState
-from src.tg_bot.utils import RESUME_PREPARATION_MESSAGES
+from src.tg_bot.utils import UserState, vacancy_preparation_keyboard
+from src.tg_bot.utils import RESUME_PREPARATION_MESSAGES, VACANCY_PREPARATION_MESSAGES
 from src.hh.api_client import HHApiClient
+from src.parsers.resume_extractor import ResumeExtractor 
 
 
 log_dir = Path("LOGS")
@@ -21,6 +22,9 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger("resume_handler")
+
+# Создаем экземпляр экстрактора
+entity_extractor = ResumeExtractor()
 
 
 async def handle_resume_link(message: types.Message, state: FSMContext):
@@ -45,7 +49,7 @@ async def handle_resume_link(message: types.Message, state: FSMContext):
     
     if not access_token or not refresh_token:
         logger.error(f"Отсутствуют токены доступа для пользователя {user_id}")
-        await message.answer("Произошла ошибка авторизации. Пожалуйста, выполните авторизацию повторно.")
+        await message.answer(f"{RESUME_PREPARATION_MESSAGES['auth_error']}")
         await state.set_state(UserState.UNAUTHORIZED)
         return
     
@@ -56,18 +60,29 @@ async def handle_resume_link(message: types.Message, state: FSMContext):
         
         logger.info(f"Успешно получены данные резюме {resume_id} для пользователя {user_id}")
         
+        # Парсинг данных резюме с помощью ResumeExtractor
+        parsed_resume = entity_extractor.extract_resume_info(resume_data)
+        
+        if not parsed_resume:
+            logger.error(f"Не удалось распарсить данные резюме {resume_id}")
+            await message.answer(RESUME_PREPARATION_MESSAGES["resume_fetch_error"])
+            return
+        
         # Сохранение информации о резюме в состоянии пользователя
-        await state.update_data(resume_link=link, resume_id=resume_id, resume_data=resume_data)
+        await state.update_data(resume_link=link, resume_id=resume_id, resume_data=resume_data, parsed_resume=parsed_resume.model_dump())
         
         # Отправка подтверждения пользователю
-        resume_title = resume_data.get('title', 'Резюме')
-        await message.answer(f"{RESUME_PREPARATION_MESSAGES['link_accepted']} Получено резюме: «{resume_title}»")
+        await message.answer(
+            f"{RESUME_PREPARATION_MESSAGES['link_accepted']}\n\nПолучено резюме с желаемой должностью: «{parsed_resume.title}»\n\n")
         
-        # В будущем здесь будет переход к следующему этапу редактирования резюме
+        # Переход к следующему этапу - запрос вакансии
+        await message.answer(VACANCY_PREPARATION_MESSAGES["request_link"], reply_markup=vacancy_preparation_keyboard)
+        await state.set_state(UserState.VACANCY_PREPARATION)
+        logger.info(f"Пользователь {user_id} переведен в состояние VACANCY_PREPARATION")
         
     except Exception as e:
         logger.error(f"Ошибка при получении данных резюме: {e}")
-        await message.answer("Не удалось получить данные резюме. Пожалуйста, проверьте ссылку и попробуйте снова.")
+        await message.answer(f"{RESUME_PREPARATION_MESSAGES['resume_fetch_error']}")
 
 def is_valid_resume_link(link: str) -> bool:
     """Проверка, что ссылка ведет на резюме hh.ru."""

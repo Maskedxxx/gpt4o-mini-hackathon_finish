@@ -105,3 +105,9 @@ async def handle_resume_preparation_message(message: types.Message, state: FSMCo
     # Делегируем обработку специализированному обработчику из resume_handler
     from src.tg_bot.handlers.spec_handlers.resume_handler import handle_resume_link
     await handle_resume_link(message, state)
+    
+async def handle_vacancy_preparation_message(message: types.Message, state: FSMContext):
+    """Обработчик текстовых сообщений в состоянии подготовки вакансии."""
+    # Делегируем обработку специализированному обработчику
+    from src.tg_bot.handlers.spec_handlers.vacancy_handler import handle_vacancy_link
+    await handle_vacancy_link(message, state)
