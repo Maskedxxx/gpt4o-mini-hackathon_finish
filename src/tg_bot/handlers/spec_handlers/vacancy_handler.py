@@ -63,11 +63,11 @@ async def handle_vacancy_link(message: types.Message, state: FSMContext):
         
         await message.answer(
             f"{VACANCY_PREPARATION_MESSAGES['link_accepted']}\n\n"
-            f"Получено вакансия с требуемой навыками: {skills_text}..."
-        )
+            f"Получено вакансия с требуемой навыками: {skills_text}...")
         
-        # В будущем здесь будет переход к следующему этапу анализа совместимости
-        
+        from src.tg_bot.handlers.spec_handlers.gap_analyzer_handler import start_gap_analysis
+        await start_gap_analysis(message, state)
+                
     except Exception as e:
         logger.error(f"Ошибка при получении данных вакансии: {e}")
         await message.answer(VACANCY_PREPARATION_MESSAGES["vacancy_fetch_error"])

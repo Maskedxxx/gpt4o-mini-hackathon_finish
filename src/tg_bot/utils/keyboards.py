@@ -53,3 +53,19 @@ vacancy_preparation_keyboard = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True
 )
+
+resume_rewrite_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="Старт")]
+    ],
+    resize_keyboard=True
+)
+
+
+# Клавиатура для состояния переписывания резюме 
+resume_rewrite_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="Старт")]
+    ],
+    resize_keyboard=True
+)

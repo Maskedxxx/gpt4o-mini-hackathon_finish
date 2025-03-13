@@ -111,3 +111,4 @@ async def handle_vacancy_preparation_message(message: types.Message, state: FSMC
     # Делегируем обработку специализированному обработчику
     from src.tg_bot.handlers.spec_handlers.vacancy_handler import handle_vacancy_link
     await handle_vacancy_link(message, state)
+    

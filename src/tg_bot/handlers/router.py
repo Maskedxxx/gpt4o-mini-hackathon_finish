@@ -39,5 +39,6 @@ def register_handlers(dp: Dispatcher):
     dp.message.register(handle_vacancy_preparation_message, StateFilter(UserState.VACANCY_PREPARATION))
 
 
+
     
     logger.info("Все обработчики успешно зарегистрированы")
