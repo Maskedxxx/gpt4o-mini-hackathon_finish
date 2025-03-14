@@ -31,7 +31,7 @@ async def start_gap_analysis(message: types.Message, state: FSMContext):
     
     # Сообщаем пользователю о начале анализа
     await message.answer(GAP_ANALYZE_MESSAGES["analysis_started"], reply_markup=resume_rewrite_keyboard)
-    await state.set_state(UserState.RESUME_REWRITE)
+    await state.set_state(UserState.RESUME_GAP_ANALYZE)
     
     try:
         # Запускаем gap-анализ
@@ -47,6 +47,10 @@ async def start_gap_analysis(message: types.Message, state: FSMContext):
         
         # Отправляем результаты пользователю
         await message.answer(f"{GAP_ANALYZE_MESSAGES['analysis_completed']}", reply_markup=resume_rewrite_keyboard)
+        
+        # Переходим к обновлению резюме
+        from src.tg_bot.handlers.spec_handlers.resume_update_handler import start_resume_update
+        await start_resume_update(message, state)
         
     except Exception as e:
         logger.error(f"Ошибка при выполнении gap-анализа: {e}")

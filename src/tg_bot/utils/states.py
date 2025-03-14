@@ -13,4 +13,5 @@ class UserState(StatesGroup):
     AUTHORIZED = State()        # Состояние после успешной авторизации
     RESUME_PREPARATION = State() # Подготовка данных для обновления резюме
     VACANCY_PREPARATION = State() # Подготовка данных о вакансии
-    RESUME_REWRITE = State()     # Состояние переписывания резюме
+    RESUME_GAP_ANALYZE = State()     # Состояние переписывания резюме
+    RESUME_UPDATE_LLM = State()  # Состояние обновления резюме через LLM

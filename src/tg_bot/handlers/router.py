@@ -40,5 +40,6 @@ def register_handlers(dp: Dispatcher):
 
 
 
+
     
     logger.info("Все обработчики успешно зарегистрированы")
