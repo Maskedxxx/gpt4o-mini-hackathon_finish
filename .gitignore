@@ -1,0 +1,27 @@
+# Файлы окружения (никогда не коммитить!)
+.env
+*.env
+.env.*
+
+# Python кэш и артефакты сборки
+__pycache__/
+*.py[cod]
+*$py.class
+build/
+dist/
+*.egg-info/
+*.egg
+venv/
+env/
+.venv/
+
+# IDE и системные файлы
+.idea/
+.vscode/
+*.DS_Store
+Thumbs.db
+
+# Другой мусор или специфичные для проекта файлы
+# logs/
+# *.log
+# tmp/

@@ -1,0 +1,30 @@
+project/
+├── bot_adapter/
+│   └── telegram_bot.py
+├── http_adapter/
+│   ├── webhook_server.py
+│   └── oauth_callback_handler.py
+├── usecases/
+│   ├── parse_resume.py
+│   ├── parse_vacancy.py
+│   ├── gap_analysis.py
+│   ├── rewrite_resume.py
+│   ├── update_resume.py
+│   └── run_pipeline.py
+├── domain/
+│   ├── dto.py
+│   ├── user_state.py
+│   └── services.py
+├── llm/
+│   ├── gap_analyzer.py
+│   ├── resume_rewriter.py
+│   └── prompts.py
+├── infra/
+│   ├── hh_client.py
+│   ├── token_storage.py
+│   ├── user_state_storage.py
+│   └── database.py
+├── config.py
+├── container.py
+├── main.py
+└── requirements.txt
