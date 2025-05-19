@@ -1,0 +1,573 @@
+{
+  "last_name": "Немов",
+  "first_name": "Максим",
+  "middle_name": "Юрьевич",
+  "title": "ML Engineer / NLP Specialist",
+  "created_at": "2025-05-16T08:25:26+0300",
+  "updated_at": "2025-05-18T12:12:48+0300",
+  "area": {
+    "id": "71",
+    "name": "Пенза",
+    "url": "https://api.hh.ru/areas/71"
+  },
+  "age": 34,
+  "gender": {
+    "id": "male",
+    "name": "Мужской"
+  },
+  "salary": {
+    "amount": 230000,
+    "currency": "RUR"
+  },
+  "photo": {
+    "id": "123491316",
+    "small": "https://img.hhcdn.ru/photo/554741834.jpeg?t=1747645968&h=OMgaDkasHBNIFx6UzQV6xQ",
+    "medium": "https://img.hhcdn.ru/photo/554741835.jpeg?t=1747645968&h=mV38xRUNFS9-XdHgdVwE8g",
+    "40": "https://img.hhcdn.ru/photo/554741833.jpeg?t=1747645968&h=FOIY9li7o7Shvq2DGN2PHw",
+    "100": "https://img.hhcdn.ru/photo/554741834.jpeg?t=1747645968&h=OMgaDkasHBNIFx6UzQV6xQ",
+    "500": "https://img.hhcdn.ru/photo/554741835.jpeg?t=1747645968&h=mV38xRUNFS9-XdHgdVwE8g"
+  },
+  "total_experience": {
+    "months": 40
+  },
+  "certificate": [
+    {
+      "owner": null,
+      "type": "custom",
+      "title": "Специализиция \"Data Engineering\"",
+      "achieved_at": "2025-01-01",
+      "url": "https://coursera.org/share/14fa929b753068ffaa46c93f5162843e"
+    },
+    {
+      "owner": null,
+      "type": "custom",
+      "title": "GPT Week от Школы анализа данных",
+      "achieved_at": "2024-01-01",
+      "url": "https://lyceum.s3.yandex.net/gpt_certs/1345_НемовМаксимЮрьевич.pdf?m-message-key-id=-4854880391446593536&m-message-click-id=cc265509-06fa-4272-9a78-db60cc777937&utm_source=mindbox&utm_medium=email&utm_campaign=gptweek23&utm_content=post2612"
+    }
+  ],
+  "hidden_fields": [],
+  "actions": {
+    "download": {
+      "pdf": {
+        "url": "https://api.hh.ru/resumes/6d807532ff0ed6b79f0039ed1f63386d724a62/download/%D0%9D%D0%B5%D0%BC%D0%BE%D0%B2%20%D0%9C%D0%B0%D0%BA%D1%81%D0%B8%D0%BC%20%D0%AE%D1%80%D1%8C%D0%B5%D0%B2%D0%B8%D1%87.pdf?type=pdf"
+      },
+      "rtf": {
+        "url": "https://api.hh.ru/resumes/6d807532ff0ed6b79f0039ed1f63386d724a62/download/%D0%9D%D0%B5%D0%BC%D0%BE%D0%B2%20%D0%9C%D0%B0%D0%BA%D1%81%D0%B8%D0%BC%20%D0%AE%D1%80%D1%8C%D0%B5%D0%B2%D0%B8%D1%87.rtf?type=rtf"
+      }
+    }
+  },
+  "alternate_url": "https://hh.ru/resume/6d807532ff0ed6b79f0039ed1f63386d724a62",
+  "id": "6d807532ff0ed6b79f0039ed1f63386d724a62",
+  "download": {
+    "pdf": {
+      "url": "https://api.hh.ru/resumes/6d807532ff0ed6b79f0039ed1f63386d724a62/download/%D0%9D%D0%B5%D0%BC%D0%BE%D0%B2%20%D0%9C%D0%B0%D0%BA%D1%81%D0%B8%D0%BC%20%D0%AE%D1%80%D1%8C%D0%B5%D0%B2%D0%B8%D1%87.pdf?type=pdf"
+    },
+    "rtf": {
+      "url": "https://api.hh.ru/resumes/6d807532ff0ed6b79f0039ed1f63386d724a62/download/%D0%9D%D0%B5%D0%BC%D0%BE%D0%B2%20%D0%9C%D0%B0%D0%BA%D1%81%D0%B8%D0%BC%20%D0%AE%D1%80%D1%8C%D0%B5%D0%B2%D0%B8%D1%87.rtf?type=rtf"
+    }
+  },
+  "platform": {
+    "id": "headhunter"
+  },
+  "employment_form": {
+    "id": "full",
+    "name": "Полная занятость"
+  },
+  "fly_in_fly_out_duration": [],
+  "internship": null,
+  "night_shifts": null,
+  "ready_for_temporary_job": null,
+  "work_format": [],
+  "working_hours": [],
+  "work_schedule_by_days": [],
+  "resume_locale": {
+    "id": "RU",
+    "name": "Русский"
+  },
+  "skills": "Специалист с глубокими знаниями в области NLP и LLM, включая методы fine-tuning и разработку RAG-систем, владеющий PyTorch на уровне опытного пользователя. Имеется практический опыт промышленного внедрения ML-моделей с использованием MLOps методологий, CI/CD пайплайнов и Docker-контейнеризации. Хорошо знаком с управлением командой и организацией рабочих процессов data science проектов, а также с использованием CUDA и NVIDIA GPU для оптимизации инференса. Эксперт в применении статистики, теории вероятностей и методик валидации моделей, включая RAGAS.",
+  "citizenship": [
+    {
+      "id": "113",
+      "name": "Россия",
+      "url": "https://api.hh.ru/areas/113"
+    }
+  ],
+  "work_ticket": [
+    {
+      "id": "113",
+      "name": "Россия",
+      "url": "https://api.hh.ru/areas/113"
+    }
+  ],
+  "access": {
+    "type": {
+      "id": "clients",
+      "name": "Видно всем работодателям, зарегистрированным на hh.ru"
+    }
+  },
+  "birth_date": "1990-08-14",
+  "contact": [
+    {
+      "value": {
+        "country": "7",
+        "city": "987",
+        "number": "5056990",
+        "formatted": "+7 (987) 505-69-90"
+      },
+      "type": {
+        "id": "cell",
+        "name": "Мобильный телефон"
+      },
+      "preferred": false,
+      "comment": null,
+      "need_verification": false,
+      "verified": true
+    },
+    {
+      "type": {
+        "id": "email",
+        "name": "Эл. почта"
+      },
+      "value": "angers07@mail.ru",
+      "preferred": true
+    }
+  ],
+  "education": {
+    "level": {
+      "id": "higher",
+      "name": "Высшее"
+    },
+    "primary": [
+      {
+        "id": "372473418",
+        "name": "Пензенский государственный университет, Пенза",
+        "organization": "Факультет приборостроения, информационных технологий и систем",
+        "result": "Автоматизация технологических процессов и производств (по отраслям)",
+        "year": 2016,
+        "university_acronym": "ПГУ",
+        "name_id": "40913",
+        "organization_id": "26195",
+        "result_id": null,
+        "education_level": {
+          "id": "higher",
+          "name": "Высшее"
+        }
+      }
+    ],
+    "additional": [
+      {
+        "id": "105064155",
+        "name": "Специализация \"Data Engineering\"",
+        "organization": "Couresra | AWS",
+        "result": "\"Data Engineering\"",
+        "year": 2025
+      },
+      {
+        "id": "105064156",
+        "name": "ChatGPT PROFESSIONAL",
+        "organization": "Университет искусственного интеллекта",
+        "result": "Инженер AI ",
+        "year": 2024
+      },
+      {
+        "id": "105064157",
+        "name": "LangChain Professional",
+        "organization": "Udemy",
+        "result": null,
+        "year": 2024
+      },
+      {
+        "id": "105064158",
+        "name": "LlamaIndex Professional",
+        "organization": "Udemy",
+        "result": null,
+        "year": 2024
+      },
+      {
+        "id": "105064159",
+        "name": "Vector DataBase Master",
+        "organization": "Udemy",
+        "result": null,
+        "year": 2024
+      },
+      {
+        "id": "105064160",
+        "name": "API ChatGPT Professional",
+        "organization": "Udemy",
+        "result": null,
+        "year": 2024
+      },
+      {
+        "id": "105064161",
+        "name": "Prompt Engineering for ChatGPT (Coursera)",
+        "organization": "Университет Вандербильта",
+        "result": "Инженер запросов",
+        "year": 2023
+      }
+    ],
+    "attestation": [],
+    "elementary": []
+  },
+  "employment": {
+    "id": "full",
+    "name": "Полная занятость"
+  },
+  "employments": [
+    {
+      "id": "full",
+      "name": "Полная занятость"
+    },
+    {
+      "id": "part",
+      "name": "Частичная занятость"
+    },
+    {
+      "id": "project",
+      "name": "Проектная работа"
+    }
+  ],
+  "experience": [
+    {
+      "start": "2024-05-01",
+      "end": null,
+      "company": "Союзснаб",
+      "company_id": "2288",
+      "industry": null,
+      "industries": [
+        {
+          "id": "34.417",
+          "name": "Агрохимия (продвижение, оптовая торговля)"
+        },
+        {
+          "id": "27.563",
+          "name": "Корма для животных (продвижение, оптовая торговля)"
+        },
+        {
+          "id": "27.562",
+          "name": "Корма для животных (производство)"
+        },
+        {
+          "id": "29.533",
+          "name": "Сельскохозяйственная продукция (продвижение, оптовая торговля)"
+        },
+        {
+          "id": "29.531",
+          "name": "Земледелие, растениеводство, животноводство"
+        }
+      ],
+      "area": {
+        "id": "1",
+        "name": "Москва",
+        "url": "https://api.hh.ru/areas/1"
+      },
+      "company_url": "http://www.ssnab.ru/",
+      "employer": {
+        "id": "2288",
+        "name": "Союзснаб",
+        "url": "https://api.hh.ru/employers/2288",
+        "alternate_url": "https://hh.ru/employer/2288",
+        "logo_urls": {
+          "240": "https://img.hhcdn.ru/employer-logo/6207054.png",
+          "90": "https://img.hhcdn.ru/employer-logo/6207053.png",
+          "original": "https://img.hhcdn.ru/employer-logo-original/1146622.png"
+        }
+      },
+      "position": "AI Engineer",
+      "description": "Проект: Telegram-бот для автоматизации поздравлений сотрудников с использованием синтеза речи на базе Yandex SpeechKit. Технологии: Python, Telegram API, Pymorphy2, Yandex SpeechKit.\n\nЗадача: Автоматизация процесса создания персонализированных голосовых поздравлений для сокращения затрат времени и повышения точности.\n\nРеализация: Разрабатывал бота, способного автоматически генерировать аудио-поздравления с грамматической обработкой имён. Интеграция с корпоративными системами для передачи сообщений прямо пользователям.\n\nРезультат: Сократил время генерации поздравлений с нескольких часов до нескольких секунд, обеспечил выполнение до 100 поздравлений в день, повысил качество коммуникации за счёт устранения ошибок."
+    },
+    {
+      "start": "2023-08-01",
+      "end": "2024-05-01",
+      "company": "Онлайн-школа астрологии Ирины Чайки",
+      "company_id": null,
+      "industry": null,
+      "industries": [
+        {
+          "id": "39.444",
+          "name": "Бизнес-образование"
+        }
+      ],
+      "area": null,
+      "company_url": null,
+      "employer": null,
+      "position": "AI Engineer",
+      "description": "Проект: Корпоративный интеллектуальный поиск и автоответчик на основе LLM с применением PyTorch для обучения моделей и LangChain для оркестрации.\n\nТехнологии: Python, PyTorch, Hugging Face Transformers, LangChain, LangGraph, semantic_router, Ollama, vLLM, Chroma, Pinecone, Docker, NVIDIA GPU.\n\nЗадача: Разработка системы точного семантического роутинга и генерации ответов сотрудникам на основе внутренней документации с высокой точностью и масштабируемостью.\n\nРеализация: Построил ансамбль локальных LLM-моделей (Llama 3 7B и 70B) с использованием PyTorch, дообучивал эмбеддинги на размеченной обратной связи, внедрил голосующий механизм для повышения точности выбора документов. Организовал CI/CD пайплайн и развернул систему в контейнерах Docker с MLOps практиками.\n\nРезультаты: Повысил точность семантического роутинга на ~40%, сократил ошибки в выборке файлов на 50%, внедрил решение в 4 отделах, обеспечив высокую масштабируемость и поддержку."
+    },
+    {
+      "start": "2022-07-01",
+      "end": "2023-07-01",
+      "company": "ХО",
+      "company_id": null,
+      "industry": null,
+      "industries": [],
+      "area": null,
+      "company_url": null,
+      "employer": null,
+      "position": "AI Engineer",
+      "description": "Проект: Чат-боты-кураторы на базе LLM для автоматизации проверки домашних заданий и системы автоматического аудита телефонных звонков.\n\nТехнологии: Python, PyTorch, GPT-4, GPT-3.5, Pinecone, LangChain, LlamaIndex, Pymorphy2, Prompt Engineering (CoT, ToT, Self-Reflection, Decomposition), Docker.\n\nЗадача: Автоматизировать проверку заданий и аудиты вызовов, повысить точность и скорость обработки.\n\nРеализация: Разработал несколько чат-ботов с гибридной системой поиска и продвинутыми методами промпт-инженерии. Обеспечил дообучение моделей GPT-3.5 на специализированных данных. Организовал промышленные пайплайны с CI/CD для постоянного улучшения качества.\n\nРезультаты: Сократили время проверки на 30%, обеспечили оперативную и стабильную обратную связь, повысили качество клиентского обслуживания и объективность аудита."
+    },
+    {
+      "start": "2022-03-01",
+      "end": "2023-05-01",
+      "company": "wizard24.ru",
+      "company_id": null,
+      "industry": null,
+      "industries": [],
+      "area": null,
+      "company_url": null,
+      "employer": null,
+      "position": "AI Engineer",
+      "description": "Проект: Разработка и внедрение RAG-системы для астрологической школы с высоким качеством ответов и валидацией модели.\n\nТехнологии: Python, LangChain, LlamaIndex, GPT-4, PyTorch, RAGAS, Pandas, Chroma, Pinecone, vLLM, PyMuPDF.\n\nЗадача: Автоматизировать ответы на вопросы студентов с минимизацией галлюцинаций за счет глубокого индексирования и валидации ответов.\n\nРеализация: Построил семантическую структуру корпуса, реализовал многоуровневый семантический роутинг, интегрировал этапы валидации качества ответов с помощью фреймворка RAGAS в CI-процесс. Результаты анализа позволили оптимизировать retriever и повысить достоверность генераций.\n\nРезультаты: Время ответа сокращено до одной минуты, значительно улучшилась релевантность и качество информации, внедрена метрика RAGAS для контроля качества в промышленной эксплуатации."
+    },
+    {
+      "start": "2022-02-01",
+      "end": "2023-02-01",
+      "company": "Zaochnik.com",
+      "company_id": "676546",
+      "industry": null,
+      "industries": [],
+      "area": {
+        "id": "1002",
+        "name": "Минск",
+        "url": "https://api.hh.ru/areas/1002"
+      },
+      "company_url": "http://zaochnik.com",
+      "employer": {
+        "id": "676546",
+        "name": "Zaochnik.com",
+        "url": "https://api.hh.ru/employers/676546",
+        "alternate_url": "https://hh.ru/employer/676546",
+        "logo_urls": null
+      },
+      "position": "Контент-менеджер / Автор научных работ",
+      "description": "Должность: Контент-менеджер и автор студенческих работ (2022-2023). Ответственность: Создание и редактирование профессиональных текстов, разработка маркетинговых стратегий, контроль качества материалов.\n\nДополнил опыт управления контентом и коммуникацией, что улучшает навыки междисциплинарного взаимодействия и проектного управления при работе с командами ML-инженеров.\n\nОпыт авторства научных работ обеспечил внимательность к деталям и аналитический подход, важный для разработки и документирования сложных ML-проектов."
+    }
+  ],
+  "language": [
+    {
+      "id": "rus",
+      "name": "Русский",
+      "level": {
+        "id": "l1",
+        "name": "Родной"
+      }
+    },
+    {
+      "id": "eng",
+      "name": "Английский",
+      "level": {
+        "id": "a1",
+        "name": "A1 — Начальный"
+      }
+    },
+    {
+      "id": "ita",
+      "name": "Итальянский",
+      "level": {
+        "id": "a1",
+        "name": "A1 — Начальный"
+      }
+    }
+  ],
+  "metro": null,
+  "moderation_note": [],
+  "recommendation": [],
+  "relocation": {
+    "type": {
+      "id": "no_relocation",
+      "name": "не могу переехать"
+    },
+    "area": [],
+    "district": []
+  },
+  "schedule": {
+    "id": "fullDay",
+    "name": "Полный день"
+  },
+  "schedules": [
+    {
+      "id": "fullDay",
+      "name": "Полный день"
+    },
+    {
+      "id": "flexible",
+      "name": "Гибкий график"
+    },
+    {
+      "id": "remote",
+      "name": "Удаленная работа"
+    }
+  ],
+  "site": [
+    {
+      "type": {
+        "id": "personal",
+        "name": "Другой сайт"
+      },
+      "url": "https://t.me/dizilx"
+    },
+    {
+      "type": {
+        "id": "skype",
+        "name": "Skype"
+      },
+      "url": "https://github.com/Maskedxxx"
+    }
+  ],
+  "travel_time": {
+    "id": "any",
+    "name": "Не имеет значения"
+  },
+  "business_trip_readiness": {
+    "id": "ready",
+    "name": "готов к командировкам"
+  },
+  "next_publish_at": "2025-05-18T16:12:48+0300",
+  "can_publish_or_update": false,
+  "publish_url": "https://api.hh.ru/resumes/6d807532ff0ed6b79f0039ed1f63386d724a62/publish",
+  "paid_services": [
+    {
+      "id": "resume_autoupdating",
+      "name": "Автоподнятие резюме",
+      "active": false
+    },
+    {
+      "id": "resume_marked",
+      "name": "Яркое резюме",
+      "active": false
+    }
+  ],
+  "finished": true,
+  "blocked": false,
+  "status": {
+    "id": "published",
+    "name": "опубликовано"
+  },
+  "portfolio": [],
+  "skill_set": [
+    "PyTorch",
+    "Hugging Face Transformers",
+    "LangChain",
+    "Chroma",
+    "Pinecone",
+    "Docker",
+    "NVIDIA GPU",
+    "CI/CD",
+    "MLOps",
+    "Fine-tuning LLM",
+    "RAG (Retrieval-Augmented Generation)",
+    "RAGAS (методология валидации)",
+    "Statistical Analysis",
+    "Probability Theory",
+    "Prompt Engineering",
+    "GPT-4",
+    "GPT-3.5",
+    "Python",
+    "JSON API",
+    "NLP",
+    "Machine Learning",
+    "Deep Learning",
+    "Team Leadership",
+    "Project management",
+    "Semantic Routing",
+    "Vector Databases"
+  ],
+  "has_vehicle": true,
+  "driver_license_types": [
+    {
+      "id": "B"
+    }
+  ],
+  "specialization": [],
+  "professional_roles": [
+    {
+      "id": "165",
+      "name": "Дата-сайентист"
+    },
+    {
+      "id": "96",
+      "name": "Программист, разработчик"
+    },
+    {
+      "id": "107",
+      "name": "Руководитель проектов"
+    }
+  ],
+  "tags": [],
+  "progress": {
+    "percentage": 88,
+    "mandatory": [],
+    "recommended": [
+      {
+        "id": "working_hours",
+        "name": "Рабочие часы в день"
+      },
+      {
+        "id": "portfolio",
+        "name": "Портфолио"
+      },
+      {
+        "id": "work_format",
+        "name": "Формат работы"
+      },
+      {
+        "id": "district",
+        "name": "Район проживания"
+      },
+      {
+        "id": "fly_in_fly_out_duration",
+        "name": "Варианты длительности вахты"
+      },
+      {
+        "id": "education",
+        "name": "Образование"
+      },
+      {
+        "id": "internship",
+        "name": "Стажировка"
+      },
+      {
+        "id": "night_shifts",
+        "name": "Вечерние или ночные смены"
+      },
+      {
+        "id": "hidden_fields",
+        "name": "Список скрытых полей"
+      },
+      {
+        "id": "work_schedule_by_days",
+        "name": "График работы"
+      },
+      {
+        "id": "ready_for_temporary_job",
+        "name": "Готов ко временной работе"
+      },
+      {
+        "id": "recommendation",
+        "name": "Рекомендации"
+      }
+    ]
+  },
+  "_progress": {
+    "percentage": 88,
+    "mandatory": [],
+    "recommended": [
+      "working_hours",
+      "portfolio",
+      "work_format",
+      "district",
+      "fly_in_fly_out_duration",
+      "education",
+      "internship",
+      "night_shifts",
+      "hidden_fields",
+      "work_schedule_by_days",
+      "ready_for_temporary_job",
+      "recommendation"
+    ]
+  },
+  "total_views": 1,
+  "new_views": 1,
+  "views_url": "https://api.hh.ru/resumes/6d807532ff0ed6b79f0039ed1f63386d724a62/views"
+}
