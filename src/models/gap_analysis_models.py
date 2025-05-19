@@ -1,19 +1,65 @@
-# src/models/gap_analysis_models.py
+from typing import List, Optional, Literal
 from pydantic import BaseModel, Field
-from typing import List
 
-class Recommendation(BaseModel):
-    """Модель рекомендации по улучшению резюме"""
-    section: str = Field(..., description="Name of the section to which the recommendation applies (enum: 'title', 'skills', 'skill_set', 'experience', 'professional_roles')")
-    recommendation_type: str = Field(..., description="Type of recommendation (enum: 'add', 'update', 'remove')")
-    details: List[str] = Field(..., description="Detailed and precise description of step-by-step necessary changes (updates) in the summary, according to the GAP-analysis instructions. PS: minimum 3 item")
+class ModificationInstruction(BaseModel):
+    """
+    Конкретная инструкция по изменению для фрагмента описания опыта.
+    """
+    action: Literal["ADD", "UPDATE", "DELETE", "HIGHLIGHT"] = Field(..., 
+        description="Тип действия: ADD (добавить новую информацию), UPDATE (изменить существующую информацию), DELETE (удалить информацию), HIGHLIGHT (сделать акцент, подчеркнуть существующую релевантную информацию при переписывании)."
+    )
+    target_description_fragment: Optional[str] = Field(None, 
+        description="(Если применимо) Фрагмент оригинального описания, к которому относится инструкция. Поможет второму LLM точнее понять контекст."
+    )
+    instruction_details: str = Field(..., 
+        description="Четкое и подробное описание того, ЧТО ИМЕННО нужно сделать. Например: 'Добавь информацию об использовании Python и FastAPI для разработки API, которое обрабатывало X запросов в секунду' или 'Удали упоминание о поддержке устаревшей системы Y, так как это нерелевантно'."
+    )
+    vacancy_relevance_reason: str = Field(...,
+        description="Обоснование: почему это изменение необходимо сделать в контексте данной вакансии (например, 'Вакансия требует опыт с FastAPI и высоконагруженными системами' или 'Это нерелевантно для данной вакансии и отвлекает внимание')."
+    )
+
+class ExperienceRecommendationsReport(BaseModel):
+    """
+    Отчет с рекомендациями по адаптации для одного места работы в резюме.
+    """
+    experience_identifier: str = Field(..., 
+        description="Идентификатор опыта работы из резюме (например, 'Название Компании - Должность'). Этот идентификатор должен быть сформирован и передан LLM в отформатированном резюме."
+    )
+    original_description: str = Field(...,
+        description="Оригинальное описание данного опыта работы из резюме (передается для контекста второму LLM)."
+    )
+    overall_assessment: str = Field(...,
+        description="Общая оценка релевантности этого опыта для вакансии и ключевая стратегия его адаптации (например, 'Этот опыт очень релевантен, но нужно детализировать использованный стек и количественные результаты' или 'Опыт мало релевантен, сфокусироваться только на передаваемых навыках X и Y, сократив остальное')."
+    )
+    modification_instructions: List[ModificationInstruction] = Field(...,
+        description="Список конкретных инструкций по изменению оригинального описания данного опыта для другого LLM-агента, который будет выполнять фактическое переписывание."
+    )
+
+class ResumeTailoringAnalysis(BaseModel):
+    """
+    Структурированный ОТЧЕТ для адаптации резюме под вакансию.
+    Этот отчет будет использоваться другим LLM-агентом для фактического переписывания.
+    """
+    suggested_resume_title: str = Field(..., 
+        description="Предлагаемый заголовок для резюме (поле 'Желаемая должность'), точно соответствующий названию или сути вакансии."
+    )
     
+    # Для 'Описание навыков' (skills) и 'Ключевые навыки' (skill_set) можно оставить прямые предложения,
+    # так как их переписывание менее контекстно зависимо от конкретных фраз, чем опыт.
+    # Либо для них тоже можно сделать инструкции, если хотите полной унификации.
+    # Пока оставим как прямые предложения:
+    suggested_skills_description_for_rewriter: str = Field(..., 
+        description="Предлагаемый текст для раздела 'Описание навыков' (общее summary). Должен быть убедительным, 'продающим' и отражать стек технологий, проекты и общий опыт в контексте требований вакансии. Этот текст может быть использован как основа для переписывания вторым LLM."
+    )
+    
+    suggested_skill_set_for_rewriter: List[str] = Field(..., 
+        description="Рекомендуемый список ключевых навыков (для поля 'Ключевые навыки'). Должен включать основные навыки, требуемые в вакансии, и исключать нерелевантные из текущего резюме."
+    )
+    
+    experience_reports: List[ExperienceRecommendationsReport] = Field(...,
+        description="Список отчетов с инструкциями по адаптации для КАЖДОГО блока опыта работы из резюме."
+    )
+
     class Config:
         extra = "forbid"
-
-class ResumeGapAnalysis(BaseModel):
-    """Модель результатов gap-анализа резюме"""
-    recommendations: List[Recommendation] = Field(..., description="Cписок рекомендаций по улучшению резюме (Колличевство обьектов если section --> 'Experience' равно их общему количевству представленных в резюме.)")
-    
-    class Config:
-        extra = "forbid"
+        title = "ResumeTailoringAnalysisReport"

@@ -5,8 +5,9 @@ from openai import OpenAI
 from pydantic import ValidationError
 
 from src.llm_update_resume.config import settings
-from src.models.gap_analysis_models import ResumeGapAnalysis
+from src.models.gap_analysis_models import ResumeTailoringAnalysis
 from src.models.resume_update_models import ResumeUpdate
+from src.llm_update_resume.formatter import format_resume_for_rewrite, format_gap_analysis_report_for_rewriter
 
 logger = logging.getLogger("llm_resume_updater")
 
@@ -19,7 +20,7 @@ class LLMResumeUpdater:
         self.client = OpenAI(api_key=self.config.api_key)
         self.model = self.config.model_name
     
-    def _create_final_rewrite_prompt(self, parsed_resume: Dict[str, Any], gap_result: ResumeGapAnalysis) -> str:
+    def _create_final_rewrite_prompt(self, parsed_resume: Dict[str, Any], gap_result: ResumeTailoringAnalysis) -> str:
         """
         Создает промпт для финального переписывания резюме.
         
@@ -30,26 +31,32 @@ class LLMResumeUpdater:
         Returns:
             str: Текст промпта
         """
+        # Форматируем данные резюме и результаты gap-анализа для улучшения промпта
+        formatted_resume = format_resume_for_rewrite(parsed_resume)
+        formatted_gap_analysis = format_gap_analysis_report_for_rewriter(gap_result)
+        
         return f"""
-        Перепиши резюме, учитывая результаты GAP-анализа.
+        # ЗАДАЧА: УЛУЧШЕНИЕ РЕЗЮМЕ НА ОСНОВЕ GAP-АНАЛИЗА
         
-        Данные текущего резюме:
-        {parsed_resume}
+        Твоя задача - переписать резюме соискателя, учитывая рекомендации из GAP-анализа, чтобы повысить его шансы на получение желаемой позиции.
         
-        Результаты GAP-анализа:
-        {gap_result.model_dump()}
+        {formatted_resume}
         
-        Выполни следующие задачи:
-        1. Измени заголовок резюме (title) в соответствии с рекомендациями
-        2. Улучши описание навыков (skills) и список ключевых навыков (skill_set)
-        3. Перепиши опыт работы (experience) согласно рекомендациям
-        4. Обнови список профессиональных ролей (professional_roles) при необходимости
+        {formatted_gap_analysis}
         
-        Пожалуйста, используй профессиональный деловой стиль в описаниях.
-        Перепиши ТОЛЬКО разделы, указанные в GAP-анализе, без изменения структуры резюме.
+        ## ИНСТРУКЦИИ ПО УЛУЧШЕНИЮ
         
-        Возврати ответ в формате JSON, соответствующий следующей структуре:
-        ```
+        1. Переработай каждый раздел резюме согласно рекомендациям выше
+        2. Сохрани структуру и количество элементов опыта работы - их должно быть столько же, сколько в исходном резюме
+        3. Используй профессиональный деловой стиль в описаниях
+        4. Сфокусируйся на конкретных достижениях и релевантном опыте
+        5. Используй ключевые слова из рекомендаций
+        
+        ## ФОРМАТ ОТВЕТА
+        
+        Верни ответ строго в формате JSON, соответствующий структуре Pydantic модели ResumeUpdate:
+        
+        ```json
         {{
             "title": "Обновленная должность",
             "skills": "Обновленное описание навыков...",
@@ -69,10 +76,11 @@ class LLMResumeUpdater:
             ]
         }}
         ```
-        ВАЖНО: В разделе "experience" должно быть РОВНО столько же объектов, сколько их в исходном резюме!
+        
+        ВАЖНО: Раздел "experience" должен содержать ровно {len(parsed_resume.get('experience', []))} объектов - столько же, сколько в исходном резюме.
         """
     
-    async def update_resume(self, parsed_resume: Dict[str, Any], gap_result: ResumeGapAnalysis) -> Optional[ResumeUpdate]:
+    async def update_resume(self, parsed_resume: Dict[str, Any], gap_result: ResumeTailoringAnalysis) -> Optional[ResumeUpdate]:
         """
         Выполняет финальный рерайт резюме, используя результаты GAP-анализа.
         
@@ -92,11 +100,11 @@ class LLMResumeUpdater:
                 {
                     "role": "system",
                     "content": (
-                        "Ты — эксперт HR. Учитывай GAP-анализ и требования вакансии для переписывания резюме. "
-                        "Выполни изменение разделов резюме, указанных в gap-анализе. "
-                        "ЦЕЛЬ результата: переписанные секции резюме выполненные по рекомендациям из gap-анализа. "
-                        "ALWAYS ANSWER IN RUSSIAN, IT'S IMPORTANT! "
-                        "ALWAYS CONSIDER CHANGES IN ALL OBJECTS <experience>"
+                        "Ты — эксперт HR с глубоким пониманием IT-сферы. "
+                        "Твоя задача - улучшить резюме соискателя, учитывая рекомендации из GAP-анализа. "
+                        "Создавай профессиональное резюме, подчеркивающее релевантный опыт и навыки. "
+                        "ВСЕГДА ОТВЕЧАЙ НА РУССКОМ ЯЗЫКЕ! "
+                        "Выполни изменения в резюме точно по указанным рекомендациям, сохраняя структуру исходного резюме."
                     )
                 },
                 {
