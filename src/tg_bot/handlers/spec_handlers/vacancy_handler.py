@@ -65,8 +65,13 @@ async def handle_vacancy_link(message: types.Message, state: FSMContext):
             f"{VACANCY_PREPARATION_MESSAGES['link_accepted']}\n\n"
             f"Получено вакансия с требуемой навыками: {skills_text}...")
         
-        from src.tg_bot.handlers.spec_handlers.gap_analyzer_handler import start_gap_analysis
-        await start_gap_analysis(message, state)
+        # Импортируем здесь чтобы избежать циклических импортов
+        from src.tg_bot.utils.text_constants import COVER_LETTER_MESSAGES
+        from src.tg_bot.utils.keyboards import action_choice_keyboard
+        
+        # Предлагаем выбор действий
+        await message.answer(COVER_LETTER_MESSAGES["choice_prompt"], reply_markup=action_choice_keyboard)
+        await state.set_state(UserState.AUTHORIZED)
                 
     except Exception as e:
         logger.error(f"Ошибка при получении данных вакансии: {e}")

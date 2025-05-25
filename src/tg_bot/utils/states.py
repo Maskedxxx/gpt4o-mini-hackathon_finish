@@ -14,4 +14,6 @@ class UserState(StatesGroup):
     RESUME_PREPARATION = State() # Подготовка данных для обновления резюме
     VACANCY_PREPARATION = State() # Подготовка данных о вакансии
     RESUME_GAP_ANALYZE = State()     # Состояние переписывания резюме
-    RESUME_UPDATE_LLM = State()  # Состояние обновления резюме через LLM
+    COVER_LETTER_GENERATION = State() # Состояние генерации рекомендательного письма
+    INTERVIEW_CHECKLIST_GENERATION = State() # Состояние генерации чек-листа интервью
+    INTERVIEW_SIMULATION_GENERATION = State() # Состояние генерации симуляции интервью

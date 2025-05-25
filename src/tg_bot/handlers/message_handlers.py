@@ -112,3 +112,22 @@ async def handle_vacancy_preparation_message(message: types.Message, state: FSMC
     from src.tg_bot.handlers.spec_handlers.vacancy_handler import handle_vacancy_link
     await handle_vacancy_link(message, state)
     
+async def handle_gap_analysis_button(message: types.Message, state: FSMContext):
+    """Обработчик нажатия кнопки 'GAP-анализ резюме'."""
+    from src.tg_bot.handlers.spec_handlers.gap_analyzer_handler import start_gap_analysis
+    await start_gap_analysis(message, state)
+
+async def handle_cover_letter_button(message: types.Message, state: FSMContext):
+    """Обработчик нажатия кнопки 'Рекомендательное письмо'."""
+    from src.tg_bot.handlers.spec_handlers.cover_letter_handler import start_cover_letter_generation
+    await start_cover_letter_generation(message, state)
+    
+async def handle_interview_checklist_button(message: types.Message, state: FSMContext):
+    """Обработчик нажатия кнопки 'Чек-лист подготовки к интервью'."""
+    from src.tg_bot.handlers.spec_handlers.interview_checklist_handler import start_interview_checklist_generation
+    await start_interview_checklist_generation(message, state)
+    
+async def handle_interview_simulation_button(message: types.Message, state: FSMContext):
+    """Обработчик нажатия кнопки 'Симуляция интервью'."""
+    from src.tg_bot.handlers.spec_handlers.interview_simulation_handler import start_interview_simulation
+    await start_interview_simulation(message, state)

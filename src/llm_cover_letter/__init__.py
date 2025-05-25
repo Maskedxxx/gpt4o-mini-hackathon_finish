@@ -1,0 +1,2 @@
+from src.llm_cover_letter.config import settings
+from src.llm_cover_letter.llm_cover_letter_generator import LLMCoverLetterGenerator
