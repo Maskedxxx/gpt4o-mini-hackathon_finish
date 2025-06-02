@@ -3,7 +3,8 @@ import logging
 from pydantic import ConfigDict
 from src.config import BaseAppSettings
 
-logger = logging.getLogger("llm_gap_analyzer")
+from src.utils import get_logger
+logger = get_logger()
 
 class OpenAIConfig(BaseAppSettings):
     """

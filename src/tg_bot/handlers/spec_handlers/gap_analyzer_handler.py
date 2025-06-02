@@ -9,7 +9,8 @@ from src.tg_bot.utils import authorized_keyboard
 from src.llm_gap_analyzer import LLMGapAnalyzer
 from src.models.gap_analysis_models import ResumeTailoringAnalysis
 
-logger = logging.getLogger("gap_analyzer_handler")
+from src.utils import get_logger
+logger = get_logger()
 
 # Создаем экземпляр анализатора
 llm_analyzer = LLMGapAnalyzer()

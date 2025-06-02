@@ -1,22 +1,17 @@
 # src/callback_local_server/main.py
+
+### ЛОГИРОВАНИЕ ###
+from src.utils import init_logging_from_env, get_logger
+
+# Инициализируем логирование
+init_logging_from_env()
+logger = get_logger()
+
 import uvicorn
 import logging
 from pathlib import Path
 from src.callback_local_server.config import settings
 from src.callback_local_server.server import app
-
-# Настройка логирования
-log_dir = Path("LOGS")
-log_dir.mkdir(exist_ok=True)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s",
-    handlers=[
-        logging.FileHandler(log_dir / "callback_local_server.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger("callback_local_server")
 
 def start_server():
     """Запуск сервера обратного вызова."""

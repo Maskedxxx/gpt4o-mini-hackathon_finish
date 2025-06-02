@@ -9,7 +9,8 @@ from src.tg_bot.utils.text_constants import VACANCY_PREPARATION_MESSAGES
 from src.hh.api_client import HHApiClient
 from src.parsers.vacancy_extractor import VacancyExtractor
 
-logger = logging.getLogger("vacancy_handler")
+from src.utils import get_logger
+logger = get_logger()
 
 # Используем тот же экземпляр экстрактора
 entity_extractor = VacancyExtractor()

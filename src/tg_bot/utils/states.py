@@ -2,7 +2,8 @@
 import logging
 from aiogram.fsm.state import State, StatesGroup
 
-logger = logging.getLogger("states")
+from src.utils import get_logger
+logger = get_logger()
 
 logger.info("Инициализация состояний пользователя")
 class UserState(StatesGroup):

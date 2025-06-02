@@ -16,7 +16,8 @@ from reportlab.pdfbase.pdfmetrics import registerFontFamily
 
 from src.models.interview_simulation_models import InterviewSimulation
 
-logger = logging.getLogger("pdf_generator")
+from src.utils import get_logger
+logger = get_logger()
 
 class InterviewSimulationPDFGenerator:
     """Генератор PDF документов для симуляций интервью."""

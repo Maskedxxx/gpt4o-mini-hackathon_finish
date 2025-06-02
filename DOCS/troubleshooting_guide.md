@@ -325,13 +325,15 @@ sudo swapon /swapfile
 
 ```
 LOGS/
-├── run_bot.log                    # Основной лог бота
-├── callback_local_server.log      # OAuth сервер
-├── hh_api_client.log             # HH API клиент
-├── llm_gap_analyzer.log          # GAP анализ
-├── llm_cover_letter.log          # Cover letter
-├── llm_interview_checklist.log   # Чек-листы
-└── llm_interview_simulation.log  # Симуляция интервью
+├── tg_bot.log                     # Telegram bot
+├── callback_local_server.log      # OAuth сервер  
+├── hh.log                         # HeadHunter API
+├── llm_gap_analyzer.log           # GAP анализатор
+├── llm_cover_letter.log           # Cover letter генератор
+├── llm_interview_checklist.log    # Чек-листы
+├── llm_interview_simulation.log   # Симуляция интервью
+├── parsers.log                    # Парсеры данных
+└── legacy/                        # Ротированные логи
 ```
 
 ### 2. Полезные команды для анализа логов
@@ -341,7 +343,7 @@ LOGS/
 grep -i error LOGS/*.log
 
 # Поиск по пользователю
-grep "user_id=12345" LOGS/*.log
+grep "user_id=12345" LOGS/tg_bot.log
 
 # Последние ошибки
 tail -f LOGS/*.log | grep -i error

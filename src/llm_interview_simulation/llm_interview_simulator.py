@@ -12,7 +12,8 @@ from src.llm_interview_simulation.formatter import (
     format_dialog_history
 )
 
-logger = logging.getLogger("llm_interview_simulator")
+from src.utils import get_logger
+logger = get_logger()
 
 class LLMInterviewSimulator:
     """Сервис для создания симуляции интервью между HR и кандидатом с помощью OpenAI API"""

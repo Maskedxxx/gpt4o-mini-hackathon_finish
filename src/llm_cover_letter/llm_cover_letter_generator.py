@@ -8,8 +8,8 @@ from src.llm_cover_letter.config import settings
 from src.models.cover_letter_models import CoverLetter
 from src.llm_cover_letter.formatter import format_resume_for_cover_letter, format_vacancy_for_cover_letter
 
-logger = logging.getLogger("llm_cover_letter_generator")
-
+from src.utils import get_logger
+logger = get_logger()
 class LLMCoverLetterGenerator:
     """Сервис для создания рекомендательного письма с помощью OpenAI API"""
     

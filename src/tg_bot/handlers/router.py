@@ -7,12 +7,8 @@ from aiogram.filters import StateFilter, Command
 from src.tg_bot.utils.states import UserState
 from src.tg_bot.handlers.command_handlers import cmd_start, cmd_auth
 from src.tg_bot.handlers.message_handlers import handle_interview_simulation_button, handle_interview_checklist_button, handle_gap_analysis_button, handle_cover_letter_button, initial_greeting, handle_initial_message, handle_unauthorized_message, handle_auth_waiting_message, handle_start_button, handle_auth_button, handle_authorized_message, handle_edit_resume_button, handle_resume_preparation_message, handle_vacancy_preparation_message
-
-
-log_dir = Path("LOGS")
-log_dir.mkdir(exist_ok=True)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s", handlers=[logging.FileHandler(log_dir / "router.log"), logging.StreamHandler()])
-logger = logging.getLogger("router")
+from src.utils import get_logger
+logger = get_logger()
 
 
 def register_handlers(dp: Dispatcher):

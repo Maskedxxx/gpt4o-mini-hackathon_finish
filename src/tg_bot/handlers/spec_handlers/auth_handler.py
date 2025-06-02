@@ -11,18 +11,8 @@ from src.tg_bot.utils.text_constants import AUTHORIZED_STATE_MESSAGES
 from src.tg_bot.bot.instance import bot
 from src.hh.token_exchanger import HHCodeExchanger
 from src.callback_local_server.config import settings as callback_settings
-
-log_dir = Path("LOGS")
-log_dir.mkdir(exist_ok=True)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s",
-    handlers=[
-        logging.FileHandler(log_dir / "auth_handler.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger("auth_handler")
+from src.utils import get_logger
+logger = get_logger()
 
 # Инициализация обменщика кодов
 code_exchanger = HHCodeExchanger()

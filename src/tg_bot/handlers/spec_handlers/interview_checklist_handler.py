@@ -9,7 +9,8 @@ from src.tg_bot.utils import authorized_keyboard
 from src.llm_interview_checklist import LLMInterviewChecklistGenerator
 from src.models.interview_checklist_models import InterviewChecklist
 
-logger = logging.getLogger("interview_checklist_handler")
+from src.utils import get_logger
+logger = get_logger()
 
 # Создаем экземпляр генератора
 llm_interview_checklist_generator = LLMInterviewChecklistGenerator()

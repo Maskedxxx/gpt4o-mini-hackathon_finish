@@ -3,8 +3,8 @@ import logging
 from fastapi import FastAPI, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 
-logger = logging.getLogger("callback_local_server")
-
+from src.utils import get_logger
+logger = get_logger()
 app = FastAPI(title = "callback_local_server")
 
 # Сохраняем полученный код

@@ -2,19 +2,8 @@
 import logging
 from pathlib import Path
 from src.hh.config import settings
-
-# Настройка логирования
-log_dir = Path("LOGS")
-log_dir.mkdir(exist_ok=True)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s",
-    handlers=[
-        logging.FileHandler(log_dir / "hh_auth.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger("hh_auth")
+from src.utils import get_logger
+logger = get_logger()
 
 class HHAuthService:
     """Сервис для работы с авторизацией в HH.ru."""

@@ -148,7 +148,7 @@ LOG_LEVEL=INFO
 # Возможные значения: DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # Путь к папке логов (опционально)
-LOGS_PATH=./LOGS
+LOGS_PATH=LOGS
 
 # Ротация логов (опционально)
 LOG_ROTATION=true

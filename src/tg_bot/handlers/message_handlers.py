@@ -20,18 +20,8 @@ from src.tg_bot.utils import (UserState,
 
 from src.hh.auth import HHAuthService
 
-log_dir = Path("LOGS")
-log_dir.mkdir(exist_ok=True)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s",
-    handlers=[
-        logging.FileHandler(log_dir / "message_handlers.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger("message_handlers")
-
+from src.utils import get_logger
+logger = get_logger()
 
 # Создаём экземпляр сервиса
 hh_auth_service = HHAuthService()

@@ -9,7 +9,8 @@ from src.tg_bot.utils import authorized_keyboard
 from src.llm_cover_letter import LLMCoverLetterGenerator
 from src.models.cover_letter_models import CoverLetter
 
-logger = logging.getLogger("cover_letter_handler")
+from src.utils import get_logger
+logger = get_logger()
 
 # Создаем экземпляр генератора
 llm_cover_letter_generator = LLMCoverLetterGenerator()

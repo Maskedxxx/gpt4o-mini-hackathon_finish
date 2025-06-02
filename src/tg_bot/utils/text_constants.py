@@ -1,7 +1,8 @@
 # src/tg_bot/utils/text_constants.py
 import logging
 
-logger = logging.getLogger("text_constants")
+from src.utils import get_logger
+logger = get_logger()
 logger.info("Инициализация словарей с текстами сообщений")
 
 # Сообщения для начального состояния

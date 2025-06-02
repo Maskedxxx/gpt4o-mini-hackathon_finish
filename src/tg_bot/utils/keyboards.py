@@ -2,7 +2,8 @@
 import logging
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-logger = logging.getLogger("keyboards")
+from src.utils import get_logger
+logger = get_logger()
 
 # Клавиатура для начального состояния (только кнопка Старт)
 start_keyboard = ReplyKeyboardMarkup(

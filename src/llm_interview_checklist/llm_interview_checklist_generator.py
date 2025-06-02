@@ -8,7 +8,8 @@ from src.llm_interview_checklist.config import settings
 from src.models.interview_checklist_models import InterviewChecklist
 from src.llm_interview_checklist.formatter import format_resume_for_interview_prep, format_vacancy_for_interview_prep
 
-logger = logging.getLogger("llm_interview_checklist_generator")
+from src.utils import get_logger
+logger = get_logger()
 
 class LLMInterviewChecklistGenerator:
     """Сервис для создания персонализированного чек-листа подготовки к интервью с помощью OpenAI API"""

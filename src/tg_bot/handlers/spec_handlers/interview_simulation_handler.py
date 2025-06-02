@@ -10,7 +10,8 @@ from src.llm_interview_simulation import LLMInterviewSimulator
 from src.llm_interview_simulation.pdf_generator import InterviewSimulationPDFGenerator
 from src.models.interview_simulation_models import InterviewSimulation
 
-logger = logging.getLogger("interview_simulation_handler")
+from src.utils import get_logger
+logger = get_logger()
 
 # Создаем экземпляры сервисов
 llm_interview_simulator = LLMInterviewSimulator()

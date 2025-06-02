@@ -7,7 +7,8 @@ from src.models.resume_models import (
     Relocation, RelocationType, Salary, ProfessionalRole
 )
 
-logger = logging.getLogger("resume_extractor")
+from src.utils import get_logger
+logger = get_logger()
 
 class ResumeExtractor:
     """Класс для извлечения информации из данных резюме и вакансий"""

@@ -440,13 +440,15 @@ class LLMService:
 
 ```
 LOGS/
-├── run_bot.log                    # Основной лог бота
-├── callback_local_server.log      # Лог OAuth сервера
-├── hh_api_client.log             # Лог HH API клиента
-├── llm_gap_analyzer.log          # Лог GAP анализатора
-├── llm_cover_letter.log          # Лог cover letter генератора
-├── llm_interview_checklist.log   # Лог чек-лист генератора
-└── llm_interview_simulation.log  # Лог симулятора интервью
+├── tg_bot.log                     # Telegram bot
+├── callback_local_server.log      # OAuth сервер  
+├── hh.log                         # HeadHunter API
+├── llm_gap_analyzer.log           # GAP анализатор
+├── llm_cover_letter.log           # Cover letter генератор
+├── llm_interview_checklist.log    # Чек-листы
+├── llm_interview_simulation.log   # Симуляция интервью
+├── parsers.log                    # Парсеры данных
+└── legacy/
 ```
 
 ### Метрики
