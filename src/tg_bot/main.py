@@ -4,21 +4,15 @@ import logging
 from pathlib import Path
 from aiogram.fsm.storage.memory import MemoryStorage
 
+### ЛОГИРОВАНИЕ ###
+from src.utils import init_logging_from_env, configure_external_loggers, get_logger
+# Инициализируем логирование
+init_logging_from_env()
+configure_external_loggers()
+logger = get_logger()
+
 from src.tg_bot.bot.instance import bot, dp
 from src.tg_bot.handlers.router import register_handlers
-
-# Настройка логирования: вывод в консоль и в файл
-log_dir = Path("LOGS")
-log_dir.mkdir(exist_ok=True)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s",
-    handlers=[
-        logging.FileHandler(log_dir / "run_bot.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger("run_bot")
 
 
 async def main():

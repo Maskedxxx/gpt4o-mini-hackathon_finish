@@ -9,17 +9,8 @@ from src.tg_bot.handlers.spec_handlers.auth_handler import start_auth_polling
 from src.tg_bot.utils import UserState, UNAUTHORIZED_STATE_MESSAGES, AUTH_WAITING_MESSAGES, auth_keyboard, auth_waiting_keyboard
 from src.hh.auth import HHAuthService
 
-log_dir = Path("LOGS")
-log_dir.mkdir(exist_ok=True)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s",
-    handlers=[
-        logging.FileHandler(log_dir / "command_handlers.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger("command_handlers")
+from src.utils import get_logger
+logger = get_logger()
 
 # Создаём экземпляр сервиса авторизации
 hh_auth_service = HHAuthService()

@@ -5,19 +5,8 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple
 
 from src.hh.token_refresher import HHTokenRefresher
-
-# Настройка логирования
-log_dir = Path("LOGS")
-log_dir.mkdir(exist_ok=True)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s",
-    handlers=[
-        logging.FileHandler(log_dir / "hh_token_manager.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger("hh_token_manager")
+from src.utils import get_logger
+logger = get_logger()
 
 class HHTokenManager:
     """Менеджер для управления токенами доступа HH.ru."""

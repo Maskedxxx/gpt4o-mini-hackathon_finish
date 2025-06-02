@@ -7,7 +7,8 @@ from src.models.vacancy_models import (
     Schedule, Employment
 )
 
-logger = logging.getLogger("vacancy_extractor")
+from src.utils import get_logger
+logger = get_logger()
 
 class VacancyExtractor:
     """Класс для извлечения информации из данных резюме и вакансий"""

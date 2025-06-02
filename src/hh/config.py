@@ -3,8 +3,8 @@ import logging
 from pydantic import ConfigDict
 from src.config import BaseAppSettings
 
-logger = logging.getLogger("hh_config")
-
+from src.utils import get_logger
+logger = get_logger()
 class HHSettings(BaseAppSettings):
     """
     Настройки для сервиса HH.ru.

@@ -1,0 +1,132 @@
+# AI Resume Assistant Bot Dockerfile
+# Python 3.10 slim image for optimal size and performance
+FROM python:3.10-slim
+
+# Metadata
+LABEL maintainer="your-email@example.com"
+LABEL description="AI Resume Assistant Bot - Telegram bot for resume analysis and interview preparation"
+LABEL version="1.0.0"
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install system dependencies and fonts
+RUN apt-get update && apt-get install -y \
+    # Essential system packages
+    curl \
+    ca-certificates \
+    # Fonts for PDF generation with Russian text support
+    fonts-dejavu-core \
+    fonts-dejavu-extra \
+    # Cleanup
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better Docker layer caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY src/ ./src/
+
+# Create directories for logs and fonts
+RUN mkdir -p LOGS fonts \
+    && chown -R appuser:appuser /app
+
+# Set font path for the application
+ENV FONTS_PATH=/usr/share/fonts/truetype/dejavu
+
+# Health check script
+COPY --chown=appuser:appuser <<EOF /app/healthcheck.py
+#!/usr/bin/env python3
+import sys
+import os
+import requests
+from pathlib import Path
+
+def health_check():
+    try:
+        # Check if source code is accessible
+        if not Path('/app/src').exists():
+            print("ERROR: Source code not found")
+            return False
+        
+        # Check if we can import main modules
+        sys.path.append('/app')
+        try:
+            import src.tg_bot.main
+            import src.callback_local_server.main
+        except ImportError as e:
+            print(f"ERROR: Cannot import modules: {e}")
+            return False
+        
+        # For callback server, check if it responds
+        callback_port = os.getenv('CALLBACK_LOCAL_PORT', '8080')
+        try:
+            response = requests.get(f'http://localhost:{callback_port}/health', timeout=5)
+            if response.status_code != 200:
+                print(f"ERROR: Callback server not responding: {response.status_code}")
+                return False
+        except requests.exceptions.RequestException:
+            # It's OK if callback server is not running during build
+            pass
+        
+        print("OK: Health check passed")
+        return True
+    except Exception as e:
+        print(f"ERROR: Health check failed: {e}")
+        return False
+
+if __name__ == "__main__":
+    success = health_check()
+    sys.exit(0 if success else 1)
+EOF
+
+RUN chmod +x /app/healthcheck.py
+
+# Switch to non-root user
+USER appuser
+
+# Expose port for callback server
+EXPOSE 8080
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD python /app/healthcheck.py
+
+# Default command (can be overridden in docker-compose)
+CMD ["python", "-m", "src.tg_bot.main"]
+
+# Multi-stage build option for smaller production image
+# Uncomment below for production deployment with smaller image size
+
+# FROM python:3.10-slim as production
+
+# # Copy only necessary files from builder stage
+# COPY --from=0 /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+# COPY --from=0 /usr/local/bin /usr/local/bin
+# COPY --from=0 /usr/share/fonts/truetype/dejavu /usr/share/fonts/truetype/dejavu
+# COPY --from=0 /app /app
+
+# # Set up user and environment
+# RUN groupadd -r appuser && useradd -r -g appuser appuser
+# WORKDIR /app
+# USER appuser
+
+# ENV PYTHONPATH=/app
+# ENV FONTS_PATH=/usr/share/fonts/truetype/dejavu
+
+# EXPOSE 8080
+# CMD ["python", "-m", "src.tg_bot.main"]

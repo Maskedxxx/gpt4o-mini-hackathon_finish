@@ -8,7 +8,8 @@ from src.llm_gap_analyzer import settings
 from src.models.gap_analysis_models import ResumeTailoringAnalysis
 from src.llm_gap_analyzer.formatter import format_resume_data, format_vacancy_data
 
-logger = logging.getLogger("llm_gap_analyzer")
+from src.utils import get_logger
+logger = get_logger()
 
 
 class LLMGapAnalyzer:

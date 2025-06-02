@@ -10,19 +10,8 @@ from src.tg_bot.utils import RESUME_PREPARATION_MESSAGES, VACANCY_PREPARATION_ME
 from src.hh.api_client import HHApiClient
 from src.parsers.resume_extractor import ResumeExtractor 
 
-
-log_dir = Path("LOGS")
-log_dir.mkdir(exist_ok=True)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s",
-    handlers=[
-        logging.FileHandler(log_dir / "resume_handler.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger("resume_handler")
-
+from src.utils import get_logger
+logger = get_logger()
 # Создаем экземпляр экстрактора
 entity_extractor = ResumeExtractor()
 

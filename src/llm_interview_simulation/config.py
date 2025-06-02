@@ -1,13 +1,14 @@
-# src/llm_update_resume/config.py
+# src/llm_interview_simulation/config.py
 import logging
 from pydantic import ConfigDict
 from src.config import BaseAppSettings
 
-logger = logging.getLogger("llm_resume_updater")
+from src.utils import get_logger
+logger = get_logger()
 
 class OpenAIConfig(BaseAppSettings):
     """
-    Настройки для сервиса OpenAI.
+    Настройки для сервиса OpenAI для симуляции интервью.
     """
     api_key: str
     model_name: str 
