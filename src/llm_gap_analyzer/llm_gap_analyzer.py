@@ -55,25 +55,13 @@ class LLMGapAnalyzer:
             logger.info("LangSmith трейсинг недоступен, используется базовый клиент")
             return base_client
     
-    def _create_gap_analysis_prompt(self, parsed_resume: Dict[str, Any], parsed_vacancy: Dict[str, Any]) -> str:
-        """Создает промпт для gap-анализа с форматированными данными."""
-        formatted_resume = format_resume_data(parsed_resume)
-        formatted_vacancy = format_vacancy_data(parsed_vacancy)
-        
-        logger.debug("Создан промпт для расширенного GAP анализа")
-        
-        return f"""
-# РОЛЬ: Ты — эксперт HR с 10+ летним опытом GAP-анализа резюме в IT-сфере
+    def _create_system_prompt(self) -> str:
+        """Создает системный промпт с полной инструкцией."""
+        return """# РОЛЬ: Ты — эксперт HR с 10+ летним опытом GAP-анализа резюме в IT-сфере
 
 ## КОНТЕКСТ ЗАДАЧИ
 Ты проводишь профессиональный GAP-анализ резюме кандидата относительно конкретной вакансии. 
 Твоя задача — имитировать реальный процесс оценки, который используют опытные рекрутеры.
-
-## ИСХОДНЫЕ ДАННЫЕ
-
-{formatted_resume}
-
-{formatted_vacancy}
 
 ## МЕТОДОЛОГИЯ АНАЛИЗА (следуй строго по этапам)
 
@@ -122,6 +110,11 @@ class LLMGapAnalyzer:
 - Карьерная траектория (рост, стагнация, скачки)
 - Масштаб проектов и ответственности
 
+### Образование:
+- Соответствие специальности требованиям вакансии
+- Актуальность и релевантность дополнительного образования
+- Непрерывное обучение и развитие навыков
+
 ## ФОРМАТ РЕКОМЕНДАЦИЙ
 Для каждой рекомендации указывай:
 1. **Критичность**: КРИТИЧНО / ВАЖНО / ЖЕЛАТЕЛЬНО
@@ -135,8 +128,33 @@ class LLMGapAnalyzer:
 - Давай actionable советы, а не общие рекомендации
 - Приоритизируй рекомендации по влиянию на решение о приглашении
 
-Проведи анализ и верни результат в формате JSON согласно модели EnhancedResumeTailoringAnalysis.
-"""
+Проведи анализ и верни результат в формате JSON согласно модели EnhancedResumeTailoringAnalysis."""
+    
+    def _create_user_prompt(self, parsed_resume: Dict[str, Any], parsed_vacancy: Dict[str, Any]) -> str:
+        """Создает пользовательский промпт с данными в markdown формате."""
+        formatted_resume = format_resume_data(parsed_resume)
+        formatted_vacancy = format_vacancy_data(parsed_vacancy)
+        
+        return f"""<resume_data>
+{formatted_resume}
+</resume_data>
+
+<vacancy_data>
+{formatted_vacancy}
+</vacancy_data>
+
+## ИНСТРУКЦИЯ ДЛЯ GAP-АНАЛИЗА
+
+Проведи профессиональный GAP-анализ по следующим этапам:
+
+1. **ПЕРВИЧНЫЙ СКРИНИНГ** (7-15 секунд)
+2. **КЛАССИФИКАЦИЯ ТРЕБОВАНИЙ** (MUST-HAVE / NICE-TO-HAVE / БОНУСЫ)
+3. **ДЕТАЛЬНЫЙ АНАЛИЗ СООТВЕТСТВИЯ** (для каждого требования)
+4. **ОЦЕНКА КАЧЕСТВА ПРЕЗЕНТАЦИИ** (как подана информация)
+5. **ПРИОРИТИЗИРОВАННЫЕ РЕКОМЕНДАЦИИ** (критичные/важные/желательные)
+6. **ИТОГОВЫЕ ВЫВОДЫ** (процент соответствия, рекомендация по найму)
+
+Результат верни в формате JSON согласно модели EnhancedResumeTailoringAnalysis."""
     
     @traceable(client=ls_client, project_name="llamaindex_test", run_type = "retriever")
     async def gap_analysis(self, parsed_resume: Dict[str, Any], parsed_vacancy: Dict[str, Any]) -> Optional[EnhancedResumeTailoringAnalysis]:
@@ -144,24 +162,19 @@ class LLMGapAnalyzer:
         try:
             logger.info("Начат расширенный GAP анализ резюме с трейсингом")
             
-            # 1. Сформировать промпт для GAP-анализа
-            prompt_text = self._create_gap_analysis_prompt(parsed_resume, parsed_vacancy)
+            # 1. Создаем системный и пользовательский промпты
+            system_prompt = self._create_system_prompt()
+            user_prompt = self._create_user_prompt(parsed_resume, parsed_vacancy)
             
             # 2. Подготовить сообщения для chat-completion
             messages = [
                 {
                     "role": "system",
-                    "content": (
-                        "Ты — эксперт по рекрутингу и HR с глубоким пониманием IT-индустрии. "
-                        "Твоя специализация — профессиональный GAP-анализ резюме с детальными "
-                        "рекомендациями. Всегда отвечай строго в формате JSON согласно "
-                        "указанной структуре EnhancedResumeTailoringAnalysis. Анализ должен быть "
-                        "максимально профессиональным и практичным."
-                    )
+                    "content": system_prompt
                 },
                 {
                     "role": "user",
-                    "content": prompt_text
+                    "content": user_prompt
                 }
             ]
             

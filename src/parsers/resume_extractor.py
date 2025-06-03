@@ -4,7 +4,8 @@ import logging
 from typing import Dict, Any, Optional
 from src.models.resume_models import (
     ResumeInfo, Experience, Language, Level, 
-    Relocation, RelocationType, Salary, ProfessionalRole
+    Relocation, RelocationType, Salary, ProfessionalRole,
+    Education, EducationLevel, PrimaryEducation, AdditionalEducation
 )
 
 from src.utils import get_logger
@@ -21,6 +22,53 @@ class ResumeExtractor:
         if not text:
             return ""
         return re.sub(self._clean_tag_pattern, "", text).strip()
+    
+    def _extract_education(self, data: Dict[str, Any]) -> Optional[Education]:
+        """Извлекает информацию об образовании из данных резюме."""
+        education_data = data.get("education")
+        if not education_data or not isinstance(education_data, dict):
+            return None
+        
+        try:
+            # Уровень образования
+            level = None
+            level_data = education_data.get("level")
+            if level_data and isinstance(level_data, dict):
+                level = EducationLevel(name=level_data.get("name", ""))
+            
+            # Основное образование
+            primary_education = []
+            primary_data = education_data.get("primary", [])
+            for edu in primary_data:
+                if isinstance(edu, dict):
+                    primary_education.append(PrimaryEducation(
+                        name=edu.get("name", ""),
+                        organization=edu.get("organization"),
+                        result=edu.get("result"),
+                        year=edu.get("year")
+                    ))
+            
+            # Дополнительное образование
+            additional_education = []
+            additional_data = education_data.get("additional", [])
+            for edu in additional_data:
+                if isinstance(edu, dict):
+                    additional_education.append(AdditionalEducation(
+                        name=edu.get("name", ""),
+                        organization=edu.get("organization"),
+                        result=edu.get("result"),
+                        year=edu.get("year")
+                    ))
+            
+            return Education(
+                level=level,
+                primary=primary_education,
+                additional=additional_education
+            )
+            
+        except Exception as e:
+            logger.error(f"Ошибка при парсинге образования: {e}")
+            return None
     
     def extract_resume_info(self, data: Dict[str, Any]) -> Optional[ResumeInfo]:
         """
@@ -80,6 +128,9 @@ class ResumeExtractor:
                     professional_roles.append(ProfessionalRole(
                         name=role.get("name", "")
                     ))
+            
+            # Обработка образования
+            education = self._extract_education(data)
                 
             return ResumeInfo(
                 title=data.get("title", ""),
@@ -91,7 +142,8 @@ class ResumeExtractor:
                 languages=languages,
                 relocation=relocation,
                 salary=salary,
-                professional_roles=professional_roles
+                professional_roles=professional_roles,
+                education=education
             )
         except Exception as e:
             logger.error(f"Ошибка при разборе данных резюме: {e}")

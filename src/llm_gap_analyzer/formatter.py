@@ -5,26 +5,26 @@
 
 def format_resume_data(resume_data: dict) -> str:
     """
-    Форматирует данные резюме в читаемый текстовый формат.
+    Форматирует данные резюме в читаемый markdown формат.
     
     Args:
         resume_data: Словарь с данными резюме
         
     Returns:
-        str: Форматированный текст резюме
+        str: Форматированный markdown текст резюме
     """
-    formatted_text = "## РЕЗЮМЕ\n\n"
+    formatted_text = "# РЕЗЮМЕ КАНДИДАТА\n\n"
     
     # Основная информация
-    formatted_text += "### Желаемая должность\n"
+    formatted_text += "## Желаемая должность\n"
     formatted_text += f"{resume_data.get('title', 'Не указана')}\n\n"
     
     # Навыки и компетенции
-    formatted_text += "### Описание навыков\n"
+    formatted_text += "## Описание навыков\n"
     formatted_text += f"{resume_data.get('skills', 'Не указаны')}\n\n"
     
     # Ключевые навыки
-    formatted_text += "### Ключевые навыки\n"
+    formatted_text += "## Ключевые навыки\n"
     skill_set = resume_data.get('skill_set', [])
     if skill_set:
         for skill in skill_set:
@@ -34,7 +34,7 @@ def format_resume_data(resume_data: dict) -> str:
     formatted_text += "\n"
     
     # Опыт работы
-    formatted_text += "### Опыт работы\n"
+    formatted_text += "## Опыт работы\n"
     experience_list = resume_data.get('experience', [])
     if experience_list:
         for i, exp in enumerate(experience_list, 1):
@@ -43,14 +43,66 @@ def format_resume_data(resume_data: dict) -> str:
             end = exp.get('end', 'по настоящее время')
             description = exp.get('description', 'Описание отсутствует')
             
-            formatted_text += f"#### Опыт работы #{i}: {position}\n"
-            formatted_text += f"Период: {start} - {end}\n"
-            formatted_text += f"Описание: {description}\n\n"
+            formatted_text += f"### Опыт работы #{i}: {position}\n"
+            formatted_text += f"**Период:** {start} - {end}\n"
+            formatted_text += f"**Описание:** {description}\n\n"
     else:
         formatted_text += "Опыт работы не указан\n\n"
     
+    # Образование
+    education = resume_data.get('education')
+    if education:
+        formatted_text += "## Образование\n"
+        
+        # Уровень образования
+        level = education.get('level')
+        if level and level.get('name'):
+            formatted_text += f"**Уровень:** {level.get('name')}\n\n"
+        
+        # Основное образование
+        primary = education.get('primary', [])
+        if primary:
+            formatted_text += "### Основное образование\n"
+            for edu in primary:
+                name = edu.get('name', 'Учебное заведение не указано')
+                organization = edu.get('organization', '')
+                result = edu.get('result', '')
+                year = edu.get('year', '')
+                
+                formatted_text += f"**{name}**"
+                if year:
+                    formatted_text += f" ({year})"
+                formatted_text += "\n"
+                
+                if organization:
+                    formatted_text += f"- Факультет/Организация: {organization}\n"
+                if result:
+                    formatted_text += f"- Специальность: {result}\n"
+                formatted_text += "\n"
+        
+        # Дополнительное образование
+        additional = education.get('additional', [])
+        if additional:
+            formatted_text += "### Дополнительное образование и сертификаты\n"
+            for edu in additional:
+                name = edu.get('name', 'Курс не указан')
+                organization = edu.get('organization', '')
+                result = edu.get('result', '')
+                year = edu.get('year', '')
+                
+                formatted_text += f"**{name}**"
+                if year:
+                    formatted_text += f" ({year})"
+                formatted_text += "\n"
+                
+                if organization:
+                    formatted_text += f"- Организация: {organization}\n"
+                if result:
+                    formatted_text += f"- Результат: {result}\n"
+                formatted_text += "\n"
+    
     # Профессиональные роли
-    formatted_text += "### Профессиональные роли\n"
+    formatted_text += "## Профессиональные роли\n"
     roles = resume_data.get('professional_roles', [])
     if roles:
         for role in roles:
@@ -60,7 +112,7 @@ def format_resume_data(resume_data: dict) -> str:
     formatted_text += "\n"
     
     # Дополнительная информация
-    formatted_text += "### Предпочитаемые типы занятости\n"
+    formatted_text += "## Предпочитаемые типы занятости\n"
     employments = resume_data.get('employments', [])
     if employments:
         for employment in employments:
@@ -69,7 +121,7 @@ def format_resume_data(resume_data: dict) -> str:
         formatted_text += "Не указаны\n"
     formatted_text += "\n"
     
-    formatted_text += "### Предпочитаемый график работы\n"
+    formatted_text += "## Предпочитаемый график работы\n"
     schedules = resume_data.get('schedules', [])
     if schedules:
         for schedule in schedules:
@@ -79,7 +131,7 @@ def format_resume_data(resume_data: dict) -> str:
     formatted_text += "\n"
     
     # Языки
-    formatted_text += "### Знание языков\n"
+    formatted_text += "## Знание языков\n"
     languages = resume_data.get('languages', [])
     if languages:
         for lang in languages:
@@ -93,29 +145,29 @@ def format_resume_data(resume_data: dict) -> str:
     # Зарплатные ожидания
     salary = resume_data.get('salary', {})
     if salary and salary.get('amount'):
-        formatted_text += f"### Зарплатные ожидания\n{salary.get('amount')} руб.\n\n"
+        formatted_text += f"## Зарплатные ожидания\n{salary.get('amount')} руб.\n\n"
     
     return formatted_text
 
 
 def format_vacancy_data(vacancy_data: dict) -> str:
     """
-    Форматирует данные вакансии в читаемый текстовый формат.
+    Форматирует данные вакансии в читаемый markdown формат.
     
     Args:
         vacancy_data: Словарь с данными вакансии
         
     Returns:
-        str: Форматированный текст вакансии
+        str: Форматированный markdown текст вакансии
     """
-    formatted_text = "## ВАКАНСИЯ\n\n"
+    formatted_text = "# ОПИСАНИЕ ВАКАНСИИ\n\n"
     
     # Описание вакансии
-    formatted_text += "### Описание вакансии\n"
+    formatted_text += "## Описание вакансии\n"
     formatted_text += f"{vacancy_data.get('description', 'Не указано')}\n\n"
     
     # Ключевые навыки
-    formatted_text += "### Ключевые навыки (требуемые)\n"
+    formatted_text += "## Ключевые навыки (требуемые)\n"
     key_skills = vacancy_data.get('key_skills', [])
     if key_skills:
         for skill in key_skills:
@@ -142,7 +194,7 @@ def format_vacancy_data(vacancy_data: dict) -> str:
         else:
             exp_text = exp_id
             
-        formatted_text += f"### Требуемый опыт работы\n{exp_text}\n\n"
+        formatted_text += f"## Требуемый опыт работы\n{exp_text}\n\n"
     
     # Тип занятости
     employment = vacancy_data.get('employment', {})
@@ -164,7 +216,7 @@ def format_vacancy_data(vacancy_data: dict) -> str:
         else:
             emp_text = emp_id
             
-        formatted_text += f"### Тип занятости\n{emp_text}\n\n"
+        formatted_text += f"## Тип занятости\n{emp_text}\n\n"
     
     # График работы
     schedule = vacancy_data.get('schedule', {})
@@ -186,6 +238,6 @@ def format_vacancy_data(vacancy_data: dict) -> str:
         else:
             sch_text = sch_id
             
-        formatted_text += f"### График работы\n{sch_text}\n\n"
+        formatted_text += f"## График работы\n{sch_text}\n\n"
     
     return formatted_text
