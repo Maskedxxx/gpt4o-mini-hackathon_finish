@@ -55,6 +55,42 @@ class ProfessionalRole(BaseModel):
     class Config:
         extra = "forbid"
 
+class EducationLevel(BaseModel):
+    """Модель уровня образования"""
+    name: str = Field(..., description="Название уровня образования (Высшее, Среднее и т.д.)")
+
+    class Config:
+        extra = "forbid"
+
+class PrimaryEducation(BaseModel):
+    """Модель основного образования (университет, институт)"""
+    name: str = Field(..., description="Название учебного заведения")
+    organization: Optional[str] = Field(None, description="Факультет или организация")
+    result: Optional[str] = Field(None, description="Специальность или квалификация")
+    year: Optional[int] = Field(None, description="Год окончания")
+
+    class Config:
+        extra = "forbid"
+
+class AdditionalEducation(BaseModel):
+    """Модель дополнительного образования (курсы, сертификаты)"""
+    name: str = Field(..., description="Название курса или сертификата")
+    organization: Optional[str] = Field(None, description="Организация, выдавшая сертификат")
+    result: Optional[str] = Field(None, description="Результат или квалификация")
+    year: Optional[int] = Field(None, description="Год получения")
+
+    class Config:
+        extra = "forbid"
+
+class Education(BaseModel):
+    """Модель образования"""
+    level: Optional[EducationLevel] = Field(None, description="Уровень образования")
+    primary: List[PrimaryEducation] = Field(default_factory=list, description="Основное образование")
+    additional: List[AdditionalEducation] = Field(default_factory=list, description="Дополнительное образование")
+
+    class Config:
+        extra = "forbid"
+
 class ResumeInfo(BaseModel):
     """
     Модель данных резюме.
@@ -70,6 +106,7 @@ class ResumeInfo(BaseModel):
         relocation: Информация о релокации
         salary: Зарплатные ожидания
         professional_roles: Список профессиональных ролей
+        education: Образование
     """
     title: str = Field(..., description="Желаемая должность")
     skills: str = Field(..., description="Дополнительная информация, описание навыков в свободной подробной форме")
@@ -81,6 +118,7 @@ class ResumeInfo(BaseModel):
     relocation: Optional[Relocation] = Field(None, description="Информация о релокации")
     salary: Optional[Salary] = Field(None, description="Зарплатные ожидания")
     professional_roles: List[ProfessionalRole] = Field(..., description="Список профессиональных ролей")
+    education: Optional[Education] = Field(None, description="Образование")
 
     class Config:
         extra = "forbid"
