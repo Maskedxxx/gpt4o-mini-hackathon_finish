@@ -33,7 +33,7 @@ class ModulePathFormatter(logging.Formatter):
 
 
 def setup_logging(
-    log_level: str = "INFO",
+    log_level: str = "DEBUG",
     max_bytes: int = 10 * 1024 * 1024,  # 10MB
     backup_count: int = 5,
     logs_dir: str = "LOGS"
@@ -180,7 +180,7 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
 # Функция для инициализации логирования с настройками из переменных окружения
 def init_logging_from_env():
     """Инициализация логирования с настройками из переменных окружения."""
-    log_level = os.getenv('LOG_LEVEL', 'INFO')
+    log_level = os.getenv('LOG_LEVEL', 'DEBUG')
     max_bytes = int(os.getenv('LOG_MAX_BYTES', 10 * 1024 * 1024))  # 10MB по умолчанию
     backup_count = int(os.getenv('LOG_BACKUP_COUNT', 5))
     logs_dir = os.getenv('LOGS_PATH', 'LOGS')
