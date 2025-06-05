@@ -1,4 +1,4 @@
-# src/tg_bot/handlers/message.py
+# src/tg_bot/handlers/message_handlers.py
 
 import logging
 from aiogram import types

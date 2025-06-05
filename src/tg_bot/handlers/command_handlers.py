@@ -1,4 +1,5 @@
-# src/tg_bot/handlers/command.py
+# src/tg_bot/handlers/command_handlers.py
+
 import logging
 from aiogram import types
 from pathlib import Path
