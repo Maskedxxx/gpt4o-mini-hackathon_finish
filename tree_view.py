@@ -30,7 +30,8 @@ DEFAULT_EXCLUDE_PATTERNS = [
     "LOGS",          # Логи приложения
     "tests",            # Тестовые директории
     "DOCS",             # Документация
-    "dejavu-sans"
+    "dejavu-sans",
+    ".pytest_cache"
 ]
 
 # Максимальная глубина по умолчанию (-1 = без ограничений)

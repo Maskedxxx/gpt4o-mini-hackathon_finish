@@ -1,5 +1,5 @@
 # src/models/resume_models.py
-from typing import List, Optional
+from typing import List, Optional, Union
 from pydantic import BaseModel, Field
 
 class Level(BaseModel):
@@ -16,10 +16,56 @@ class RelocationType(BaseModel):
     class Config:
         extra = "forbid"
 
+class Certificate(BaseModel):
+    """Модель сертификата"""
+    title: str = Field(..., description="Название сертификата")
+    url: Optional[str] = Field(None, description="Ссылка на сертификат")
+
+    class Config:
+        extra = "forbid"
+
+class ContactValue(BaseModel):
+    """Модель значения контакта (может быть строкой или объектом с formatted)"""
+    formatted: str = Field(..., description="Отформатированное значение контакта")
+
+    class Config:
+        extra = "forbid"
+
+class ContactType(BaseModel):
+    """Модель типа контакта"""
+    name: str = Field(..., description="Название типа контакта")
+
+    class Config:
+        extra = "forbid"
+
+class Contact(BaseModel):
+    """Модель контактной информации"""
+    type: ContactType = Field(..., description="Тип контакта")
+    value: Union[str, ContactValue] = Field(..., description="Значение контакта (строка или объект)")
+
+    class Config:
+        extra = "forbid"
+
+class SiteType(BaseModel):
+    """Модель типа сайта"""
+    name: str = Field(..., description="Название типа сайта")
+
+    class Config:
+        extra = "forbid"
+
+class Site(BaseModel):
+    """Модель сайта"""
+    type: SiteType = Field(..., description="Тип сайта")
+    url: str = Field(..., description="URL сайта")
+
+    class Config:
+        extra = "forbid"
+
 class Experience(BaseModel):
     """Модель опыта работы"""
     description: str = Field(..., description="Описание опыта работы")
     position: str = Field(..., description="Должность")
+    company: Optional[str] = Field(None, description="Название компании")
     start: Optional[str] = Field(None, description="Дата начала работы")
     end: Optional[str] = Field(None, description="Дата окончания работы")
 
@@ -96,7 +142,11 @@ class ResumeInfo(BaseModel):
     Модель данных резюме.
     
     Attributes:
+        first_name: Имя
+        last_name: Фамилия
+        middle_name: Отчество
         title: Желаемая должность
+        total_experience: Общий опыт работы в месяцах
         skills: Дополнительная информация, описание навыков
         skill_set: Ключевые навыки (список уникальных строк)
         experience: Список опыта работы
@@ -107,8 +157,15 @@ class ResumeInfo(BaseModel):
         salary: Зарплатные ожидания
         professional_roles: Список профессиональных ролей
         education: Образование
+        certificate: Список сертификатов
+        contact: Список контактной информации
+        site: Список сайтов
     """
+    first_name: Optional[str] = Field(None, description="Имя")
+    last_name: Optional[str] = Field(None, description="Фамилия")
+    middle_name: Optional[str] = Field(None, description="Отчество")
     title: str = Field(..., description="Желаемая должность")
+    total_experience: Optional[int] = Field(None, description="Общий опыт работы в месяцах")
     skills: str = Field(..., description="Дополнительная информация, описание навыков в свободной подробной форме")
     skill_set: List[str] = Field(..., description="Ключевые навыки (список уникальных строк)")
     experience: List[Experience] = Field(..., description="Список опыта работы")
@@ -119,6 +176,9 @@ class ResumeInfo(BaseModel):
     salary: Optional[Salary] = Field(None, description="Зарплатные ожидания")
     professional_roles: List[ProfessionalRole] = Field(..., description="Список профессиональных ролей")
     education: Optional[Education] = Field(None, description="Образование")
+    certificate: List[Certificate] = Field(default_factory=list, description="Список сертификатов")
+    contact: List[Contact] = Field(default_factory=list, description="Список контактной информации")
+    site: List[Site] = Field(default_factory=list, description="Список сайтов")
 
     class Config:
         extra = "forbid"

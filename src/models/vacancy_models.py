@@ -30,20 +30,31 @@ class Employment(BaseModel):
     class Config:
         extra = "forbid"
 
+class ProfessionalRole(BaseModel):
+    """Модель профессиональной роли"""
+    name: str = Field(..., description="Название профессиональной роли")
+
+    class Config:
+        extra = "forbid"
+
 class VacancyInfo(BaseModel):
     """
     Модель данных вакансии.
     
     Attributes:
+        name: Название вакансии
         description: Описание вакансии в html
         key_skills: Список ключевых навыков
+        professional_roles: Список требуемых профессиональных ролей
         employment_form: Форма занятости
         experience: Требуемый опыт работы
         schedule: График работы
         employment: Тип занятости
     """
+    name: str = Field(..., description="Название вакансии")
     description: str = Field(..., description="Описание вакансии в html")
     key_skills: List[str] = Field(..., description="Список ключевых навыков")
+    professional_roles: List[ProfessionalRole] = Field(default_factory=list, description="Список требуемых профессиональных ролей")
     employment_form: Optional[EmploymentForm] = Field(None, description="Форма занятости")
     experience: Optional[ExperienceVac] = Field(None, description="Требуемый опыт работы")
     schedule: Optional[Schedule] = Field(None, description="График работы")
