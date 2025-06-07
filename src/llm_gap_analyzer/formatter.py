@@ -15,6 +15,30 @@ def format_resume_data(resume_data: dict) -> str:
     """
     formatted_text = "# РЕЗЮМЕ КАНДИДАТА\n\n"
     
+    # Персональная информация
+    formatted_text += "## Персональная информация\n"
+    first_name = resume_data.get('first_name', '')
+    last_name = resume_data.get('last_name', '')
+    middle_name = resume_data.get('middle_name', '')
+    
+    if first_name or last_name or middle_name:
+        full_name = f"{last_name} {first_name} {middle_name}".strip()
+        formatted_text += f"ФИО: {full_name}\n"
+    else:
+        formatted_text += "ФИО: Не указано\n"
+    
+    # Общий опыт работы
+    total_experience = resume_data.get('total_experience')
+    if total_experience:
+        years = total_experience // 12
+        months = total_experience % 12
+        exp_text = f"{years} лет {months} мес." if years > 0 else f"{months} мес."
+        formatted_text += f"**Общий опыт работы:** {exp_text}\n"
+    else:
+        formatted_text += "**Общий опыт работы:** Не указан\n"
+    
+    formatted_text += "\n"
+    
     # Основная информация
     formatted_text += "## Желаемая должность\n"
     formatted_text += f"{resume_data.get('title', 'Не указана')}\n\n"
@@ -33,19 +57,21 @@ def format_resume_data(resume_data: dict) -> str:
         formatted_text += "Не указаны\n"
     formatted_text += "\n"
     
-    # Опыт работы
+    # Опыт работы (обновлен с учетом company)
     formatted_text += "## Опыт работы\n"
     experience_list = resume_data.get('experience', [])
     if experience_list:
         for i, exp in enumerate(experience_list, 1):
             position = exp.get('position', 'Должность не указана')
+            company = exp.get('company', 'Компания не указана')
             start = exp.get('start', 'Дата не указана')
             end = exp.get('end', 'по настоящее время')
             description = exp.get('description', 'Описание отсутствует')
             
             formatted_text += f"### Опыт работы #{i}: {position}\n"
+            formatted_text += f"**Компания:** {company}\n"
             formatted_text += f"**Период:** {start} - {end}\n"
-            formatted_text += f"**Описание:** {description}\n\n"
+            formatted_text += f"**Описание:**\n {description}\n\n"
     else:
         formatted_text += "Опыт работы не указан\n\n"
     
@@ -101,6 +127,20 @@ def format_resume_data(resume_data: dict) -> str:
                     formatted_text += f"- Результат: {result}\n"
                 formatted_text += "\n"
     
+    # Сертификаты (новый блок)
+    certificates = resume_data.get('certificate', [])
+    if certificates:
+        formatted_text += "## Сертификаты\n"
+        for cert in certificates:
+            title = cert.get('title', 'Название сертификата не указано')
+            url = cert.get('url')
+            
+            if url:
+                formatted_text += f"- **{title}** ([ссылка]({url}))\n"
+            else:
+                formatted_text += f"- **{title}**\n"
+        formatted_text += "\n"
+    
     # Профессиональные роли
     formatted_text += "## Профессиональные роли\n"
     roles = resume_data.get('professional_roles', [])
@@ -110,6 +150,36 @@ def format_resume_data(resume_data: dict) -> str:
     else:
         formatted_text += "Не указаны\n"
     formatted_text += "\n"
+    
+    # Контактная информация (новый блок)
+    contacts = resume_data.get('contact', [])
+    if contacts:
+        formatted_text += "## Контактная информация\n"
+        for contact in contacts:
+            contact_type = contact.get('type', {}).get('name', 'Тип не указан')
+            value = contact.get('value')
+            
+            # Обрабатываем разные типы значений
+            if isinstance(value, dict):
+                contact_value = value.get('formatted', 'Значение не указано')
+            elif isinstance(value, str):
+                contact_value = value
+            else:
+                contact_value = 'Значение не указано'
+            
+            formatted_text += f"- **{contact_type}:** {contact_value}\n"
+        formatted_text += "\n"
+    
+    # Сайты (новый блок)
+    sites = resume_data.get('site', [])
+    if sites:
+        formatted_text += "## Сайты и профили\n"
+        for site in sites:
+            site_type = site.get('type', {}).get('name', 'Тип не указан')
+            url = site.get('url', 'URL не указан')
+            
+            formatted_text += f"- **{site_type}:** {url}\n"
+        formatted_text += "\n"
     
     # Дополнительная информация
     formatted_text += "## Предпочитаемые типы занятости\n"
@@ -162,6 +232,10 @@ def format_vacancy_data(vacancy_data: dict) -> str:
     """
     formatted_text = "# ОПИСАНИЕ ВАКАНСИИ\n\n"
     
+    # Название вакансии (новое поле)
+    formatted_text += "## Название вакансии\n"
+    formatted_text += f"{vacancy_data.get('name', 'Не указано')}\n\n"
+    
     # Описание вакансии
     formatted_text += "## Описание вакансии\n"
     formatted_text += f"{vacancy_data.get('description', 'Не указано')}\n\n"
@@ -175,6 +249,14 @@ def format_vacancy_data(vacancy_data: dict) -> str:
     else:
         formatted_text += "Не указаны\n"
     formatted_text += "\n"
+    
+    # Профессиональные роли (новый блок)
+    professional_roles = vacancy_data.get('professional_roles', [])
+    if professional_roles:
+        formatted_text += "## Требуемые профессиональные роли\n"
+        for role in professional_roles:
+            formatted_text += f"- {role.get('name', '')}\n"
+        formatted_text += "\n"
     
     # Требуемый опыт
     experience = vacancy_data.get('experience', {})

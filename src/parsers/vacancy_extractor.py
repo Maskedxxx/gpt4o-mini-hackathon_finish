@@ -4,14 +4,14 @@ import logging
 from typing import Dict, Any, Optional
 from src.models.vacancy_models import (
     VacancyInfo, EmploymentForm, ExperienceVac, 
-    Schedule, Employment
+    Schedule, Employment, ProfessionalRole
 )
 
 from src.utils import get_logger
 logger = get_logger()
 
 class VacancyExtractor:
-    """Класс для извлечения информации из данных резюме и вакансий"""
+    """Класс для извлечения информации из данных вакансий"""
     
     def __init__(self):
         self._clean_tag_pattern = re.compile(r"<.*?>")
@@ -21,6 +21,19 @@ class VacancyExtractor:
         if not text:
             return ""
         return re.sub(self._clean_tag_pattern, "", text).strip()
+    
+    def _extract_professional_roles(self, data: Dict[str, Any]) -> list[ProfessionalRole]:
+        """Извлекает требуемые профессиональные роли"""
+        professional_roles = []
+        roles_data = data.get("professional_roles", [])
+        
+        for role in roles_data:
+            if isinstance(role, dict):
+                professional_roles.append(ProfessionalRole(
+                    name=role.get("name", "")
+                ))
+        
+        return professional_roles
         
     def extract_vacancy_info(self, data: Dict[str, Any]) -> Optional[VacancyInfo]:
         """
@@ -65,13 +78,18 @@ class VacancyExtractor:
                 if isinstance(employment_data, dict) else None
             )
             
+            # Обработка профессиональных ролей
+            professional_roles = self._extract_professional_roles(data)
+            
             return VacancyInfo(
+                name=data.get("name", ""),  # Новое поле - название вакансии
                 description=self._remove_html_tags(data.get("description", "")),
                 key_skills=[
                     skill.get("name", "") 
                     for skill in data.get("key_skills", [])
                     if isinstance(skill, dict)
                 ],
+                professional_roles=professional_roles,  # Новое поле
                 employment_form=employment_form,
                 experience=experience,
                 schedule=schedule,
