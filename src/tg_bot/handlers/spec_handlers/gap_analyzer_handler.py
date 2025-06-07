@@ -1,5 +1,4 @@
 # src/tg_bot/handlers/gap_analyzer_handler.py
-import logging
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from langsmith import traceable, Client
@@ -11,11 +10,42 @@ from src.tg_bot.utils import authorized_keyboard
 from src.llm_gap_analyzer import LLMGapAnalyzer
 from src.models.gap_analysis_models import EnhancedResumeTailoringAnalysis
 
-
 from src.utils import get_logger
 logger = get_logger()
 
+# ===============================================
+# КОНФИГУРАЦИЯ ЛИМИТОВ ДЛЯ ОТОБРАЖЕНИЯ ТЕКСТА
+# ===============================================
 
+# Централизованные лимиты для текстового вывода
+DISPLAY_LIMITS = {
+    # Лимиты количества элементов
+    'max_requirements_per_group': 3,      # Максимум требований в каждой группе (MUST/NICE/BONUS)
+    'max_recommendations_per_group': 3,   # Максимум рекомендаций в каждой группе (CRITICAL/IMPORTANT/OPTIONAL)
+    'max_strengths_display': 3,           # Максимум сильных сторон для отображения
+    'max_gaps_display': 3,                # Максимум пробелов для отображения
+    
+    # Лимиты длины текста (в символах)
+    'requirement_text_length': 60,        # Длина текста требования
+    'gap_description_length': 80,         # Длина описания пробела
+    'example_wording_length': 80,         # Длина примера формулировки
+    'recommendation_issue_length': 100,   # Длина описания проблемы в рекомендации
+    
+    # Лимиты для визуального отображения
+    'progress_bar_width': 10,             # Ширина прогресс-бара в символах
+    'score_bar_width': 10,                # Ширина бара оценки в символах
+}
+
+# Символы для визуального отображения
+DISPLAY_SYMBOLS = {
+    'progress_filled': '▓',               # Заполненный блок прогресса
+    'progress_empty': '░',                # Пустой блок прогресса
+    'score_filled': '▓',                  # Заполненный блок оценки
+    'score_empty': '░',                   # Пустой блок оценки
+    'ellipsis': '...',                    # Многоточие для обрезанного текста
+}
+
+# ===============================================
 
 # Создаём клиент LangSmith
 def create_langsmith_client():
@@ -28,6 +58,12 @@ ls_client = create_langsmith_client()
 
 # Создаем экземпляр анализатора
 llm_analyzer = LLMGapAnalyzer()
+
+def truncate_text(text: str, max_length: int) -> str:
+    """Обрезает текст до указанной длины с добавлением многоточия."""
+    if len(text) <= max_length:
+        return text
+    return text[:max_length] + DISPLAY_SYMBOLS['ellipsis']
 
 def format_primary_screening(analysis) -> str:
     """Форматирует результаты первичного скрининга."""
@@ -74,7 +110,9 @@ def format_requirements_analysis(analysis) -> str:
         
         group_result = f"{emoji} {title}\n"
         
-        for req in requirements[:3]:  # Показываем только первые 3
+        # Используем лимит из конфигурации
+        max_items = DISPLAY_LIMITS['max_requirements_per_group']
+        for req in requirements[:max_items]:
             status_emoji = {
                 "ПОЛНОЕ_СООТВЕТСТВИЕ": "✅",
                 "ЧАСТИЧНОЕ_СООТВЕТСТВИЕ": "⚠️",
@@ -83,13 +121,17 @@ def format_requirements_analysis(analysis) -> str:
             }
             
             emoji_status = status_emoji.get(req.compliance_status, "❓")
-            group_result += f"  {emoji_status} {req.requirement_text[:60]}{'...' if len(req.requirement_text) > 60 else ''}\n"
+            
+            # Используем лимиты из конфигурации
+            requirement_text = truncate_text(req.requirement_text, DISPLAY_LIMITS['requirement_text_length'])
+            group_result += f"  {emoji_status} {requirement_text}\n"
             
             if req.gap_description and req.compliance_status != "ПОЛНОЕ_СООТВЕТСТВИЕ":
-                group_result += f"     💡 {req.gap_description[:80]}{'...' if len(req.gap_description) > 80 else ''}\n"
+                gap_text = truncate_text(req.gap_description, DISPLAY_LIMITS['gap_description_length'])
+                group_result += f"     💡 {gap_text}\n"
         
-        if len(requirements) > 3:
-            group_result += f"     ... и еще {len(requirements) - 3} требований\n"
+        if len(requirements) > max_items:
+            group_result += f"     {DISPLAY_SYMBOLS['ellipsis']} и еще {len(requirements) - max_items} требований\n"
         
         return group_result + "\n"
     
@@ -105,9 +147,10 @@ def format_quality_assessment(analysis) -> str:
     
     def score_bar(score: int) -> str:
         """Создает визуальную полоску оценки."""
-        filled = "▓" * score
-        empty = "░" * (10 - score)
-        return f"{filled}{empty} {score}/10"
+        bar_width = DISPLAY_LIMITS['score_bar_width']
+        filled = DISPLAY_SYMBOLS['score_filled'] * score
+        empty = DISPLAY_SYMBOLS['score_empty'] * (bar_width - score)
+        return f"{filled}{empty} {score}/{bar_width}"
     
     impression_emoji = {
         "STRONG": "🔥",
@@ -138,22 +181,26 @@ def format_recommendations(analysis) -> str:
         
         group_result = f"{emoji} {title}\n"
         
-        for i, rec in enumerate(recommendations[:3], 1):  # Показываем только первые 3
-            group_result += f"{i}. {rec.section.upper()}: {rec.issue_description}\n"
+        # Используем лимит из конфигурации
+        max_items = DISPLAY_LIMITS['max_recommendations_per_group']
+        for i, rec in enumerate(recommendations[:max_items], 1):
+            # Используем лимит для описания проблемы
+            issue_text = truncate_text(rec.issue_description, DISPLAY_LIMITS['recommendation_issue_length'])
+            group_result += f"{i}. {rec.section.upper()}: {issue_text}\n"
             
             # Показываем первое действие
             if rec.specific_actions:
                 group_result += f"   📝 {rec.specific_actions[0]}\n"
             
-            # Показываем пример, если есть
+            # Показываем пример, если есть (с лимитом)
             if rec.example_wording:
-                example = rec.example_wording[:80] + "..." if len(rec.example_wording) > 80 else rec.example_wording
+                example = truncate_text(rec.example_wording, DISPLAY_LIMITS['example_wording_length'])
                 group_result += f"   💡 Пример: {example}\n"
             
             group_result += "\n"
         
-        if len(recommendations) > 3:
-            group_result += f"... и еще {len(recommendations) - 3} рекомендаций\n\n"
+        if len(recommendations) > max_items:
+            group_result += f"{DISPLAY_SYMBOLS['ellipsis']} и еще {len(recommendations) - max_items} рекомендаций\n\n"
         
         return group_result
     
@@ -177,30 +224,35 @@ def format_final_conclusion(analysis) -> str:
     
     # Процент соответствия с визуализацией
     percentage = analysis.overall_match_percentage
-    filled_blocks = percentage // 10
-    progress_bar = "▓" * filled_blocks + "░" * (10 - filled_blocks)
+    bar_width = DISPLAY_LIMITS['progress_bar_width']
+    filled_blocks = percentage // (100 // bar_width)
+    filled_char = DISPLAY_SYMBOLS['progress_filled']
+    empty_char = DISPLAY_SYMBOLS['progress_empty']
+    progress_bar = filled_char * filled_blocks + empty_char * (bar_width - filled_blocks)
     result += f"📊 Соответствие вакансии: {progress_bar} {percentage}%\n\n"
     
     # Рекомендация по найму
     emoji = hiring_emoji.get(analysis.hiring_recommendation, "❓")
     result += f"{emoji} РЕКОМЕНДАЦИЯ ПО НАЙМУ: {analysis.hiring_recommendation}\n\n"
     
-    # Сильные стороны
+    # Сильные стороны (с лимитом)
     if analysis.key_strengths:
         result += "💪 КЛЮЧЕВЫЕ СИЛЬНЫЕ СТОРОНЫ:\n"
-        for strength in analysis.key_strengths[:3]:  # Показываем первые 3
+        max_strengths = DISPLAY_LIMITS['max_strengths_display']
+        for strength in analysis.key_strengths[:max_strengths]:
             result += f"• {strength}\n"
-        if len(analysis.key_strengths) > 3:
-            result += f"• ... и еще {len(analysis.key_strengths) - 3}\n"
+        if len(analysis.key_strengths) > max_strengths:
+            result += f"• {DISPLAY_SYMBOLS['ellipsis']} и еще {len(analysis.key_strengths) - max_strengths}\n"
         result += "\n"
     
-    # Основные пробелы
+    # Основные пробелы (с лимитом)
     if analysis.major_gaps:
         result += "⚠️ ОСНОВНЫЕ ПРОБЕЛЫ:\n"
-        for gap in analysis.major_gaps[:3]:  # Показываем первые 3
+        max_gaps = DISPLAY_LIMITS['max_gaps_display']
+        for gap in analysis.major_gaps[:max_gaps]:
             result += f"• {gap}\n"
-        if len(analysis.major_gaps) > 3:
-            result += f"• ... и еще {len(analysis.major_gaps) - 3}\n"
+        if len(analysis.major_gaps) > max_gaps:
+            result += f"• {DISPLAY_SYMBOLS['ellipsis']} и еще {len(analysis.major_gaps) - max_gaps}\n"
         result += "\n"
     
     # Следующие шаги

@@ -4,7 +4,7 @@
 Скрипт для отладки парсинга резюме и вакансий из JSON файлов HeadHunter API.
 
 Использование:
-    python tests/debug_parsing.py
+    python tests/debug_gap/debug_parsing.py
 """
 
 import json
@@ -78,7 +78,7 @@ def debug_vacancy_parsing(vacancy_json_path: str) -> None:
         print("\n✅ РЕЗУЛЬТАТ ПАРСИНГА ВАКАНСИИ:")
         print(json.dumps(parsed_vacancy.model_dump(), ensure_ascii=False, indent=2))
     else:
-        print(f"\n❌ Ошибка при парсинге вакансии!")
+        print("\n❌ Ошибка при парсинге вакансии!")
 
 def main():
     """Основная функция для запуска отладки."""

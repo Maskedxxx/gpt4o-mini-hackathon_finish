@@ -1,0 +1,232 @@
+{
+  "primary_screening": {
+    "job_title_match": false,
+    "experience_years_match": true,
+    "key_skills_visible": true,
+    "location_suitable": true,
+    "salary_expectations_match": true,
+    "overall_screening_result": "MAYBE",
+    "screening_notes": "Желаемая должность — LLM Engineer, а не Senior/Lead Data Scientist. Опыт работы — 3 года 4 месяца, что соответствует минимальному порогу, но не демонстрирует senior/lead уровень. Ключевые навыки по LLM, NLP, LangChain, RAG, prompt engineering явно присутствуют. PyTorch не заявлен. Локация и формат работы подходят. Зарплатные ожидания в рынке."
+  },
+  "requirements_analysis": [
+    {
+      "requirement_text": "Знание и понимание основных методов машинного обучения, глубокого обучения",
+      "requirement_type": "MUST_HAVE",
+      "compliance_status": "ЧАСТИЧНОЕ_СООТВЕТСТВИЕ",
+      "evidence_in_resume": "Ключевые навыки: Машинное обучение, Глубокое обучение; проекты с LLM, RAG, NLP; однако нет конкретики по классическим ML/Deep Learning задачам.",
+      "gap_description": "Нет подробного описания применения классических методов ML/DL, отсутствует упоминание фреймворков типа PyTorch или TensorFlow.",
+      "impact_on_decision": "Снижает уверенность в фундаментальных знаниях, критично для senior-уровня."
+    },
+    {
+      "requirement_text": "Опыт использования LLM (написание промптов, RAG), работы с langchain",
+      "requirement_type": "MUST_HAVE",
+      "compliance_status": "ПОЛНОЕ_СООТВЕТСТВИЕ",
+      "evidence_in_resume": "Многочисленные проекты с LLM, LangChain, RAG, prompt engineering, дообучение моделей, валидация через RAGAS.",
+      "gap_description": null,
+      "impact_on_decision": "Сильное соответствие, ключевой плюс."
+    },
+    {
+      "requirement_text": "Опыт вывода моделей в промышленную эксплуатацию",
+      "requirement_type": "MUST_HAVE",
+      "compliance_status": "ЧАСТИЧНОЕ_СООТВЕТСТВИЕ",
+      "evidence_in_resume": "Проекты внедрены в компании, описано развёртывание в Docker, интеграция с внутренними системами, CI для валидации.",
+      "gap_description": "Нет явного упоминания MLOps-практик, пайплайнов деплоя, мониторинга, автоматизации retraining.",
+      "impact_on_decision": "Ограничивает доверие к опыту production-grade ML, особенно для lead-уровня."
+    },
+    {
+      "requirement_text": "Знания по терверу и мат. статистике и умение применять их на практике",
+      "requirement_type": "MUST_HAVE",
+      "compliance_status": "ОТСУТСТВУЕТ",
+      "evidence_in_resume": null,
+      "gap_description": "Нет ни одного упоминания о применении тервер/матстата, ни в навыках, ни в проектах.",
+      "impact_on_decision": "Критический пробел для роли Senior/Lead Data Scientist."
+    },
+    {
+      "requirement_text": "PyTorch",
+      "requirement_type": "MUST_HAVE",
+      "compliance_status": "ОТСУТСТВУЕТ",
+      "evidence_in_resume": null,
+      "gap_description": "PyTorch не заявлен ни в навыках, ни в опыте, ни в образовании.",
+      "impact_on_decision": "Критический пробел, так как это основной инструмент для ML/DL в индустрии."
+    },
+    {
+      "requirement_text": "NLP",
+      "requirement_type": "MUST_HAVE",
+      "compliance_status": "ПОЛНОЕ_СООТВЕТСТВИЕ",
+      "evidence_in_resume": "Ключевые навыки: NLP; проекты с LLM, RAG, чат-ботами, автоматизацией аудита звонков.",
+      "gap_description": null,
+      "impact_on_decision": "Полное соответствие."
+    },
+    {
+      "requirement_text": "LLM",
+      "requirement_type": "MUST_HAVE",
+      "compliance_status": "ПОЛНОЕ_СООТВЕТСТВИЕ",
+      "evidence_in_resume": "Много проектов с LLM, дообучение, prompt engineering, RAG, LangChain.",
+      "gap_description": null,
+      "impact_on_decision": "Полное соответствие."
+    },
+    {
+      "requirement_text": "LangChain",
+      "requirement_type": "MUST_HAVE",
+      "compliance_status": "ПОЛНОЕ_СООТВЕТСТВИЕ",
+      "evidence_in_resume": "Много проектов с LangChain, сертификат LangChain Professional.",
+      "gap_description": null,
+      "impact_on_decision": "Полное соответствие."
+    },
+    {
+      "requirement_text": "Управление командой из 3 датасайнтистов, распределение задач",
+      "requirement_type": "MUST_HAVE",
+      "compliance_status": "ОТСУТСТВУЕТ",
+      "evidence_in_resume": null,
+      "gap_description": "Нет опыта управления командой, распределения задач, people management.",
+      "impact_on_decision": "Критично для Lead-уровня, снижает релевантность."
+    },
+    {
+      "requirement_text": "Внедрение методологий MLOps",
+      "requirement_type": "NICE_TO_HAVE",
+      "compliance_status": "ЧАСТИЧНОЕ_СООТВЕТСТВИЕ",
+      "evidence_in_resume": "Упомянуты Docker, CI для валидации, развёртывание на сервере, но нет описания MLOps-процессов (MLflow, мониторинг, retraining, автоматизация деплоя).",
+      "gap_description": "Нет системного опыта внедрения MLOps.",
+      "impact_on_decision": "Желательно для senior/lead, но не критично."
+    },
+    {
+      "requirement_text": "Хорошие аналитические и организационные навыки, коммуникабельность",
+      "requirement_type": "NICE_TO_HAVE",
+      "compliance_status": "ЧАСТИЧНОЕ_СООТВЕТСТВИЕ",
+      "evidence_in_resume": "Упомянуто 'умение работать в команде', достижения в автоматизации процессов, но нет конкретных примеров коммуникации с заказчиком, сбора требований, презентаций.",
+      "gap_description": "Нет подтверждения через факты.",
+      "impact_on_decision": "Влияет на восприятие soft skills, важно для lead-уровня."
+    },
+    {
+      "requirement_text": "Взаимодействие с заказчиками для сбора и уточнения требований",
+      "requirement_type": "NICE_TO_HAVE",
+      "compliance_status": "ОТСУТСТВУЕТ",
+      "evidence_in_resume": null,
+      "gap_description": "Нет описания взаимодействия с заказчиками, сбора требований.",
+      "impact_on_decision": "Влияет на релевантность для lead-уровня."
+    },
+    {
+      "requirement_text": "Взаимодействие с Data Architect, Data Analyst, Agile-командами, Data Engineer",
+      "requirement_type": "BONUS",
+      "compliance_status": "ОТСУТСТВУЕТ",
+      "evidence_in_resume": null,
+      "gap_description": "Нет описания кросс-функционального взаимодействия.",
+      "impact_on_decision": "Не критично, но усилило бы профиль."
+    }
+  ],
+  "quality_assessment": {
+    "structure_clarity": 7,
+    "content_relevance": 8,
+    "achievement_focus": 8,
+    "adaptation_quality": 5,
+    "overall_impression": "AVERAGE",
+    "quality_notes": "Резюме хорошо структурировано, проекты описаны с результатами и технологиями. Однако отсутствует адаптация под senior/lead data science: нет акцента на PyTorch, ML/DL, управлении командой, MLOps, взаимодействии с заказчиком. Много внимания LLM и prompt engineering, но мало — классическим DS-компетенциям."
+  },
+  "critical_recommendations": [
+    {
+      "section": "skills",
+      "criticality": "КРИТИЧНО",
+      "issue_description": "Отсутствует PyTorch в навыках и опыте.",
+      "specific_actions": [
+        "Добавить PyTorch в ключевые навыки и описать проекты, где он использовался.",
+        "Если опыта нет — срочно получить практический опыт и пройти курс/сертификат."
+      ],
+      "example_wording": "PyTorch: разработка и обучение нейронных сетей для NLP-задач (классификация, sequence labeling, fine-tuning LLM)",
+      "business_rationale": "PyTorch — стандарт индустрии для ML/DL, без него кандидат не может быть рассмотрен на senior/lead DS."
+    },
+    {
+      "section": "skills",
+      "criticality": "КРИТИЧНО",
+      "issue_description": "Нет подтверждения знаний тервер/матстата.",
+      "specific_actions": [
+        "Добавить в навыки: 'Probability Theory', 'Mathematical Statistics', 'Statistical Data Analysis'.",
+        "В описании проектов указать, где применялись статистические методы (A/B тесты, оценка метрик, статистический анализ данных)."
+      ],
+      "example_wording": "Проводил статистический анализ результатов моделей (оценка значимости, доверительные интервалы, A/B тесты)",
+      "business_rationale": "Фундаментальные знания тервер/матстата обязательны для senior data scientist."
+    },
+    {
+      "section": "experience",
+      "criticality": "КРИТИЧНО",
+      "issue_description": "Нет опыта управления командой, распределения задач.",
+      "specific_actions": [
+        "Добавить опыт руководства (если был), даже неформальный: менторство, распределение задач, обучение коллег.",
+        "Если не было — получить опыт на текущем месте (например, вести подгруппу, быть тимлидом на проекте)."
+      ],
+      "example_wording": "Выполнял функции тимлида: распределял задачи между 2-3 инженерами, проводил code review, обучал новым технологиям.",
+      "business_rationale": "Lead-уровень подразумевает управленческие компетенции, без них кандидат не релевантен."
+    }
+  ],
+  "important_recommendations": [
+    {
+      "section": "experience",
+      "criticality": "ВАЖНО",
+      "issue_description": "Недостаточно раскрыт опыт вывода моделей в production и MLOps.",
+      "specific_actions": [
+        "Добавить описание пайплайнов деплоя, мониторинга, автоматизации retraining, использования MLflow, DVC, Airflow и т.д.",
+        "Указать опыт CI/CD для ML, мониторинга метрик, rollback моделей."
+      ],
+      "example_wording": "Внедрил пайплайн деплоя моделей с использованием MLflow, автоматизированный мониторинг качества и retraining.",
+      "business_rationale": "Production ML и MLOps — ключевые компетенции для senior/lead DS."
+    },
+    {
+      "section": "skills",
+      "criticality": "ВАЖНО",
+      "issue_description": "Нет акцента на классических ML/DL задачах и инструментах.",
+      "specific_actions": [
+        "Добавить в навыки: sklearn, XGBoost, LightGBM, TensorFlow (если есть опыт).",
+        "В проектах описать задачи классификации, регрессии, кластеризации, если были."
+      ],
+      "example_wording": "Реализовал модели классификации и регрессии с использованием sklearn, XGBoost, LightGBM.",
+      "business_rationale": "Senior DS должен владеть не только LLM, но и классическим ML/DL стеком."
+    },
+    {
+      "section": "structure",
+      "criticality": "ВАЖНО",
+      "issue_description": "Нет адаптации под senior/lead DS: мало soft skills, нет примеров коммуникации с заказчиком.",
+      "specific_actions": [
+        "Добавить раздел 'Soft Skills' с примерами: коммуникация, презентации, сбор требований.",
+        "В проектах указать взаимодействие с бизнесом, заказчиками, презентации результатов."
+      ],
+      "example_wording": "Взаимодействовал с заказчиками для сбора требований, презентовал результаты проектов топ-менеджменту.",
+      "business_rationale": "Soft skills и коммуникация — обязательны для lead-уровня."
+    }
+  ],
+  "optional_recommendations": [
+    {
+      "section": "education",
+      "criticality": "ЖЕЛАТЕЛЬНО",
+      "issue_description": "Английский язык на уровне A1.",
+      "specific_actions": [
+        "Указать план по повышению уровня английского (например, прохождение курсов)."
+      ],
+      "example_wording": "Прохожу курс English for Data Science (Coursera), целевой уровень — B1.",
+      "business_rationale": "Для крупных компаний и международных проектов знание английского желательно."
+    },
+    {
+      "section": "skills",
+      "criticality": "ЖЕЛАТЕЛЬНО",
+      "issue_description": "Нет упоминания Agile/Scrum, взаимодействия с кросс-функциональными командами.",
+      "specific_actions": [
+        "Добавить опыт работы в Agile-командах, взаимодействия с Data Architect, Data Analyst, Data Engineer."
+      ],
+      "example_wording": "Работал в Agile-команде, взаимодействовал с архитекторами данных и аналитиками.",
+      "business_rationale": "Это усиливает профиль для крупных компаний."
+    }
+  ],
+  "overall_match_percentage": 60,
+  "hiring_recommendation": "MAYBE",
+  "key_strengths": [
+    "Глубокая экспертиза в LLM, RAG, LangChain, prompt engineering",
+    "Практический опыт внедрения LLM-решений в бизнес-процессы",
+    "Навыки автоматизации и интеграции ML-систем",
+    "Сертификаты по современным AI/LLM-технологиям"
+  ],
+  "major_gaps": [
+    "Отсутствие PyTorch и классического ML/DL в опыте и навыках",
+    "Нет опыта управления командой и people management",
+    "Нет подтверждения знаний тервер/матстата",
+    "Недостаточно раскрыт опыт production ML и MLOps"
+  ],
+  "next_steps": "Рекомендовано обновить резюме с акцентом на PyTorch, ML/DL, управленческие и MLOps-компетенции. Если опыт отсутствует — получить его на текущем месте или через pet-проекты. После доработки — возможно рассмотреть на позицию middle data scientist с перспективой роста. Для senior/lead — существенные пробелы, требуется доработка профиля."
+}
