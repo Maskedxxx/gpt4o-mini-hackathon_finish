@@ -10,6 +10,8 @@ class RoleType(str, Enum):
     DEVOPS = "DEVOPS"                 # DevOps/SRE инженер
     DESIGNER = "DESIGNER"             # UI/UX дизайнер
     MANAGER = "MANAGER"               # Project Manager/Team Lead
+    ML_ENGINNER = "ML_ENGINEER"         # ML/AI инженер
+    DATA_SCIENTIST = "DATA_SCIENTIST" # Data Scientist
     OTHER = "OTHER"                   # Другие роли
 
 class CompanyContext(BaseModel):
@@ -17,7 +19,7 @@ class CompanyContext(BaseModel):
     company_name: str = Field(..., description="Название компании")
     company_size: Literal["STARTUP", "MEDIUM", "LARGE", "ENTERPRISE"] = Field(..., description="Размер компании для адаптации тона")
     company_culture: Optional[str] = Field(None, description="Особенности культуры компании (если упомянуты в вакансии)")
-    product_info: Optional[str] = Field(None, description="Информация о продукте/сервисе компании")
+    product_info: Optional[str] = Field(None, description="Краткое описание продукта\сервиса или проекта, над которым планирует работать компания (контекст в описании вакансии)")
 
 class SkillsMatchAnalysis(BaseModel):
     """Анализ соответствия навыков требованиям"""
@@ -41,7 +43,12 @@ class EnhancedCoverLetter(BaseModel):
     # Мета-информация для анализа
     role_type: RoleType = Field(..., description="Тип роли для адаптации стиля")
     company_context: CompanyContext = Field(..., description="Контекст компании")
-    estimated_length: Literal["SHORT", "MEDIUM", "LONG"] = Field(..., description="Оценка длины письма (500-1000 символов оптимально)")
+    estimated_length: Literal["SHORT", "MEDIUM", "LONG"] = Field(..., description=(
+            "Оценка длины рекомендательного письма в зависимости от уровня кандидата и его вклада.\n\n"
+            "- **SHORT (300-400 слов):** Для стажеров (Intern) или Junior-специалистов, чей вклад был ограничен.\n"
+            "- **MEDIUM (500-700 слов):** Для Mid-level или Senior-специалистов с существенным вкладом.\n"
+            "- **LONG (800-1000+ слов):** Для Senior, Lead или Principal-специалистов с ключевой ролью и значимым влиянием."
+        ))
     
     # Анализ соответствия
     skills_match: SkillsMatchAnalysis = Field(..., description="Анализ соответствия навыков")

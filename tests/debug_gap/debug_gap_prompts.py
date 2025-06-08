@@ -153,7 +153,7 @@ def debug_full_messages(resume_json_path: str, vacancy_json_path: str) -> None:
         
         # Статистика
         total_length = len(system_prompt) + len(user_prompt)
-        print(f"\n📊 СТАТИСТИКА MESSAGES:")
+        print("\n📊 СТАТИСТИКА MESSAGES:")
         print(f"  • Количество сообщений: {len(messages)}")
         print(f"  • Длина system промпта: {len(system_prompt)} символов")
         print(f"  • Длина user промпта: {len(user_prompt)} символов")
@@ -203,13 +203,13 @@ def debug_prompt_components(resume_json_path: str, vacancy_json_path: str) -> No
         print(f"   • vacancy_dict ключи: {list(vacancy_dict.keys())}")
         
         print("\n🔸 3. ИСПОЛЬЗУЕМЫЕ МЕТОДЫ КЛАССА:")
-        print(f"   • gap_analyzer._create_system_prompt()")
-        print(f"   • gap_analyzer._create_user_prompt(resume_dict, vacancy_dict)")
+        print("   • gap_analyzer._create_system_prompt()")
+        print("   • gap_analyzer._create_user_prompt(resume_dict, vacancy_dict)")
         
         print("\n🔸 4. ПРОМПТЫ ГОТОВЫ К ОТПРАВКЕ В:")
         print(f"   • Модель: {gap_analyzer.model}")
-        print(f"   • Temperature: 0.2")
-        print(f"   • Response format: EnhancedResumeTailoringAnalysis")
+        print("   • Temperature: 0.2")
+        print("   • Response format: EnhancedResumeTailoringAnalysis")
         
     except Exception as e:
         print(f"❌ Ошибка анализа компонентов: {e}")

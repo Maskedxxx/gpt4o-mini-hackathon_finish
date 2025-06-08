@@ -107,8 +107,8 @@ def main():
     vacancy_json_path = "/Users/mask/Documents/Проеты_2025/gpt_4_mini_hackaton_final/tests/test_models_res_vac/fetched_vacancy_120234346.json"    # 👈 УКАЖИТЕ ПУТЬ К ВАКАНСИИ
     
     # ФЛАГИ УПРАВЛЕНИЯ (True/False)
-    show_resume = False        # 👈 Показать форматированное резюме
-    show_vacancy = True       # 👈 Показать форматированную вакансию
+    show_resume = True        # 👈 Показать форматированное резюме
+    show_vacancy = False       # 👈 Показать форматированную вакансию
     
     # ===============================================
     

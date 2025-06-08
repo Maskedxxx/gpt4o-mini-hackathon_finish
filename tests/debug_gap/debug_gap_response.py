@@ -145,7 +145,7 @@ def show_detailed_analysis(gap_result: EnhancedResumeTailoringAnalysis) -> None:
                 print(f"     Проблема: {rec.issue_description}")
                 print(f"     Критичность: {rec.criticality}")
                 if rec.specific_actions:
-                    print(f"     Действия:")
+                    print("     Действия:")
                     for action in rec.specific_actions:
                         print(f"       - {action}")
                 if rec.example_wording:
@@ -159,7 +159,7 @@ def show_detailed_analysis(gap_result: EnhancedResumeTailoringAnalysis) -> None:
                 print(f"     Проблема: {rec.issue_description}")
                 print(f"     Критичность: {rec.criticality}")
                 if rec.specific_actions:
-                    print(f"     Действия:")
+                    print("     Действия:")
                     for action in rec.specific_actions:
                         print(f"       - {action}")
         
@@ -170,21 +170,21 @@ def show_detailed_analysis(gap_result: EnhancedResumeTailoringAnalysis) -> None:
                 print(f"   • Секция: {rec.section}")
                 print(f"     Проблема: {rec.issue_description}")
                 if rec.specific_actions:
-                    print(f"     Действия:")
+                    print("     Действия:")
                     for action in rec.specific_actions:
                         print(f"       - {action}")
         
         # Сильные стороны и пробелы
-        print(f"\n💪 КЛЮЧЕВЫЕ СИЛЬНЫЕ СТОРОНЫ:")
+        print("\n💪 КЛЮЧЕВЫЕ СИЛЬНЫЕ СТОРОНЫ:")
         for strength in gap_result.key_strengths:
             print(f"   • {strength}")
         
         if gap_result.major_gaps:
-            print(f"\n🔍 ОСНОВНЫЕ ПРОБЕЛЫ:")
+            print("\n🔍 ОСНОВНЫЕ ПРОБЕЛЫ:")
             for gap in gap_result.major_gaps:
                 print(f"   • {gap}")
         
-        print(f"\n📋 СЛЕДУЮЩИЕ ШАГИ:")
+        print("\n📋 СЛЕДУЮЩИЕ ШАГИ:")
         print(f"   {gap_result.next_steps}")
         
     except Exception as e:
@@ -234,7 +234,7 @@ async def debug_gap_analysis_response(resume_json_path: str, vacancy_json_path: 
         print("✅ GAP-анализ успешно выполнен!")
         
         # Показываем результат в JSON формате
-        print(f"\n📄 РЕЗУЛЬТАТ В JSON ФОРМАТЕ:")
+        print("\n📄 РЕЗУЛЬТАТ В JSON ФОРМАТЕ:")
         print("-" * 60)
         result_json = gap_result.model_dump()
         print(json.dumps(result_json, ensure_ascii=False, indent=2))
@@ -290,8 +290,8 @@ async def main():
     # ===============================================
     
     # ПУТИ К JSON ФАЙЛАМ
-    resume_json_path = "path/to/your/resume.json"      # 👈 УКАЖИТЕ ПУТЬ К РЕЗЮМЕ
-    vacancy_json_path = "path/to/your/vacancy.json"    # 👈 УКАЖИТЕ ПУТЬ К ВАКАНСИИ
+    resume_json_path = "/Users/mask/Documents/Проеты_2025/gpt_4_mini_hackaton_final/tests/test_models_res_vac/fetched_resume_6d807532ff0ed6b79f0039ed1f63386d724a62.json"    # 👈 УКАЖИТЕ ПУТЬ К РЕЗЮМЕ
+    vacancy_json_path = "/Users/mask/Documents/Проеты_2025/gpt_4_mini_hackaton_final/tests/test_models_res_vac/fetched_vacancy_120234346.json"    # 👈 УКАЖИТЕ ПУТЬ К ВАКАНСИИ
     
     # ФЛАГИ УПРАВЛЕНИЯ (True/False)
     run_gap_analysis = True        # 👈 Запустить реальный GAP-анализ
