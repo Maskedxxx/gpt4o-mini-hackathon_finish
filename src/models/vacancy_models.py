@@ -43,6 +43,7 @@ class VacancyInfo(BaseModel):
     
     Attributes:
         name: Название вакансии
+        company_name: Название компании
         description: Описание вакансии в html
         key_skills: Список ключевых навыков
         professional_roles: Список требуемых профессиональных ролей
@@ -52,6 +53,7 @@ class VacancyInfo(BaseModel):
         employment: Тип занятости
     """
     name: str = Field(..., description="Название вакансии")
+    company_name: str = Field(..., description="Название компании")
     description: str = Field(..., description="Описание вакансии в html")
     key_skills: List[str] = Field(..., description="Список ключевых навыков")
     professional_roles: List[ProfessionalRole] = Field(default_factory=list, description="Список требуемых профессиональных ролей")

@@ -11,8 +11,8 @@ from src.models.cover_letter_models import EnhancedCoverLetter
 from src.utils import get_logger
 logger = get_logger()
 
-# Создаем экземпляр улучшенного генератора
-enhanced_cover_letter_generator = EnhancedLLMCoverLetterGenerator()
+# Создаем экземпляр генератора
+enhanced_cover_letter_generator = EnhancedLLMCoverLetterGenerator(validate_quality=False)
 
 def format_enhanced_cover_letter_preview(cover_letter: EnhancedCoverLetter) -> str:
     """Форматирует краткий предварительный просмотр письма с оценками."""

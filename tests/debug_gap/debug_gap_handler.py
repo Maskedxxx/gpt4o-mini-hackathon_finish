@@ -97,19 +97,19 @@ def show_all_formatted_messages(gap_result: EnhancedResumeTailoringAnalysis, wit
     print(f"{'='*80}")
     
     # Часть 1: Краткий обзор
-    print(f"\n🔹 СООБЩЕНИЕ #1: КРАТКИЙ ОБЗОР")
+    print("\n🔹 СООБЩЕНИЕ #1: КРАТКИЙ ОБЗОР")
     print("-" * 60)
     preview = format_enhanced_gap_analysis_preview(gap_result)
     print(preview)
     
     # Часть 2: Первичный скрининг
-    print(f"\n🔹 СООБЩЕНИЕ #2: ПЕРВИЧНЫЙ СКРИНИНГ")
+    print("\n🔹 СООБЩЕНИЕ #2: ПЕРВИЧНЫЙ СКРИНИНГ")
     print("-" * 60)
     screening = format_primary_screening(gap_result)
     print(screening)
     
     # Часть 3: Анализ требований
-    print(f"\n🔹 СООБЩЕНИЕ #3: АНАЛИЗ ТРЕБОВАНИЙ")
+    print("\n🔹 СООБЩЕНИЕ #3: АНАЛИЗ ТРЕБОВАНИЙ")
     print("-" * 60)
     requirements = format_requirements_analysis(gap_result)
     if requirements:
@@ -118,19 +118,19 @@ def show_all_formatted_messages(gap_result: EnhancedResumeTailoringAnalysis, wit
         print("❌ Анализ требований пуст")
     
     # Часть 4: Оценка качества
-    print(f"\n🔹 СООБЩЕНИЕ #4: ОЦЕНКА КАЧЕСТВА")
+    print("\n🔹 СООБЩЕНИЕ #4: ОЦЕНКА КАЧЕСТВА")
     print("-" * 60)
     quality = format_quality_assessment(gap_result)
     print(quality)
     
     # Часть 5: Рекомендации
-    print(f"\n🔹 СООБЩЕНИЕ #5: РЕКОМЕНДАЦИИ")
+    print("\n🔹 СООБЩЕНИЕ #5: РЕКОМЕНДАЦИИ")
     print("-" * 60)
     recommendations = format_recommendations(gap_result)
     print(recommendations)
     
     # Часть 6: Итоговые выводы
-    print(f"\n🔹 СООБЩЕНИЕ #6: ИТОГОВЫЕ ВЫВОДЫ")
+    print("\n🔹 СООБЩЕНИЕ #6: ИТОГОВЫЕ ВЫВОДЫ")
     print("-" * 60)
     conclusion = format_final_conclusion(gap_result)
     print(conclusion)
@@ -138,10 +138,10 @@ def show_all_formatted_messages(gap_result: EnhancedResumeTailoringAnalysis, wit
 def show_statistics(gap_result: EnhancedResumeTailoringAnalysis):
     """Показывает статистику по результату GAP-анализа."""
     print(f"\n{'='*80}")
-    print(f"📊 СТАТИСТИКА РЕЗУЛЬТАТА GAP-АНАЛИЗА")
+    print("📊 СТАТИСТИКА РЕЗУЛЬТАТА GAP-АНАЛИЗА")
     print(f"{'='*80}")
     
-    print(f"📋 КОЛИЧЕСТВО ЭЛЕМЕНТОВ:")
+    print("📋 КОЛИЧЕСТВО ЭЛЕМЕНТОВ:")
     print(f"  • Всего требований: {len(gap_result.requirements_analysis)}")
     
     # Группировка требований по типам
@@ -159,7 +159,7 @@ def show_statistics(gap_result: EnhancedResumeTailoringAnalysis):
     print(f"  • Сильных сторон: {len(gap_result.key_strengths)}")
     print(f"  • Основных пробелов: {len(gap_result.major_gaps)}")
     
-    print(f"\n📏 ДЛИНА ТЕКСТОВ:")
+    print("\n📏 ДЛИНА ТЕКСТОВ:")
     
     # Анализ длины текстов
     if gap_result.requirements_analysis:
@@ -174,7 +174,7 @@ def show_statistics(gap_result: EnhancedResumeTailoringAnalysis):
         issue_lengths = [len(r.issue_description) for r in gap_result.critical_recommendations]
         print(f"  • Описания проблем - макс: {max(issue_lengths)}, мин: {min(issue_lengths)}, среднее: {sum(issue_lengths)//len(issue_lengths)}")
     
-    print(f"\n🎯 КЛЮЧЕВЫЕ ПОКАЗАТЕЛИ:")
+    print("\n🎯 КЛЮЧЕВЫЕ ПОКАЗАТЕЛИ:")
     print(f"  • Процент соответствия: {gap_result.overall_match_percentage}%")
     print(f"  • Рекомендация по найму: {gap_result.hiring_recommendation}")
     print(f"  • Общее впечатление: {gap_result.quality_assessment.overall_impression}")
@@ -184,23 +184,23 @@ def show_current_limits():
     """Показывает текущие лимиты отображения."""
     from src.tg_bot.handlers.spec_handlers.gap_analyzer_handler import DISPLAY_LIMITS, DISPLAY_SYMBOLS
     
-    print(f"\n{'='*80}")
-    print(f"⚙️ ТЕКУЩИЕ ЛИМИТЫ ОТОБРАЖЕНИЯ")
-    print(f"{'='*80}")
+    print("\n{'='*80}")
+    print("⚙️ ТЕКУЩИЕ ЛИМИТЫ ОТОБРАЖЕНИЯ")
+    print("{'='*80}")
     
-    print(f"🔢 ЛИМИТЫ КОЛИЧЕСТВА:")
+    print("🔢 ЛИМИТЫ КОЛИЧЕСТВА:")
     print(f"  • Требований в группе: {DISPLAY_LIMITS['max_requirements_per_group']}")
     print(f"  • Рекомендаций в группе: {DISPLAY_LIMITS['max_recommendations_per_group']}")
     print(f"  • Сильных сторон: {DISPLAY_LIMITS['max_strengths_display']}")
     print(f"  • Пробелов: {DISPLAY_LIMITS['max_gaps_display']}")
     
-    print(f"\n✂️ ЛИМИТЫ ДЛИНЫ ТЕКСТА:")
+    print("\n✂️ ЛИМИТЫ ДЛИНЫ ТЕКСТА:")
     print(f"  • Текст требования: {DISPLAY_LIMITS['requirement_text_length']} символов")
     print(f"  • Описание пробела: {DISPLAY_LIMITS['gap_description_length']} символов")
     print(f"  • Пример формулировки: {DISPLAY_LIMITS['example_wording_length']} символов")
     print(f"  • Описание проблемы: {DISPLAY_LIMITS['recommendation_issue_length']} символов")
     
-    print(f"\n🎨 СИМВОЛЫ ОТОБРАЖЕНИЯ:")
+    print("\n🎨 СИМВОЛЫ ОТОБРАЖЕНИЯ:")
     print(f"  • Заполненный блок: '{DISPLAY_SYMBOLS['progress_filled']}'")
     print(f"  • Пустой блок: '{DISPLAY_SYMBOLS['progress_empty']}'")
     print(f"  • Многоточие: '{DISPLAY_SYMBOLS['ellipsis']}'")

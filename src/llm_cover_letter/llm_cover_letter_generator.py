@@ -8,7 +8,8 @@ from src.llm_cover_letter.config import settings
 from src.models.cover_letter_models import EnhancedCoverLetter
 from src.llm_cover_letter.formatter import (
     format_resume_for_cover_letter, 
-    format_vacancy_for_cover_letter
+    format_vacancy_for_cover_letter,
+    format_cover_letter_context
 )
 
 from src.utils import get_logger
@@ -20,11 +21,12 @@ class EnhancedLLMCoverLetterGenerator:
     на основе лучших практик HR-экспертов
     """
     
-    def __init__(self):
+    def __init__(self, validate_quality: bool = True):
         """Инициализация клиента OpenAI."""
         self.config = settings
         self.client = OpenAI(api_key=self.config.api_key)
         self.model = self.config.model_name
+        self.validate_quality = validate_quality
     
     def _analyze_vacancy_context(self, parsed_vacancy: Dict[str, Any]) -> Dict[str, str]:
         """
@@ -40,142 +42,196 @@ class EnhancedLLMCoverLetterGenerator:
         company_size = "MEDIUM"  # default
         description = parsed_vacancy.get('description', '').lower()
         
-        if any(word in description for word in ['стартап', 'startup', 'молодая команда']):
+        if any(word in description for word in ['стартап', 'startup', 'молодая команда', 'начинающая компания', 'растущая команда']):
             company_size = "STARTUP"
-        elif any(word in description for word in ['крупная компания', 'enterprise', 'корпорация']):
+        elif any(word in description for word in ['крупная компания', 'enterprise', 'корпорация', 'холдинг', 'группа компаний']):
             company_size = "ENTERPRISE"
-        elif any(word in description for word in ['международная', 'global', 'более 1000']):
+        elif any(word in description for word in ['международная', 'global', 'более 1000', 'multinational', 'мировой лидер']):
             company_size = "LARGE"
-            
-        # Определение типа роли
-        position = parsed_vacancy.get('title', '').lower()
-        role_type = "OTHER"
-        
-        if any(word in position for word in ['разработчик', 'developer', 'программист']):
-            role_type = "DEVELOPER"
-        elif any(word in position for word in ['тестировщик', 'qa', 'quality']):
-            role_type = "QA_ENGINEER"
-        elif any(word in position for word in ['аналитик', 'analyst']):
-            role_type = "ANALYST"
-        elif any(word in position for word in ['devops', 'sre', 'системный администратор']):
-            role_type = "DEVOPS"
-        elif any(word in position for word in ['дизайнер', 'designer', 'ux', 'ui']):
-            role_type = "DESIGNER"
-        elif any(word in position for word in ['менеджер', 'manager', 'lead', 'руководитель']):
-            role_type = "MANAGER"
+      
             
         return {
             'company_size': company_size,
-            'role_type': role_type,
-            'company_name': parsed_vacancy.get('company_name', 'Компания'),
+            'company_name': parsed_vacancy.get('company_name', ''),
             'position_title': parsed_vacancy.get('title', 'Позиция')
         }
     
-    def _create_enhanced_cover_letter_prompt(self, parsed_resume: Dict[str, Any], parsed_vacancy: Dict[str, Any]) -> str:
+    def _create_system_prompt(self, context: Dict[str, str], resume_dict: Dict[str, Any], vacancy_dict: Dict[str, Any]) -> str:
         """
-        Создает профессиональный промпт на основе лучших практик HR-экспертов.
+        Создает системный промпт с ролью, инструкцией и полным контекстом.
+        
+        Args:
+            context: Контекст вакансии (размер компании, тип роли и т.д.)
+            resume_dict: Данные резюме для анализа соответствия
+            vacancy_dict: Данные вакансии для анализа соответствия
+        
+        Returns:
+            str: Системный промпт
+        """
+        # Получаем контекст персонализации через форматтер
+        personalization_context = format_cover_letter_context(resume_dict, vacancy_dict)
+        
+        return f"""# РОЛЬ: Ты — эксперт по написанию сопроводительных писем с 10+ летним опытом в IT-рекрутинге
+
+            ## КРИТИЧЕСКАЯ СТАТИСТИКА
+            - 83% работодателей готовы рассмотреть кандидата с отличным письмом, даже если резюме не идеально
+            - 45% рекрутеров отказываются от кандидатов БЕЗ сопроводительного письма
+            - HR тратят 7-15 секунд на первичный просмотр письма
+            - Шаблонные письма распознаются мгновенно и идут в корзину
+
+            ## МЕТОДОЛОГИЯ СОЗДАНИЯ ПИСЬМА
+
+            ### ЭТАП 1: ПЕРСОНАЛИЗАЦИЯ
+            Создай уникальные элементы для ЭТОЙ компании:
+
+            1. **Компанейский hook** - конкретный интерес к компании:
+            - Продукт, технологии, недавние новости
+            - Ценности или подходы, которые резонируют
+            - НЕ общие фразы типа "лидер рынка"
+
+            2. **Ролевая мотивация** - почему именно ЭТА позиция интересна
+
+            ### ЭТАП 2: ДОКАЗАТЕЛЬСТВА ЦЕННОСТИ
+            Выбери из резюме:
+            1. **1-2 самых релевантных достижения** с конкретными цифрами
+            2. **Точные совпадения навыков** из требований вакансии
+            3. **Опыт**, который решает задачи данной позиции
+
+            ### ЭТАП 3: СТРУКТУРА (500-1000 символов)
+
+            **1. Зацепляющее начало:**
+            - Краткая история успеха ИЛИ достижение с цифрами
+            - Связь с продуктом/компанией
+            - НЕ "Меня заинтересовала ваша вакансия"
+
+            **2. Интерес к компании:**
+            - Конкретное знание о компании/продукте
+            - Личная связь с ценностями/подходами
+
+            **3. Ценностное предложение:**
+            - КАК навыки решат задачи работодателя
+            - Релевантные достижения с метриками
+            - Совпадения с ключевыми требованиями
+
+            **4. Профессиональное завершение:**
+            - Энтузиазм и call-to-action
+            - Готовность к интервью
+
+            ## АДАПТАЦИЯ и ОПРЕДЕЛЕНИЕ ПО ТИПУ РОЛИ
+
+            **DEVELOPER**:
+            **Определение:** Backend/Frontend/Mobile разработчик, программист, software engineer.
+            **Адаптация:** Фокусируйтесь на техническом стеке, проектах, производительности, code review, архитектуре.
+
+            **ML_ENGINEER**:
+            **Определение:** ML engineer, AI engineer, machine learning, deep learning, computer vision.
+            **Адаптация:** Фокусируйтесь на алгоритмах ML, моделях, пайплайнах, экспериментах, метриках качества.
+
+            **DATA_SCIENTIST**:
+            **Определение:** Data scientist, аналитик данных, исследователь данных, big data.
+            **Адаптация:** Фокусируйтесь на исследованиях, статистике, инсайтах, A/B тестах, бизнес-метриках.
+
+            **QA_ENGINEER**:
+            **Определение:** Тестировщик, QA, quality assurance, автотестировщик, test engineer.
+            **Адаптация:** Фокусируйтесь на внимании к деталям, критических багах, инструментах тестирования, качестве.
+
+            **ANALYST**:
+            **Определение:** Бизнес-аналитик, системный аналитик, product analyst, BI analyst.
+            **Адаптация:** Фокусируйтесь на требованиях, процессах, домене, улучшениях бизнес-метрик, аналитике.
+
+            **DEVOPS**:
+            **Определение:** DevOps, SRE, системный администратор, infrastructure, cloud engineer.
+            **Адаптация:** Фокусируйтесь на автоматизации, надежности, экономии времени/ресурсов, инфраструктуре.
+
+            **DESIGNER**:
+            **Определение:** UI/UX дизайнер, продуктовый дизайнер, веб-дизайнер, motion designer.
+            **Адаптация:** Фокусируйтесь на UX-метриках, портфолио, влиянии на конверсию, пользовательском опыте.
+
+            **MANAGER**:
+            **Определение:** Project manager, team lead, product manager, scrum master, руководитель.
+            **Адаптация:** Фокусируйтесь на команде, процессах, результатах, лидерстве, управлении проектами.
+
+            **OTHER**:
+            **Определение:** Если не подходит ни один из вышеперечисленных.
+            **Адаптация:** Опишите ключевые аспекты, специфичные для данной роли.
+            
+            Выбери НАИБОЛЕЕ ПОДХОДЯЩИЙ тип роли для позиции: {context['position_title']}
+
+            ## ОБЯЗАТЕЛЬНЫЕ КРИТЕРИИ
+
+            ✅ Упоминание конкретного названия компании и позиции
+            ✅ Персонализация под компанию (продукт, новости, ценности)
+            ✅ Конкретные достижения с цифрами
+            ✅ Ответ на "Что получит работодатель?"
+            ✅ Профессиональный, но живой тон
+
+            ❌ Шаблонные фразы и клише
+            ❌ Повторение резюме без ценности
+            ❌ Общие качества без доказательств
+            ❌ Фокус на желаниях кандидата
+
+            ## ТОНАЛЬНОСТЬ ПО РАЗМЕРУ КОМПАНИИ
+            - **STARTUP**: более неформально, энтузиазм, готовность к вызовам
+            - **MEDIUM/LARGE**: баланс профессионализма и человечности
+            - **ENTERPRISE**: максимально профессионально, стабильность
+
+            ## КОНТЕКСТ ДЛЯ ПЕРСОНАЛИЗАЦИИ
+
+            ### КОНТЕКСТ КОМПАНИИ:
+            - Размер компании: {context['company_size']}
+            - Название компании: {context['company_name']}
+            - Позиция: {context['position_title']}
+            {personalization_context}
+            
+            ## ОБЯЗАТЕЛЬНО ИСПОЛЬЗУЙ СГЕНЕРИРОВАННЫЕ ДАННЫЕ
+            ### Обязательно заполни поля company_context на основе описания вакансии:
+              - company_culture: особенности культуры компании (если упомянуты)
+              - product_info: информация о продукте/сервисе компании
+            ### В письме АКТИВНО используй данные из skills_match и personalization:
+              - **opening_hook** - ОБЯЗАТЕЛЬНО включи quantified_achievement из skills_match
+              - **company_interest** - используй company_hook и company_knowledge из personalization  
+              - **relevant_experience** - развивай relevant_experience из skills_match
+              - **value_demonstration** - конкретизируй value_proposition из personalization
+            """
+
+    def _create_user_prompt(self, parsed_resume: Dict[str, Any], parsed_vacancy: Dict[str, Any]) -> str:
+        """
+        Создает пользовательский промпт с данными резюме и вакансии.
         
         Args:
             parsed_resume: Словарь с данными резюме
             parsed_vacancy: Словарь с данными вакансии
         
         Returns:
-            str: Профессиональный промпт
+            str: Пользовательский промпт
         """
         formatted_resume = format_resume_for_cover_letter(parsed_resume)
         formatted_vacancy = format_vacancy_for_cover_letter(parsed_vacancy)
-        context = self._analyze_vacancy_context(parsed_vacancy)
         
-        return f"""
-# РОЛЬ: Ты — эксперт по написанию сопроводительных писем с 10+ летним опытом в IT-рекрутинге
+        return f"""## ИСХОДНЫЕ ДАННЫЕ
 
-## КРИТИЧЕСКАЯ СТАТИСТИКА
-- 83% работодателей готовы рассмотреть кандидата с отличным письмом, даже если резюме не идеально
-- 45% рекрутеров отказываются от кандидатов БЕЗ сопроводительного письма
-- HR тратят 7-15 секунд на первичный просмотр письма
-- Шаблонные письма распознаются мгновенно и идут в корзину
+    ### РЕЗЮМЕ КАНДИДАТА:
+    <resume_start>
+    {formatted_resume}
+    </resume_end>
+    
+    ### ВАКАНСИЯ:
+    <vacancy_start>
+    {formatted_vacancy}
+    </vacancy_end>
 
-## ИСХОДНЫЕ ДАННЫЕ
+    ## ИНСТРУКЦИЯ
 
-### РЕЗЮМЕ КАНДИДАТА:
-{formatted_resume}
+    Создай профессиональное сопроводительное письмо, строго следуя методологии из системного промпта:
 
-### ВАКАНСИЯ:
-{formatted_vacancy}
+    1. **Определи тип роли** - выбери подходящий role_type из enum значений
+    2. **Анализируй контекст** - учитывай тип роли и размер компании
+    3. **Персонализируй под компанию** - найди уникальный hook
+    4. **Демонстрируй ценность** - покажи конкретные достижения и соответствие навыков
+    5. **Соблюдай структуру** - зацепка, интерес к компании, ценность, завершение
+    6. **Адаптируй тональность** - под размер компании и тип роли
 
-### КОНТЕКСТ:
-- Тип роли: {context['role_type']}
-- Размер компании: {context['company_size']}
-- Название компании: {context['company_name']}
-- Позиция: {context['position_title']}
-
-## МЕТОДОЛОГИЯ СОЗДАНИЯ ПИСЬМА
-
-### ЭТАП 1: ПЕРСОНАЛИЗАЦИЯ
-Создай уникальные элементы для ЭТОЙ компании:
-
-1. **Компанейский hook** - конкретный интерес к компании:
-   - Продукт, технологии, недавние новости
-   - Ценности или подходы, которые резонируют
-   - НЕ общие фразы типа "лидер рынка"
-
-2. **Ролевая мотивация** - почему именно ЭТА позиция интересна
-
-### ЭТАП 2: ДОКАЗАТЕЛЬСТВА ЦЕННОСТИ
-Выбери из резюме:
-1. **1-2 самых релевантных достижения** с конкретными цифрами
-2. **Точные совпадения навыков** из требований вакансии
-3. **Опыт**, который решает задачи данной позиции
-
-### ЭТАП 3: СТРУКТУРА (500-1000 символов)
-
-**1. Зацепляющее начало:**
-- Краткая история успеха ИЛИ достижение с цифрами
-- Связь с продуктом/компанией
-- НЕ "Меня заинтересовала ваша вакансия"
-
-**2. Интерес к компании:**
-- Конкретное знание о компании/продукте
-- Личная связь с ценностями/подходами
-
-**3. Ценностное предложение:**
-- КАК навыки решат задачи работодателя
-- Релевантные достижения с метриками
-- Совпадения с ключевыми требованиями
-
-**4. Профессиональное завершение:**
-- Энтузиазм и call-to-action
-- Готовность к интервью
-
-## АДАПТАЦИЯ ПО ТИПУ РОЛИ
-
-**DEVELOPER**: технический стек, проекты, производительность, code review
-**QA_ENGINEER**: внимание к деталям, критические баги, инструменты тестирования
-**ANALYST**: требования, процессы, домен, улучшения бизнес-метрик
-**DEVOPS**: автоматизация, надежность, экономия времени/ресурсов
-**DESIGNER**: UX-метрики, портфолио, влияние на конверсию
-**MANAGER**: команда, процессы, результаты, лидерство
-
-## ОБЯЗАТЕЛЬНЫЕ КРИТЕРИИ
-
-✅ Упоминание конкретного названия компании и позиции
-✅ Персонализация под компанию (продукт, новости, ценности)
-✅ Конкретные достижения с цифрами
-✅ Ответ на "Что получит работодатель?"
-✅ Профессиональный, но живой тон
-
-❌ Шаблонные фразы и клише
-❌ Повторение резюме без ценности
-❌ Общие качества без доказательств
-❌ Фокус на желаниях кандидата
-
-## ТОНАЛЬНОСТЬ ПО РАЗМЕРУ КОМПАНИИ
-- **STARTUP**: более неформально, энтузиазм, готовность к вызовам
-- **MEDIUM/LARGE**: баланс профессионализма и человечности
-- **ENTERPRISE**: максимально профессионально, стабильность
-
-Создай письмо в формате JSON согласно модели EnhancedCoverLetter, строго следуя всем принципам.
-"""
+    Верни результат в формате JSON согласно модели **EnhancedCoverLetter**."""
     
     async def generate_enhanced_cover_letter(self, parsed_resume: Dict[str, Any], parsed_vacancy: Dict[str, Any]) -> Optional[EnhancedCoverLetter]:
         """
@@ -189,29 +245,26 @@ class EnhancedLLMCoverLetterGenerator:
             EnhancedCoverLetter или None в случае ошибки
         """
         try:
-            # 1. Создаем профессиональный промпт
-            prompt_text = self._create_enhanced_cover_letter_prompt(parsed_resume, parsed_vacancy)
+            # 1. Анализируем контекст вакансии
+            context = self._analyze_vacancy_context(parsed_vacancy)
             
-            # 2. Подготавливаем сообщения
+            # 2. Создаем системный и пользовательский промпты
+            system_prompt = self._create_system_prompt(context, parsed_resume, parsed_vacancy)
+            user_prompt = self._create_user_prompt(parsed_resume, parsed_vacancy)
+            
+            # 3. Подготавливаем сообщения
             messages = [
                 {
                     "role": "system",
-                    "content": (
-                        "Ты — ведущий эксперт по сопроводительным письмам в IT с 10+ летним опытом. "
-                        "Специализируешься на создании персонализированных писем, которые проходят "
-                        "7-15 секундный скрининг HR и выделяют кандидатов среди конкурентов. "
-                        "Знаешь психологию рекрутеров и понимаешь, что ищут работодатели. "
-                        "Всегда отвечаешь в формате JSON согласно модели EnhancedCoverLetter. "
-                        "Пишешь на русском языке профессионально, но живо."
-                    )
+                    "content": system_prompt
                 },
                 {
                     "role": "user",
-                    "content": prompt_text
+                    "content": user_prompt
                 }
             ]
             
-            # 3. Вызов OpenAI API с новой моделью
+            # 4. Вызов OpenAI API с новой моделью
             completion = self.client.beta.chat.completions.parse(
                 model=self.model,
                 messages=messages,
@@ -219,19 +272,20 @@ class EnhancedLLMCoverLetterGenerator:
                 temperature=0.5  # Немного креативности для уникальности
             )
             
-            # 4. Извлекаем и валидируем ответ
+            # 5. Извлекаем и валидируем ответ
             raw_response_text = completion.choices[0].message.content
+            print(f"Raw response text: {raw_response_text}")  # Для отладки
             if not raw_response_text:
                 logger.error("Пустой ответ от модели при генерации сопроводительного письма.")
                 return None
             
-            # 5. Парсим в модель
+            # 6. Парсим в модель
             cover_letter = EnhancedCoverLetter.model_validate_json(raw_response_text)
             
-            # 6. Дополнительная валидация качества
-            if not self._validate_quality(cover_letter, parsed_vacancy):
-                logger.warning("Письмо не прошло проверку качества")
-                return None
+            # 7. Дополнительная валидация качества
+            if self.validate_quality and not self._validate_quality(cover_letter, parsed_vacancy):
+              logger.warning("Письмо не прошло проверку качества")
+              return None
                 
             logger.info("Профессиональное сопроводительное письмо успешно сгенерировано.")
             return cover_letter

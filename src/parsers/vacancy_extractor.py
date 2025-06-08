@@ -82,14 +82,15 @@ class VacancyExtractor:
             professional_roles = self._extract_professional_roles(data)
             
             return VacancyInfo(
-                name=data.get("name", ""),  # Новое поле - название вакансии
+                name=data.get("name", ""),
+                company_name = data.get('employer', {}).get('name', 'Компания'),
                 description=self._remove_html_tags(data.get("description", "")),
                 key_skills=[
                     skill.get("name", "") 
                     for skill in data.get("key_skills", [])
                     if isinstance(skill, dict)
                 ],
-                professional_roles=professional_roles,  # Новое поле
+                professional_roles=professional_roles,
                 employment_form=employment_form,
                 experience=experience,
                 schedule=schedule,
