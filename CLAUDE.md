@@ -63,18 +63,47 @@ The OAuth server must be running before users can authenticate with HeadHunter.r
 ## Development Commands
 
 ### Running Debug Scripts
-The `tests/` directory contains debugging utilities for each LLM service:
+The `tests/` directory contains comprehensive debugging utilities for each LLM service. Each debug module includes:
 
+**Gap Analysis Debug Tools:**
 ```bash
-# Debug gap analysis
+# Test data formatting
+python tests/debug_gap/debug_formatter.py
+# Test prompt generation
+python tests/debug_gap/debug_gap_prompts.py
+# Test LLM response generation
+python tests/debug_gap/debug_gap_response.py
+# Test Telegram message formatting
 python tests/debug_gap/debug_gap_handler.py
-
-# Debug cover letter generation
-python tests/debug_cover/debug_cover_letter_handler.py
-
-# Debug interview checklist
-python tests/debug_interview_checklist_formatter.py
+# Test data parsing
+python tests/debug_gap/debug_parsing.py
 ```
+
+**Cover Letter Debug Tools:**
+```bash
+# Test data formatting
+python tests/debug_cover/debug_cover_letter_formatter.py
+# Test prompt generation
+python tests/debug_cover/debug_cover_letter_prompts.py
+# Test LLM response generation
+python tests/debug_cover/debug_cover_letter_response.py
+# Test Telegram message formatting
+python tests/debug_cover/debug_cover_letter_handler.py
+```
+
+**Interview Checklist Debug Tools:**
+```bash
+# Test data formatting
+python tests/debug_interview_checklist/debug_interview_checklist_formatter.py
+# Test prompt generation
+python tests/debug_interview_checklist/debug_interview_checklist_prompts.py
+# Test LLM response generation
+python tests/debug_interview_checklist/debug_interview_checklist_response.py
+# Test Telegram message formatting
+python tests/debug_interview_checklist/debug_interview_checklist_handler.py
+```
+
+Each debug tool creates JSON response files for testing subsequent tools in the pipeline.
 
 ### Linting and Formatting
 Based on requirements_file.txt, the project supports:
