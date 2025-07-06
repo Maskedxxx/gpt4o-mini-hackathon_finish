@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Assistant - Симуляция интервью</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .auth-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .auth-section h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .auth-status {
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .auth-status.unauthorized {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .auth-status.authorized {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-section h3::before {
+            content: "🎯";
+            margin-right: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-group input[type="file"],
+        .form-group input[type="url"],
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .customization-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .customization-section h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+
+        .customization-section h3::before {
+            content: "⚙️";
+            margin-right: 10px;
+        }
+
+        .slider-group {
+            margin-bottom: 25px;
+        }
+
+        .slider-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: #e9ecef;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-section {
+            display: none;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .result-section {
+            display: none;
+            background: #d4edda;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #c3e6cb;
+        }
+
+        .result-section h3 {
+            color: #155724;
+            margin-bottom: 15px;
+        }
+
+        .result-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .summary-item .value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .summary-item .label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎭 Симуляция интервью</h1>
+            <p>Персонализированная подготовка к собеседованию с AI-интервьюером</p>
+        </div>
+
+        <div class="content">
+            <!-- Секция авторизации -->
+            <div class="auth-section">
+                <h3>🔐 Авторизация HeadHunter.ru</h3>
+                <div id="authStatus" class="auth-status unauthorized">
+                    Для доступа к вакансиям необходимо авторизоваться
+                </div>
+                <button id="authBtn" class="btn btn-primary">Авторизоваться через HH.ru</button>
+            </div>
+
+            <!-- Основная форма -->
+            <form id="simulationForm" style="display: none;">
+                <div class="form-section">
+                    <h3>Исходные данные</h3>
+                    
+                    <div class="form-group">
+                        <label for="resumeFile">📄 Загрузите резюме (PDF)</label>
+                        <input type="file" id="resumeFile" name="resume_file" accept=".pdf" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vacancyUrl">🔗 Ссылка на вакансию HH.ru</label>
+                        <input type="url" id="vacancyUrl" name="vacancy_url" 
+                               placeholder="https://hh.ru/vacancy/123456" required>
+                    </div>
+                </div>
+
+                <!-- Настройки симуляции -->
+                <div class="customization-section">
+                    <h3>Настройки симуляции</h3>
+                    
+                    <div class="slider-group">
+                        <label for="targetRounds">Количество раундов интервью</label>
+                        <div class="slider-container">
+                            <input type="range" id="targetRounds" class="slider" min="3" max="7" value="5">
+                            <span id="targetRoundsValue" class="slider-value">5</span>
+                        </div>
+                    </div>
+
+                    <div class="slider-group">
+                        <label for="temperature">Креативность AI (температура)</label>
+                        <div class="slider-container">
+                            <input type="range" id="temperature" class="slider" min="0.1" max="1.0" step="0.1" value="0.7">
+                            <span id="temperatureValue" class="slider-value">0.7</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="difficultyLevel">Уровень сложности</label>
+                        <select id="difficultyLevel" name="difficulty_level">
+                            <option value="easy">Легкий</option>
+                            <option value="medium" selected>Средний</option>
+                            <option value="hard">Сложный</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hrPersona">Тип HR-интервьюера</label>
+                        <select id="hrPersona" name="hr_persona">
+                            <option value="professional" selected>Профессиональный</option>
+                            <option value="friendly">Дружелюбный</option>
+                            <option value="strict">Строгий</option>
+                            <option value="technical">Технический</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Области фокуса</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="includeBehavioral" checked>
+                                <label for="includeBehavioral">Поведенческие вопросы</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="includeTechnical" checked>
+                                <label for="includeTechnical">Технические вопросы</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="focusLeadership">
+                                <label for="focusLeadership">Лидерство</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="focusTeamwork">
+                                <label for="focusTeamwork">Командная работа</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="focusCommunication">
+                                <label for="focusCommunication">Коммуникация</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="focusProblemSolving">
+                                <label for="focusProblemSolving">Решение проблем</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    🚀 Запустить симуляцию интервью
+                </button>
+            </form>
+
+            <!-- Секция прогресса -->
+            <div id="progressSection" class="progress-section">
+                <h3>⏳ Выполнение симуляции...</h3>
+                <div class="progress-text" id="progressText">Подготовка...</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div id="progressPercent">0%</div>
+            </div>
+
+            <!-- Секция результатов -->
+            <div id="resultSection" class="result-section">
+                <h3>✅ Симуляция завершена!</h3>
+                <div class="result-summary" id="resultSummary">
+                    <!-- Будет заполнено JS -->
+                </div>
+                <button id="downloadBtn" class="btn btn-primary">📥 Скачать отчет PDF</button>
+            </div>
+
+            <!-- Сообщения об ошибках -->
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = null;
+        let refreshToken = null;
+        let currentSimulationId = null;
+
+        // Инициализация слайдеров
+        document.addEventListener('DOMContentLoaded', function() {
+            const targetRoundsSlider = document.getElementById('targetRounds');
+            const targetRoundsValue = document.getElementById('targetRoundsValue');
+            const temperatureSlider = document.getElementById('temperature');
+            const temperatureValue = document.getElementById('temperatureValue');
+
+            targetRoundsSlider.addEventListener('input', function() {
+                targetRoundsValue.textContent = this.value;
+            });
+
+            temperatureSlider.addEventListener('input', function() {
+                temperatureValue.textContent = this.value;
+            });
+        });
+
+        // Авторизация
+        document.getElementById('authBtn').addEventListener('click', async function() {
+            try {
+                const response = await fetch('/auth/hh', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.auth_url) {
+                    window.open(data.auth_url, '_blank');
+                    
+                    // Проверяем токены каждые 3 секунды
+                    const checkInterval = setInterval(async () => {
+                        try {
+                            const tokenResponse = await fetch('/auth/tokens');
+                            const tokenData = await tokenResponse.json();
+                            
+                            if (tokenData.success) {
+                                authToken = tokenData.access_token;
+                                refreshToken = tokenData.refresh_token;
+                                
+                                document.getElementById('authStatus').className = 'auth-status authorized';
+                                document.getElementById('authStatus').textContent = 'Авторизация успешна!';
+                                document.getElementById('authBtn').style.display = 'none';
+                                document.getElementById('simulationForm').style.display = 'block';
+                                
+                                clearInterval(checkInterval);
+                            }
+                        } catch (error) {
+                            console.error('Ошибка проверки токенов:', error);
+                        }
+                    }, 3000);
+                    
+                    // Останавливаем проверку через 5 минут
+                    setTimeout(() => clearInterval(checkInterval), 300000);
+                }
+            } catch (error) {
+                showError('Ошибка авторизации: ' + error.message);
+            }
+        });
+
+        // Отправка формы
+        document.getElementById('simulationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!authToken) {
+                showError('Необходимо авторизоваться');
+                return;
+            }
+            
+            // Блокируем кнопку и показываем загрузку
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = '⏳ Запуск симуляции...';
+            submitButton.style.opacity = '0.6';
+
+            const formData = new FormData();
+            formData.append('resume_file', document.getElementById('resumeFile').files[0]);
+            formData.append('vacancy_url', document.getElementById('vacancyUrl').value);
+            formData.append('hh_access_token', authToken);
+            formData.append('hh_refresh_token', refreshToken);
+            formData.append('target_rounds', document.getElementById('targetRounds').value);
+            formData.append('difficulty_level', document.getElementById('difficultyLevel').value);
+            formData.append('hr_persona', document.getElementById('hrPersona').value);
+            formData.append('temperature', document.getElementById('temperature').value);
+            formData.append('include_behavioral', document.getElementById('includeBehavioral').checked);
+            formData.append('include_technical', document.getElementById('includeTechnical').checked);
+            
+            // Собираем области фокуса
+            const focusAreas = [];
+            if (document.getElementById('focusLeadership').checked) focusAreas.push('leadership');
+            if (document.getElementById('focusTeamwork').checked) focusAreas.push('teamwork');
+            if (document.getElementById('focusCommunication').checked) focusAreas.push('communication');
+            if (document.getElementById('focusProblemSolving').checked) focusAreas.push('problem_solving');
+            
+            formData.append('focus_areas', JSON.stringify(focusAreas));
+
+            try {
+                const response = await fetch('/start-simulation', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentSimulationId = data.simulation_id;
+                    document.getElementById('simulationForm').style.display = 'none';
+                    document.getElementById('progressSection').style.display = 'block';
+                    
+                    // Начинаем отслеживание прогресса
+                    trackProgress();
+                } else {
+                    showError('Ошибка запуска симуляции: ' + data.detail);
+                    // Восстанавливаем кнопку при ошибке
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
+                    submitButton.style.opacity = '1';
+                }
+            } catch (error) {
+                showError('Ошибка запуска симуляции: ' + error.message);
+                // Восстанавливаем кнопку при ошибке
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+                submitButton.style.opacity = '1';
+            }
+        });
+
+        // Отслеживание прогресса
+        async function trackProgress() {
+            if (!currentSimulationId) return;
+            
+            const progressInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/simulation-progress/${currentSimulationId}`);
+                    const data = await response.json();
+                    
+                    document.getElementById('progressText').textContent = data.message || 'Обработка...';
+                    document.getElementById('progressFill').style.width = (data.progress || 0) + '%';
+                    document.getElementById('progressPercent').textContent = (data.progress || 0) + '%';
+                    
+                    if (data.status === 'completed') {
+                        clearInterval(progressInterval);
+                        showResults(data);
+                    } else if (data.status === 'error') {
+                        clearInterval(progressInterval);
+                        showError(data.message || 'Ошибка выполнения симуляции');
+                        document.getElementById('progressSection').style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Ошибка отслеживания прогресса:', error);
+                }
+            }, 2000);
+        }
+
+        // Показ результатов
+        function showResults(data) {
+            document.getElementById('progressSection').style.display = 'none';
+            document.getElementById('resultSection').style.display = 'block';
+            
+            const summary = data.simulation_summary || {};
+            document.getElementById('resultSummary').innerHTML = `
+                <div class="summary-item">
+                    <div class="value">${summary.total_rounds || 0}</div>
+                    <div class="label">Раундов интервью</div>
+                </div>
+                <div class="summary-item">
+                    <div class="value">${(summary.average_score || 0).toFixed(1)}</div>
+                    <div class="label">Средний балл</div>
+                </div>
+                <div class="summary-item">
+                    <div class="value">${summary.red_flags_count || 0}</div>
+                    <div class="label">Красных флагов</div>
+                </div>
+                <div class="summary-item">
+                    <div class="value">${summary.overall_recommendation || 'Н/Д'}</div>
+                    <div class="label">Рекомендация</div>
+                </div>
+            `;
+        }
+
+        // Скачивание отчета
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            if (currentSimulationId) {
+                window.location.href = `/download-report/${currentSimulationId}`;
+            }
+        });
+
+        // Показ ошибок
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

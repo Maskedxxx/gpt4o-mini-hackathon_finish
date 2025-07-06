@@ -59,6 +59,7 @@ class SmartCandidateAnalyzer:
     def analyze_candidate_profile(self, resume_data: Dict[str, Any]) -> CandidateProfile:
         """Анализирует резюме и создает профиль кандидата."""
         
+        
         # Определяем уровень кандидата
         level = self._determine_candidate_level(resume_data)
         
@@ -94,8 +95,17 @@ class SmartCandidateAnalyzer:
         """Определяет уровень кандидата на основе опыта и навыков."""
         
         # Получаем опыт в месяцах
-        total_exp_months = resume_data.get('total_experience', {}).get('months', 0)
-        years_exp = total_exp_months / 12
+        total_experience = resume_data.get('total_experience', {})
+        
+        # Безопасно получаем months
+        if isinstance(total_experience, dict):
+            total_exp_months = total_experience.get('months', 0)
+        elif isinstance(total_experience, (int, float)):
+            total_exp_months = total_experience
+        else:
+            total_exp_months = 0
+            
+        years_exp = total_exp_months / 12 if total_exp_months > 0 else 0
         
         # Определяем по опыту
         base_level_by_experience = CandidateLevel.UNKNOWN
@@ -118,7 +128,13 @@ class SmartCandidateAnalyzer:
         # Собираем текст для анализа
         text_to_analyze = []
         text_to_analyze.append(resume_data.get('title', '').lower())
-        text_to_analyze.append(resume_data.get('skills', '').lower())
+        
+        # Обрабатываем навыки (могут быть строкой или списком)
+        skills = resume_data.get('skills', '')
+        if isinstance(skills, list):
+            text_to_analyze.extend([str(skill).lower() for skill in skills])
+        else:
+            text_to_analyze.append(str(skills).lower())
         
         # Добавляем навыки
         skill_set = resume_data.get('skill_set', [])
@@ -150,7 +166,16 @@ class SmartCandidateAnalyzer:
     
     def _extract_years_of_experience(self, resume_data: Dict[str, Any]) -> Optional[int]:
         """Извлекает количество лет опыта."""
-        total_exp_months = resume_data.get('total_experience', {}).get('months', 0)
+        total_experience = resume_data.get('total_experience', {})
+        
+        # Безопасно получаем months
+        if isinstance(total_experience, dict):
+            total_exp_months = total_experience.get('months', 0)
+        elif isinstance(total_experience, (int, float)):
+            total_exp_months = total_experience
+        else:
+            total_exp_months = 0
+            
         return round(total_exp_months / 12) if total_exp_months > 0 else None
     
     def _extract_key_technologies(self, resume_data: Dict[str, Any]) -> List[str]:
@@ -168,7 +193,12 @@ class SmartCandidateAnalyzer:
                         technologies.add(skill)
         
         # Из описания навыков
-        skills_text = resume_data.get('skills', '').lower()
+        skills = resume_data.get('skills', '')
+        if isinstance(skills, list):
+            skills_text = ' '.join([str(skill) for skill in skills]).lower()
+        else:
+            skills_text = str(skills).lower()
+            
         for category, techs in self.TECH_CATEGORIES.items():
             for tech in techs:
                 if tech in skills_text:
@@ -228,6 +258,7 @@ class InterviewConfigurationBuilder:
     def build_interview_config(self, candidate_profile: CandidateProfile, 
                              vacancy_data: Dict[str, Any]) -> InterviewConfiguration:
         """Создает конфигурацию интервью."""
+        
         
         # Определяем количество раундов
         target_rounds = self._calculate_target_rounds(candidate_profile)
@@ -296,7 +327,13 @@ class InterviewConfigurationBuilder:
         """Определяет уровень сложности вопросов."""
         
         # Получаем требуемый опыт из вакансии
-        vacancy_experience = vacancy_data.get('experience', {}).get('id', '')
+        experience_data = vacancy_data.get('experience', {})
+        
+        # Безопасно получаем id
+        if isinstance(experience_data, dict):
+            vacancy_experience = experience_data.get('id', '')
+        else:
+            vacancy_experience = str(experience_data) if experience_data else ''
         
         # Сопоставляем с уровнем кандидата
         if profile.detected_level == CandidateLevel.JUNIOR:
@@ -485,6 +522,7 @@ def create_candidate_profile_and_config(resume_data: Dict[str, Any],
     """
     Создает профиль кандидата и конфигурацию интервью.
     """
+    
     analyzer = SmartCandidateAnalyzer()
     profile = analyzer.analyze_candidate_profile(resume_data)
     

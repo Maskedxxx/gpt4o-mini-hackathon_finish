@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Assistant - Сопроводительное письмо</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        input[type="file"], input[type="url"], input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input[type="file"]:focus, input[type="url"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #28a745;
+        }
+        .btn {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background-color: #218838;
+        }
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .auth-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #28a745;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .result-item {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .result-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #28a745;
+            transition: width 0.3s ease;
+        }
+        .letter-text {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .section-header {
+            background: #e8f5e8;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #155724;
+        }
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .skill-tag {
+            background: #007bff;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 AI Resume Assistant</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Генерация персонализированного сопроводительного письма на основе вашего резюме и целевой вакансии
+        </p>
+
+        <!-- Авторизация HH.ru -->
+        <div class="auth-section">
+            <h3>1. Авторизация HH.ru</h3>
+            <p>Для получения данных вакансии необходимо авторизоваться на HH.ru</p>
+            <button class="btn" onclick="startHHAuth()">Авторизоваться на HH.ru</button>
+            <div id="auth-status" style="margin-top: 10px;"></div>
+            <input type="text" id="access-token" placeholder="Access Token" style="margin-top: 10px; display: none;" readonly>
+            <input type="text" id="refresh-token" placeholder="Refresh Token" style="margin-top: 10px; display: none;" readonly>
+        </div>
+
+        <!-- Форма генерации письма -->
+        <form id="cover-letter-form">
+            <div class="form-group">
+                <label for="resume-file">2. Загрузите PDF резюме:</label>
+                <input type="file" id="resume-file" accept=".pdf" required>
+            </div>
+
+            <div class="form-group">
+                <label for="vacancy-url">3. Ссылка на вакансию HH.ru:</label>
+                <input type="url" id="vacancy-url" placeholder="https://hh.ru/vacancy/123456" required>
+            </div>
+
+            <button type="submit" class="btn">Сгенерировать сопроводительное письмо</button>
+        </form>
+
+        <!-- Загрузка -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Генерируется персонализированное сопроводительное письмо... Это может занять несколько минут.</p>
+        </div>
+
+        <!-- Ошибки -->
+        <div id="error" class="error"></div>
+
+        <!-- Результаты -->
+        <div id="results" class="results">
+            <h3>Сопроводительное письмо готово!</h3>
+            <div id="cover-letter-content"></div>
+        </div>
+    </div>
+
+    <script>
+        let accessToken = null;
+        let refreshToken = null;
+
+        async function startHHAuth() {
+            try {
+                const response = await fetch('/auth/hh', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                // Открываем окно авторизации
+                const authWindow = window.open(data.auth_url, 'hh-auth', 'width=600,height=700');
+                
+                document.getElementById('auth-status').innerHTML = 
+                    '<div class="success">Окно авторизации открыто. Ожидание завершения авторизации...</div>';
+                
+                // Запускаем polling для проверки токенов
+                startTokenPolling();
+                
+            } catch (error) {
+                showError('Ошибка при запуске авторизации: ' + error.message);
+            }
+        }
+
+        async function startTokenPolling() {
+            let attempts = 0;
+            const maxAttempts = 60; // 3 минуты
+            
+            const checkTokens = async () => {
+                try {
+                    const response = await fetch('/auth/tokens');
+                    const data = await response.json();
+                    
+                    if (data.success && data.access_token && data.refresh_token) {
+                        // Сохраняем токены
+                        accessToken = data.access_token;
+                        refreshToken = data.refresh_token;
+                        
+                        document.getElementById('auth-status').innerHTML = 
+                            '<div class="success">✅ Авторизация успешно завершена!</div>';
+                        
+                        // Показываем поля токенов (для отладки)
+                        document.getElementById('access-token').style.display = 'block';
+                        document.getElementById('access-token').value = accessToken;
+                        document.getElementById('refresh-token').style.display = 'block';
+                        document.getElementById('refresh-token').value = refreshToken;
+                        
+                        return true;
+                    } else if (attempts < maxAttempts) {
+                        attempts++;
+                        setTimeout(checkTokens, 3000);
+                    } else {
+                        document.getElementById('auth-status').innerHTML = 
+                            '<div class="error">Время ожидания авторизации истекло. Попробуйте еще раз.</div>';
+                    }
+                } catch (error) {
+                    console.error('Ошибка при проверке токенов:', error);
+                    if (attempts < maxAttempts) {
+                        attempts++;
+                        setTimeout(checkTokens, 3000);
+                    }
+                }
+            };
+            
+            checkTokens();
+        }
+
+        document.getElementById('cover-letter-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const resumeFile = document.getElementById('resume-file').files[0];
+            const vacancyUrl = document.getElementById('vacancy-url').value;
+            
+            if (!resumeFile) {
+                showError('Выберите PDF файл резюме');
+                return;
+            }
+            
+            if (!vacancyUrl) {
+                showError('Введите ссылку на вакансию');
+                return;
+            }
+            
+            if (!accessToken || !refreshToken) {
+                showError('Необходимо авторизоваться на HH.ru');
+                return;
+            }
+            
+            formData.append('resume_file', resumeFile);
+            formData.append('vacancy_url', vacancyUrl);
+            formData.append('hh_access_token', accessToken);
+            formData.append('hh_refresh_token', refreshToken);
+            
+            showLoading();
+            hideError();
+            hideResults();
+            
+            try {
+                const response = await fetch('/generate-cover-letter', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResults(data.cover_letter);
+                } else {
+                    showError(data.detail || 'Ошибка при генерации письма');
+                }
+                
+            } catch (error) {
+                showError('Ошибка соединения: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        });
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function showResults(coverLetter) {
+            const resultsDiv = document.getElementById('results');
+            const contentDiv = document.getElementById('cover-letter-content');
+            
+            contentDiv.innerHTML = `
+                <div class="result-item">
+                    <div class="result-title">📧 Готовое сопроводительное письмо</div>
+                    <div class="letter-text">${coverLetter.final_letter}</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-title">🏢 Контекст компании</div>
+                    <div><strong>Компания:</strong> ${coverLetter.company_context.company_name}</div>
+                    <div><strong>Позиция:</strong> ${coverLetter.company_context.position_title}</div>
+                    <div><strong>Размер компании:</strong> ${coverLetter.company_context.company_size}</div>
+                    <div><strong>Тип роли:</strong> ${coverLetter.company_context.role_type}</div>
+                    <div><strong>Ключевые требования:</strong></div>
+                    <ul>
+                        ${coverLetter.company_context.key_requirements.map(req => `<li>${req}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-title">🎯 Анализ соответствия навыков</div>
+                    <div><strong>Релевантность опыта:</strong> ${coverLetter.skills_match.experience_relevance_score}/10</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${coverLetter.skills_match.experience_relevance_score * 10}%"></div>
+                    </div>
+                    <div style="margin-top: 15px;"><strong>Совпадающие навыки:</strong></div>
+                    <div class="skills-list">
+                        ${coverLetter.skills_match.matching_skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    </div>
+                    <div style="margin-top: 15px;"><strong>Релевантные достижения:</strong></div>
+                    <ul>
+                        ${coverLetter.skills_match.relevant_achievements.map(achievement => `<li>${achievement}</li>`).join('')}
+                    </ul>
+                    <div style="margin-top: 15px;"><strong>Уникальные преимущества:</strong></div>
+                    <ul>
+                        ${coverLetter.skills_match.unique_selling_points.map(point => `<li>${point}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-title">✨ Стратегия персонализации</div>
+                    <div><strong>Тональность:</strong> ${coverLetter.personalization.tone}</div>
+                    <div><strong>Уровень кастомизации:</strong> ${coverLetter.personalization.customization_level}</div>
+                    <div style="margin-top: 15px;"><strong>Ключевые мотивации:</strong></div>
+                    <ul>
+                        ${coverLetter.personalization.key_motivations.map(motivation => `<li>${motivation}</li>`).join('')}
+                    </ul>
+                    <div style="margin-top: 15px;"><strong>Исследование компании:</strong></div>
+                    <ul>
+                        ${coverLetter.personalization.company_research_points.map(point => `<li>${point}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-title">📊 Оценка качества письма</div>
+                    <div><strong>Персонализация:</strong> ${coverLetter.quality_assessment.personalization_score}/10</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${coverLetter.quality_assessment.personalization_score * 10}%"></div>
+                    </div>
+                    <div style="margin-top: 10px;"><strong>Релевантность:</strong> ${coverLetter.quality_assessment.relevance_score}/10</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${coverLetter.quality_assessment.relevance_score * 10}%"></div>
+                    </div>
+                    <div style="margin-top: 10px;"><strong>Вовлеченность:</strong> ${coverLetter.quality_assessment.engagement_score}/10</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${coverLetter.quality_assessment.engagement_score * 10}%"></div>
+                    </div>
+                    <div style="margin-top: 15px;"><strong>Общее качество:</strong> 
+                        <span style="color: ${
+                            coverLetter.quality_assessment.overall_quality === 'EXCELLENT' ? 'green' :
+                            coverLetter.quality_assessment.overall_quality === 'GOOD' ? 'blue' :
+                            coverLetter.quality_assessment.overall_quality === 'AVERAGE' ? 'orange' : 'red'
+                        }; font-weight: bold;">${coverLetter.quality_assessment.overall_quality}</span>
+                    </div>
+                    ${coverLetter.quality_assessment.improvement_suggestions.length > 0 ? `
+                        <div style="margin-top: 15px;"><strong>Рекомендации по улучшению:</strong></div>
+                        <ul>
+                            ${coverLetter.quality_assessment.improvement_suggestions.map(suggestion => `<li>${suggestion}</li>`).join('')}
+                        </ul>
+                    ` : ''}
+                </div>
+
+                <div class="result-item">
+                    <div class="result-title">📝 Структура письма</div>
+                    <div class="section-header">Зацепка в начале</div>
+                    <div>${coverLetter.letter_structure.opening_hook}</div>
+                    
+                    <div class="section-header">Ценностное предложение</div>
+                    <div>${coverLetter.letter_structure.value_proposition}</div>
+                    
+                    <div class="section-header">Конкретные примеры</div>
+                    <ul>
+                        ${coverLetter.letter_structure.specific_examples.map(example => `<li>${example}</li>`).join('')}
+                    </ul>
+                    
+                    <div class="section-header">Соответствие компании</div>
+                    <div>${coverLetter.letter_structure.company_alignment}</div>
+                    
+                    <div class="section-header">Призыв к действию</div>
+                    <div>${coverLetter.letter_structure.call_to_action}</div>
+                </div>
+            `;
+            
+            resultsDiv.style.display = 'block';
+        }
+
+        function hideResults() {
+            document.getElementById('results').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
