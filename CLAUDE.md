@@ -1,164 +1,174 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+AI Resume Assistant - полная система помощи соискателям с анализом резюме, генерацией сопроводительных писем и подготовкой к интервью.
 
-## Project Overview
+## Архитектура системы
 
-This is an AI Resume Assistant Telegram Bot that helps users optimize their resumes for job applications by analyzing gaps between their profile and job vacancies. The system integrates with HeadHunter.ru API and uses OpenAI's GPT-4 for intelligent analysis and content generation.
+### Фронтенды
+- **Telegram Bot** (`src/tg_bot/`) - основной интерфейс, aiogram 3.x + FSM
+- **Web Apps** (`src/web_app/`) - 4 независимых FastAPI приложения:
+  - Gap Analysis (8000) - анализ соответствия резюме вакансии
+  - Cover Letter (8001) - генерация сопроводительных писем
+  - Interview Checklist (8002) - чек-листы подготовки к интервью  
+  - Interview Simulation (8003) - симуляция интервью с PDF отчетами
 
-## Architecture
+### Бэкенд сервисы
+- **OAuth Server** (`src/callback_local_server/`) - FastAPI сервер для HH.ru OAuth (порт 8080)
+- **HH Integration** (`src/hh/`) - клиент API, авторизация, управление токенами
+- **LLM Services** (`src/llm_*/`) - специализированные AI процессоры:
+  - `llm_gap_analyzer` - анализ разрыва резюме-вакансия
+  - `llm_cover_letter` - персонализированные письма  
+  - `llm_interview_checklist` - планы подготовки к интервью
+  - `llm_interview_simulation` - симуляция интервью с агентами
 
-The application follows a modular Python architecture with these main components:
+### Данные и парсинг
+- **Models** (`src/models/`) - Pydantic модели для валидации данных
+- **Parsers** (`src/parsers/`) - извлечение данных:
+  - `pdf_resume_parser.py` - парсинг PDF резюме через OpenAI structured output
+  - `vacancy_extractor.py` - извлечение данных вакансий из HH.ru API
 
-- **Telegram Bot** (`src/tg_bot/`) - User interface using aiogram 3.x with FSM state management
-- **OAuth Server** (`src/callback_local_server/`) - FastAPI server for HeadHunter.ru OAuth callbacks
-- **HeadHunter Integration** (`src/hh/`) - API client, authentication, and token management
-- **LLM Services** (`src/llm_*/`) - Specialized AI processors for different analysis types:
-  - `llm_gap_analyzer` - Resume-vacancy gap analysis
-  - `llm_cover_letter` - Personalized cover letter generation
-  - `llm_interview_checklist` - Interview preparation checklists
-  - `llm_interview_simulation` - Mock interview simulation with PDF reports
-- **Data Models** (`src/models/`) - Pydantic models for structured data validation
-- **Parsers** (`src/parsers/`) - Data extraction from HeadHunter API responses
+## Критические особенности данных
 
-## Configuration
+### Резюме (через pdf_resume_parser.py)
+```python
+# total_experience приходит как int (месяцы), НЕ как dict
+total_experience: int = 27  # 27 месяцев опыта
 
-The project uses environment variables for configuration. Copy `env_example.sh` to create your environment file:
-
-```bash
-cp env_example.sh .env
-# Edit .env with your actual API keys and tokens
+# skills может быть list или string
+skills: Union[List[str], str] = ["Python", "Django"] или "Python, Django"
 ```
 
-Required environment variables:
-- `TG_BOT_BOT_TOKEN` - Telegram bot token from @BotFather
-- `OPENAI_API_KEY` - OpenAI API key
-- `OPENAI_MODEL_NAME` - OpenAI model (default: gpt-4)
-- `HH_CLIENT_ID` - HeadHunter.ru application client ID
-- `HH_CLIENT_SECRET` - HeadHunter.ru application client secret
-- `HH_REDIRECT_URI` - OAuth callback URL (default: http://localhost:8080/callback)
+### Вакансии (через HH.ru API)
+```python
+# experience может быть dict или int
+experience: Union[Dict, int] = {"id": "between1And3"} или 1
 
-## Running the Application
-
-### Prerequisites
-Install dependencies from `DOCS/requirements_file.txt`:
-```bash
-pip install -r DOCS/requirements_file.txt
+# key_skills всегда list of dict
+key_skills: List[Dict] = [{"name": "Python"}, {"name": "Django"}]
 ```
 
-### Start the Services
+## Потоки данных
 
-1. **Start OAuth callback server** (required for HeadHunter.ru authentication):
+### Telegram Bot поток
+1. User OAuth → HH.ru access_token
+2. User загружает PDF → `pdf_resume_parser.parse_pdf_resume()` → ResumeInfo
+3. User дает ссылку на вакансию → `HHApiClient.request()` → `vacancy_extractor.extract_vacancy_info()` → VacancyInfo  
+4. ResumeInfo + VacancyInfo → LLM Service → обработанный результат
+5. Результат форматируется для Telegram
+
+### Web App поток  
+1. User OAuth через web → callback на localhost:8080
+2. PDF upload → `pdf_resume_parser.parse_pdf_resume()` → ResumeInfo
+3. Vacancy URL → HH API → VacancyInfo
+4. `.model_dump()` → dict для передачи в LLM Service
+5. Background task для длительных операций (симуляция)
+6. HTML результаты + PDF генерация
+
+## LLM Service архитектура
+
+### Общий паттерн
+```python
+# Все LLM сервисы имеют:
+config.py          # OpenAI настройки
+formatter.py        # Подготовка данных для промптов  
+main_service.py     # Основная логика + API взаимодействие
+```
+
+### Interview Simulation особенности
+```python
+# Поддерживает кастомные настройки через:
+simulator.set_custom_config({
+    "target_rounds": 5,
+    "difficulty_level": "medium", 
+    "hr_persona": "professional"
+})
+
+# Использует агентную архитектуру:
+HR Agent ↔ Candidate Agent → Dialog → Assessment → PDF Report
+```
+
+## Запуск системы
+
+### Environment Setup
 ```bash
+# Копировать env_example.sh → .env
+OPENAI_API_KEY=sk-...
+HH_CLIENT_ID=...
+HH_CLIENT_SECRET=...
+HH_REDIRECT_URI=http://localhost:8080/callback
+```
+
+### Production запуск
+```bash
+# 1. OAuth сервер (ОБЯЗАТЕЛЬНО первым)
 python -m src.callback_local_server.main
-```
 
-2. **Start Telegram bot** (in separate terminal):
-```bash
+# 2. Telegram bot
 python -m src.tg_bot.main
+
+# 3. Web apps (опционально, любые)
+python -m src.web_app.gap_analysis.main      # :8000
+python -m src.web_app.cover_letter.main      # :8001  
+python -m src.web_app.interview_checklist.main   # :8002
+python -m src.web_app.interview_simulation.main  # :8003
 ```
 
-The OAuth server must be running before users can authenticate with HeadHunter.ru.
+## Debug и разработка
 
-## Development Commands
-
-### Running Debug Scripts
-The `tests/` directory contains comprehensive debugging utilities for each LLM service. Each debug module includes:
-
-**Gap Analysis Debug Tools:**
+### Debug scripts
 ```bash
-# Test data formatting
-python tests/debug_gap/debug_formatter.py
-# Test prompt generation
-python tests/debug_gap/debug_gap_prompts.py
-# Test LLM response generation
-python tests/debug_gap/debug_gap_response.py
-# Test Telegram message formatting
-python tests/debug_gap/debug_gap_handler.py
-# Test data parsing
-python tests/debug_gap/debug_parsing.py
+# Каждый LLM сервис имеет debug утилиты в tests/debug_*/
+python tests/debug_gap/debug_formatter.py        # Тест форматирования
+python tests/debug_gap/debug_gap_response.py     # Тест LLM ответов
 ```
 
-**Cover Letter Debug Tools:**
-```bash
-# Test data formatting
-python tests/debug_cover/debug_cover_letter_formatter.py
-# Test prompt generation
-python tests/debug_cover/debug_cover_letter_prompts.py
-# Test LLM response generation
-python tests/debug_cover/debug_cover_letter_response.py
-# Test Telegram message formatting
-python tests/debug_cover/debug_cover_letter_handler.py
+### Важные паттерны кода
+
+#### Type Safety для данных
+```python
+# ВСЕГДА проверять типы перед .get()
+total_experience = resume_data.get('total_experience', {})
+if isinstance(total_experience, dict):
+    months = total_experience.get('months', 0)
+elif isinstance(total_experience, (int, float)):
+    months = total_experience
+else:
+    months = 0
 ```
 
-**Interview Checklist Debug Tools:**
-```bash
-# Test data formatting
-python tests/debug_interview_checklist/debug_interview_checklist_formatter.py
-# Test prompt generation
-python tests/debug_interview_checklist/debug_interview_checklist_prompts.py
-# Test LLM response generation
-python tests/debug_interview_checklist/debug_interview_checklist_response.py
-# Test Telegram message formatting
-python tests/debug_interview_checklist/debug_interview_checklist_handler.py
+#### Web App Background Tasks
+```python
+# Длительные операции в background
+asyncio.create_task(run_simulation_background(id, resume_dict, vacancy_dict, config))
+
+# Прогресс через in-memory storage
+simulation_progress_storage[id] = {"status": "running", "progress": 50}
 ```
 
-Each debug tool creates JSON response files for testing subsequent tools in the pipeline.
+## Состояния и ошибки
 
-### Linting and Formatting
-Based on requirements_file.txt, the project supports:
-```bash
-# Code formatting
-black src/ tests/
+### Telegram Bot States
+- `UNAUTHORIZED` → OAuth required
+- `AUTHORIZED` → Готов к работе
+- `*_PREPARATION` → Обработка данных
+- `*_GENERATION` → LLM обработка
 
-# Linting
-flake8 src/ tests/
+### Частые ошибки и решения
+```python
+# 'int' object has no attribute 'get' 
+# → Проверить isinstance() перед .get()
 
-# Import sorting
-isort src/ tests/
+# 'NoneType' object has no attribute 'position_title'
+# → Проверить что LLM service вернул результат
 
-# Type checking
-mypy src/
+# 'CompetencyScore' object has no attribute 'name'  
+# → Использовать comp.area.value вместо comp.name
 ```
 
-### Testing
-Run tests using pytest:
-```bash
-pytest tests/
-```
+## Deployment заметки
 
-## Key Development Patterns
-
-### LLM Service Structure
-All LLM services follow the same pattern:
-- `config.py` - OpenAI configuration and settings
-- `formatter.py` - Data formatting for prompts
-- Main service file - Core logic and API interaction
-
-### State Management
-User state is managed through aiogram FSM with these key states:
-- `UNAUTHORIZED` - User needs to authenticate with HH.ru
-- `AUTHORIZED` - User can access all features
-- `RESUME_PREPARATION` - Processing resume data
-- `VACANCY_PREPARATION` - Processing vacancy data
-- Service-specific states for each analysis type
-
-### Data Flow
-1. User authenticates via OAuth with HeadHunter.ru
-2. User provides resume and vacancy links/IDs
-3. Data is parsed into Pydantic models
-4. LLM services process the structured data
-5. Results are formatted and returned to user
-6. Interview simulation generates PDF reports
-
-### Error Handling
-- All API calls include proper error handling and logging
-- User state is preserved across errors
-- Comprehensive logging to `LOGS/` directory with service-specific log files
-
-## Important Notes
-
-- The application stores user data only in memory (no persistent database)
-- OAuth tokens are temporarily stored during user sessions
-- PDF generation requires DejaVu fonts (included in `fonts/` directory)
-- All LLM responses are validated through Pydantic models for type safety
+- OAuth сервер ДОЛЖЕН быть запущен первым
+- Web apps независимы, могут запускаться в любом порядке
+- PDF генерация требует шрифты в `fonts/`
+- Логи пишутся в `LOGS/` с разделением по сервисам
+- Нет persistent storage - все в памяти

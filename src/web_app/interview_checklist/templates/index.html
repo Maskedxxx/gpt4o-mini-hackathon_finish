@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Assistant - Чек-лист подготовки к интервью</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        input[type="file"], input[type="url"], input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input[type="file"]:focus, input[type="url"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #17a2b8;
+        }
+        .btn {
+            background-color: #17a2b8;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background-color: #138496;
+        }
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .auth-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #17a2b8;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .checklist-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #17a2b8;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .checklist-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #17a2b8;
+        }
+        .item-header {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        .priority-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: auto;
+        }
+        .priority-critical {
+            background-color: #dc3545;
+            color: white;
+        }
+        .priority-important {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .priority-optional {
+            background-color: #28a745;
+            color: white;
+        }
+        .tasks-list {
+            margin: 10px 0;
+        }
+        .task-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .task-item:last-child {
+            border-bottom: none;
+        }
+        .time-estimate {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        .resources-list {
+            margin-top: 10px;
+        }
+        .resource-item {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 2px;
+        }
+        .executive-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        .summary-item {
+            margin-bottom: 15px;
+        }
+        .summary-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .critical-factors {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+        .critical-factors h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        .factor-item {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .factor-item::before {
+            content: "⚡";
+            position: absolute;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 AI Resume Assistant</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Персонализированный чек-лист подготовки к интервью на основе вашего резюме и целевой вакансии
+        </p>
+
+        <!-- Авторизация HH.ru -->
+        <div class="auth-section">
+            <h3>1. Авторизация HH.ru</h3>
+            <p>Для получения данных вакансии необходимо авторизоваться на HH.ru</p>
+            <button class="btn" onclick="startHHAuth()">Авторизоваться на HH.ru</button>
+            <div id="auth-status" style="margin-top: 10px;"></div>
+            <input type="text" id="access-token" placeholder="Access Token" style="margin-top: 10px; display: none;" readonly>
+            <input type="text" id="refresh-token" placeholder="Refresh Token" style="margin-top: 10px; display: none;" readonly>
+        </div>
+
+        <!-- Форма генерации чек-листа -->
+        <form id="checklist-form">
+            <div class="form-group">
+                <label for="resume-file">2. Загрузите PDF резюме:</label>
+                <input type="file" id="resume-file" accept=".pdf" required>
+            </div>
+
+            <div class="form-group">
+                <label for="vacancy-url">3. Ссылка на вакансию HH.ru:</label>
+                <input type="url" id="vacancy-url" placeholder="https://hh.ru/vacancy/123456" required>
+            </div>
+
+            <button type="submit" class="btn">Создать чек-лист подготовки</button>
+        </form>
+
+        <!-- Загрузка -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Создается персонализированный чек-лист подготовки... Это может занять несколько минут.</p>
+        </div>
+
+        <!-- Ошибки -->
+        <div id="error" class="error"></div>
+
+        <!-- Результаты -->
+        <div id="results" class="results">
+            <h3>Чек-лист подготовки к интервью готов!</h3>
+            <div id="checklist-content"></div>
+        </div>
+    </div>
+
+    <script>
+        let accessToken = null;
+        let refreshToken = null;
+
+        async function startHHAuth() {
+            try {
+                const response = await fetch('/auth/hh', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                const authWindow = window.open(data.auth_url, 'hh-auth', 'width=600,height=700');
+                
+                document.getElementById('auth-status').innerHTML = 
+                    '<div class="success">Окно авторизации открыто. Ожидание завершения авторизации...</div>';
+                
+                startTokenPolling();
+                
+            } catch (error) {
+                showError('Ошибка при запуске авторизации: ' + error.message);
+            }
+        }
+
+        async function startTokenPolling() {
+            let attempts = 0;
+            const maxAttempts = 60;
+            
+            const checkTokens = async () => {
+                try {
+                    const response = await fetch('/auth/tokens');
+                    const data = await response.json();
+                    
+                    if (data.success && data.access_token && data.refresh_token) {
+                        accessToken = data.access_token;
+                        refreshToken = data.refresh_token;
+                        
+                        document.getElementById('auth-status').innerHTML = 
+                            '<div class="success">✅ Авторизация успешно завершена!</div>';
+                        
+                        document.getElementById('access-token').style.display = 'block';
+                        document.getElementById('access-token').value = accessToken;
+                        document.getElementById('refresh-token').style.display = 'block';
+                        document.getElementById('refresh-token').value = refreshToken;
+                        
+                        return true;
+                    } else if (attempts < maxAttempts) {
+                        attempts++;
+                        setTimeout(checkTokens, 3000);
+                    } else {
+                        document.getElementById('auth-status').innerHTML = 
+                            '<div class="error">Время ожидания авторизации истекло. Попробуйте еще раз.</div>';
+                    }
+                } catch (error) {
+                    console.error('Ошибка при проверке токенов:', error);
+                    if (attempts < maxAttempts) {
+                        attempts++;
+                        setTimeout(checkTokens, 3000);
+                    }
+                }
+            };
+            
+            checkTokens();
+        }
+
+        document.getElementById('checklist-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const resumeFile = document.getElementById('resume-file').files[0];
+            const vacancyUrl = document.getElementById('vacancy-url').value;
+            
+            if (!resumeFile) {
+                showError('Выберите PDF файл резюме');
+                return;
+            }
+            
+            if (!vacancyUrl) {
+                showError('Введите ссылку на вакансию');
+                return;
+            }
+            
+            if (!accessToken || !refreshToken) {
+                showError('Необходимо авторизоваться на HH.ru');
+                return;
+            }
+            
+            formData.append('resume_file', resumeFile);
+            formData.append('vacancy_url', vacancyUrl);
+            formData.append('hh_access_token', accessToken);
+            formData.append('hh_refresh_token', refreshToken);
+            
+            showLoading();
+            hideError();
+            hideResults();
+            
+            try {
+                const response = await fetch('/generate-checklist', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResults(data.checklist);
+                } else {
+                    showError(data.detail || 'Ошибка при генерации чек-листа');
+                }
+                
+            } catch (error) {
+                showError('Ошибка соединения: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        });
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function formatChecklistSection(items, title, icon) {
+            if (!items || items.length === 0) return '';
+            
+            return `
+                <div class="checklist-section">
+                    <div class="section-title">
+                        <span>${icon}</span>
+                        <span>${title}</span>
+                    </div>
+                    ${items.map(item => `
+                        <div class="checklist-item">
+                            <div class="item-header">
+                                <span>${item.category}</span>
+                                <span class="priority-badge priority-${item.priority.toLowerCase()}">${item.priority}</span>
+                            </div>
+                            <div class="tasks-list">
+                                ${item.tasks.map(task => `<div class="task-item">• ${task}</div>`).join('')}
+                            </div>
+                            ${item.time_estimate ? `<div class="time-estimate">⏱️ Время: ${item.time_estimate}</div>` : ''}
+                            ${item.resources && item.resources.length > 0 ? `
+                                <div class="resources-list">
+                                    ${item.resources.map(resource => `<span class="resource-item">${resource}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function showResults(checklist) {
+            const resultsDiv = document.getElementById('results');
+            const contentDiv = document.getElementById('checklist-content');
+            
+            let content = '';
+            
+            if (checklist.type === 'professional') {
+                // Профессиональная версия
+                content = `
+                    <div class="executive-summary">
+                        <h3>📊 Стратегия подготовки</h3>
+                        <div class="summary-item">
+                            <div class="summary-label">Уровень кандидата:</div>
+                            <div>${checklist.candidate_level}</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Тип вакансии:</div>
+                            <div>${checklist.vacancy_type}</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Формат компании:</div>
+                            <div>${checklist.company_format}</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Время подготовки:</div>
+                            <div>${checklist.executive_summary.estimated_prep_time}</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Стратегия:</div>
+                            <div>${checklist.executive_summary.preparation_strategy}</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Ключевые области:</div>
+                            <div>${checklist.executive_summary.key_focus_areas.join(', ')}</div>
+                        </div>
+                    </div>
+                `;
+                
+                content += formatChecklistSection(checklist.technical_preparation, 'Техническая подготовка', '💻');
+                content += formatChecklistSection(checklist.behavioral_preparation, 'Поведенческая подготовка', '🗣️');
+                content += formatChecklistSection(checklist.company_research, 'Изучение компании', '🏢');
+                content += formatChecklistSection(checklist.technical_stack_study, 'Изучение технического стека', '🔧');
+                content += formatChecklistSection(checklist.practical_exercises, 'Практические упражнения', '🎯');
+                content += formatChecklistSection(checklist.interview_setup, 'Настройка окружения', '⚙️');
+                content += formatChecklistSection(checklist.additional_actions, 'Дополнительные действия', '✨');
+                
+                if (checklist.critical_success_factors && checklist.critical_success_factors.length > 0) {
+                    content += `
+                        <div class="critical-factors">
+                            <h3>⚡ Критические факторы успеха</h3>
+                            ${checklist.critical_success_factors.map(factor => `
+                                <div class="factor-item">${factor}</div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            } else {
+                // Базовая версия (совместимость)
+                content += formatChecklistSection(checklist.technical_preparation, 'Техническая подготовка', '💻');
+                content += formatChecklistSection(checklist.behavioral_preparation, 'Поведенческая подготовка', '🗣️');
+                content += formatChecklistSection(checklist.company_research, 'Изучение компании', '🏢');
+                
+                if (checklist.general_recommendations && checklist.general_recommendations.length > 0) {
+                    content += `
+                        <div class="checklist-section">
+                            <div class="section-title">
+                                <span>💡</span>
+                                <span>Общие рекомендации</span>
+                            </div>
+                            ${checklist.general_recommendations.map(rec => `
+                                <div class="checklist-item">
+                                    <div>${rec}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            }
+            
+            contentDiv.innerHTML = content;
+            resultsDiv.style.display = 'block';
+        }
+
+        function hideResults() {
+            document.getElementById('results').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

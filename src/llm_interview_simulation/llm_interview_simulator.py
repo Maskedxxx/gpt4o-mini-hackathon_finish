@@ -28,6 +28,7 @@ class ProfessionalInterviewSimulator:
         self.config = settings
         self.client = OpenAI(api_key=self.config.api_key)
         self.model = self.config.model_name
+        self.custom_config = None  # Для хранения пользовательских настроек
         
         # Карта типов вопросов по раундам
         self.round_question_mapping = {
@@ -39,6 +40,10 @@ class ProfessionalInterviewSimulator:
             6: [QuestionType.LEADERSHIP],  # Для сеньоров
             7: [QuestionType.FINAL]        # Расширенное интервью
         }
+    
+    def set_custom_config(self, config: Dict[str, Any]):
+        """Устанавливает пользовательские настройки симуляции."""
+        self.custom_config = config
     
     def _select_question_type_for_round(self, round_number: int, candidate_profile: CandidateProfile,
                                       previous_types: List[QuestionType]) -> QuestionType:
@@ -504,23 +509,42 @@ class ProfessionalInterviewSimulator:
     
     async def simulate_interview(self, parsed_resume: Dict[str, Any], 
                            parsed_vacancy: Dict[str, Any],
-                           progress_callback: Optional[Callable[[int, int], Awaitable[None]]] = None) -> Optional[InterviewSimulation]:
+                           progress_callback: Optional[Callable[[int, int], Awaitable[None]]] = None,
+                           config_overrides: Optional[Dict[str, Any]] = None) -> Optional[InterviewSimulation]:
         """
         Args:
         parsed_resume: Данные резюме
         parsed_vacancy: Данные вакансии
-        progress_callback: Функция для обновления прогресса (current_round,
+        progress_callback: Функция для обновления прогресса (current_round, total_rounds)
         """
         try:
+            
             # Создаем профиль кандидата и конфигурацию
             candidate_profile, interview_config = create_candidate_profile_and_config(
                 parsed_resume, parsed_vacancy
             )
             
+            # Применяем пользовательские настройки, если они есть
+            if self.custom_config:
+                if 'target_rounds' in self.custom_config:
+                    interview_config.target_rounds = self.custom_config['target_rounds']
+                if 'difficulty_level' in self.custom_config:
+                    # Преобразуем строку в CandidateLevel если нужно
+                    from src.models.interview_simulation_models import CandidateLevel
+                    level_mapping = {
+                        'easy': CandidateLevel.JUNIOR,
+                        'medium': CandidateLevel.MIDDLE, 
+                        'hard': CandidateLevel.SENIOR
+                    }
+                    if self.custom_config['difficulty_level'] in level_mapping:
+                        candidate_profile.detected_level = level_mapping[self.custom_config['difficulty_level']]
+            
             logger.info(f"Создан профиль: {candidate_profile.detected_level.value} {candidate_profile.detected_role.value}")
             logger.info(f"Конфигурация: {interview_config.target_rounds} раундов")
             
             dialog_messages = []
+            
+            
             position_title = parsed_vacancy.get('name', 'IT позиция')
             candidate_name = f"{parsed_resume.get('first_name', '')} {parsed_resume.get('last_name', '')}".strip() or "Кандидат"
             

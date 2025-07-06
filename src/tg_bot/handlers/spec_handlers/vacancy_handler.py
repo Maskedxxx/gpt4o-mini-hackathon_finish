@@ -1,5 +1,4 @@
 # src/tg_bot/handlers/vacancy_handler.py
-import logging
 import re
 from aiogram import types
 from aiogram.fsm.context import FSMContext

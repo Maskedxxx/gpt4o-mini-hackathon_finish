@@ -1,8 +1,6 @@
 # src/tg_bot/handlers/message_handlers.py
 
-import logging
 from aiogram import types
-from pathlib import Path
 from aiogram.fsm.context import FSMContext
 
 from src.tg_bot.handlers.command_handlers import cmd_start, cmd_auth
