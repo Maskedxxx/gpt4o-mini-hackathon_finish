@@ -8,7 +8,7 @@ import os
 import tempfile
 from pathlib import Path
 from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 import uvicorn
 import aiohttp
@@ -22,6 +22,7 @@ from src.hh.token_exchanger import HHCodeExchanger
 from src.callback_local_server.config import settings as callback_settings
 from src.llm_cover_letter.llm_cover_letter_generator import EnhancedLLMCoverLetterGenerator
 from src.utils import get_logger
+from .pdf_generator import CoverLetterPDFGenerator
 
 logger = get_logger()
 
@@ -37,6 +38,10 @@ vacancy_extractor = VacancyExtractor()
 hh_auth_service = HHAuthService()
 token_exchanger = HHCodeExchanger()
 cover_letter_generator = EnhancedLLMCoverLetterGenerator(validate_quality=False)
+
+# Временное хранилище для токенов и результатов
+user_tokens = {}
+cover_letter_storage = {}
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -68,10 +73,13 @@ async def get_tokens_from_callback():
                         # Очищаем код на сервере
                         await session.post(f"http://{callback_settings.host}:{callback_settings.port}/api/reset_code")
                         
+                        # Сохраняем токены во временном хранилище
+                        user_tokens["hh_access_token"] = tokens["access_token"]
+                        user_tokens["hh_refresh_token"] = tokens["refresh_token"]
+                        
                         return {
                             "success": True,
-                            "access_token": tokens["access_token"],
-                            "refresh_token": tokens["refresh_token"]
+                            "message": "Авторизация успешна"
                         }
                     
                 return {"success": False, "message": "Код авторизации не найден"}
@@ -83,9 +91,7 @@ async def get_tokens_from_callback():
 @app.post("/generate-cover-letter")
 async def generate_cover_letter(
     resume_file: UploadFile = File(...),
-    vacancy_url: str = Form(...),
-    hh_access_token: str = Form(...),
-    hh_refresh_token: str = Form(...)
+    vacancy_url: str = Form(...)
 ):
     """Генерация сопроводительного письма"""
     
@@ -110,9 +116,13 @@ async def generate_cover_letter(
             if not vacancy_id:
                 raise HTTPException(400, "Некорректная ссылка на вакансию")
             
+            # Проверяем наличие токенов
+            if "hh_access_token" not in user_tokens or "hh_refresh_token" not in user_tokens:
+                raise HTTPException(400, "Необходима авторизация HH.ru")
+            
             # Получение данных вакансии
             logger.info(f"Получение данных вакансии {vacancy_id}...")
-            hh_client = HHApiClient(hh_access_token, hh_refresh_token)
+            hh_client = HHApiClient(user_tokens["hh_access_token"], user_tokens["hh_refresh_token"])
             vacancy_data = await hh_client.request(f'vacancies/{vacancy_id}')
             
             # Парсинг данных вакансии
@@ -128,12 +138,17 @@ async def generate_cover_letter(
                 logger.error("Не удалось сгенерировать сопроводительное письмо")
                 raise HTTPException(500, "Не удалось сгенерировать сопроводительное письмо")
             
+            # Сохраняем результат для генерации PDF
+            letter_id = f"letter_{hash(str(resume_dict) + str(vacancy_dict))}"
+            cover_letter_storage[letter_id] = cover_letter_result
+            
             # Форматирование результатов для веб-отображения
             formatted_result = format_cover_letter_for_web(cover_letter_result)
             
             return JSONResponse({
                 "status": "success",
-                "cover_letter": formatted_result
+                "cover_letter": formatted_result,
+                "letter_id": letter_id
             })
             
         finally:
@@ -143,6 +158,38 @@ async def generate_cover_letter(
     except Exception as e:
         logger.error(f"Ошибка при генерации сопроводительного письма: {e}")
         raise HTTPException(500, f"Ошибка генерации: {str(e)}")
+
+@app.get("/download-cover-letter/{letter_id}")
+async def download_cover_letter_pdf(letter_id: str):
+    """Скачивание PDF сопроводительного письма"""
+    try:
+        # Проверяем наличие результата
+        if letter_id not in cover_letter_storage:
+            raise HTTPException(404, "Сопроводительное письмо не найдено")
+        
+        cover_letter_result = cover_letter_storage[letter_id]
+        
+        # Генерируем PDF отчет
+        pdf_generator = CoverLetterPDFGenerator()
+        pdf_buffer = pdf_generator.generate_pdf(cover_letter_result)
+        
+        # Сохраняем PDF в файл
+        report_path = f"/tmp/cover_letter_report_{letter_id}.pdf"
+        with open(report_path, 'wb') as f:
+            f.write(pdf_buffer.getvalue())
+        
+        # Определяем имя файла для скачивания
+        filename = f"Cover_Letter_{letter_id[:8]}.pdf"
+        
+        return FileResponse(
+            path=report_path,
+            filename=filename,
+            media_type='application/pdf'
+        )
+        
+    except Exception as e:
+        logger.error(f"Ошибка при генерации PDF: {e}")
+        raise HTTPException(500, f"Ошибка генерации PDF: {str(e)}")
 
 def extract_vacancy_id(vacancy_url: str) -> str:
     """Извлечение ID вакансии из URL"""

@@ -249,19 +249,13 @@
                     const response = await fetch('/auth/tokens');
                     const data = await response.json();
                     
-                    if (data.success && data.access_token && data.refresh_token) {
-                        // Сохраняем токены
-                        accessToken = data.access_token;
-                        refreshToken = data.refresh_token;
+                    if (data.success) {
+                        // Авторизация успешна
+                        accessToken = true;
+                        refreshToken = true;
                         
                         document.getElementById('auth-status').innerHTML = 
                             '<div class="success">✅ Авторизация успешно завершена!</div>';
-                        
-                        // Показываем поля токенов (для отладки)
-                        document.getElementById('access-token').style.display = 'block';
-                        document.getElementById('access-token').value = accessToken;
-                        document.getElementById('refresh-token').style.display = 'block';
-                        document.getElementById('refresh-token').value = refreshToken;
                         
                         return true;
                     } else if (attempts < maxAttempts) {
@@ -307,8 +301,6 @@
             
             formData.append('resume_file', resumeFile);
             formData.append('vacancy_url', vacancyUrl);
-            formData.append('hh_access_token', accessToken);
-            formData.append('hh_refresh_token', refreshToken);
             
             showLoading();
             hideError();
@@ -323,7 +315,7 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    showResults(data.cover_letter);
+                    showResults(data.cover_letter, data.letter_id);
                 } else {
                     showError(data.detail || 'Ошибка при генерации письма');
                 }
@@ -353,7 +345,7 @@
             document.getElementById('error').style.display = 'none';
         }
 
-        function showResults(coverLetter) {
+        function showResults(coverLetter, letterId) {
             const resultsDiv = document.getElementById('results');
             const contentDiv = document.getElementById('cover-letter-content');
             
@@ -456,6 +448,13 @@
                     
                     <div class="section-header">Призыв к действию</div>
                     <div>${coverLetter.letter_structure.call_to_action}</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-title">💾 Скачать письмо</div>
+                    <a href="/download-cover-letter/${letterId}" download class="btn" style="display: inline-block; text-decoration: none; margin-top: 10px;">
+                        📤 Скачать PDF сопроводительное письмо
+                    </a>
                 </div>
             `;
             
