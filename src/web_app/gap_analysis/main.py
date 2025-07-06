@@ -29,7 +29,8 @@ logger = get_logger()
 app = FastAPI(title="AI Resume Assistant - Web")
 
 # Настройка шаблонов
-templates = Jinja2Templates(directory="src/web_app/templates")
+current_dir = Path(__file__).parent
+templates = Jinja2Templates(directory=str(current_dir / "templates"))
 
 # Создание экземпляров сервисов
 pdf_parser = PDFResumeParser()
@@ -147,7 +148,8 @@ async def perform_gap_analysis(
 def extract_vacancy_id(vacancy_url: str) -> str:
     """Извлечение ID вакансии из URL"""
     import re
-    pattern = r'https?://(?:www\.)?hh\.ru/vacancy/(\d+)'
+    # Учитываем префиксы городов (например: nn.hh.ru, spb.hh.ru, ekb.hh.ru)
+    pattern = r'https?://(?:(?:www\.|[a-z]+\.)?)?hh\.ru/vacancy/(\d+)'
     match = re.search(pattern, vacancy_url)
     return match.group(1) if match else None
 
