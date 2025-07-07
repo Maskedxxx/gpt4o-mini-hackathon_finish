@@ -9,7 +9,7 @@ import os
 import tempfile
 from pathlib import Path
 from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 import uvicorn
 import aiohttp
@@ -23,13 +23,15 @@ from src.hh.token_exchanger import HHCodeExchanger
 from src.callback_local_server.config import settings as callback_settings
 from src.llm_interview_checklist.llm_interview_checklist_generator import LLMInterviewChecklistGenerator
 from src.utils import get_logger
+from .pdf_generator import InterviewChecklistPDFGenerator
 
 logger = get_logger()
 
 app = FastAPI(title="AI Resume Assistant - Interview Checklist")
 
 # Настройка шаблонов
-templates = Jinja2Templates(directory="src/web_app/interview_checklist/templates")
+current_dir = Path(__file__).parent
+templates = Jinja2Templates(directory=str(current_dir / "templates"))
 
 # Создание экземпляров сервисов
 pdf_parser = PDFResumeParser()
@@ -37,6 +39,10 @@ vacancy_extractor = VacancyExtractor()
 hh_auth_service = HHAuthService()
 token_exchanger = HHCodeExchanger()
 checklist_generator = LLMInterviewChecklistGenerator()
+
+# Временное хранилище для токенов и результатов
+user_tokens = {}
+checklist_storage = {}
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -68,10 +74,13 @@ async def get_tokens_from_callback():
                         # Очищаем код на сервере
                         await session.post(f"http://{callback_settings.host}:{callback_settings.port}/api/reset_code")
                         
+                        # Сохраняем токены во временном хранилище
+                        user_tokens["hh_access_token"] = tokens["access_token"]
+                        user_tokens["hh_refresh_token"] = tokens["refresh_token"]
+                        
                         return {
                             "success": True,
-                            "access_token": tokens["access_token"],
-                            "refresh_token": tokens["refresh_token"]
+                            "message": "Авторизация успешна"
                         }
                     
                 return {"success": False, "message": "Код авторизации не найден"}
@@ -83,9 +92,7 @@ async def get_tokens_from_callback():
 @app.post("/generate-checklist")
 async def generate_interview_checklist(
     resume_file: UploadFile = File(...),
-    vacancy_url: str = Form(...),
-    hh_access_token: str = Form(...),
-    hh_refresh_token: str = Form(...)
+    vacancy_url: str = Form(...)
 ):
     """Генерация чек-листа подготовки к интервью"""
     
@@ -110,9 +117,13 @@ async def generate_interview_checklist(
             if not vacancy_id:
                 raise HTTPException(400, "Некорректная ссылка на вакансию")
             
+            # Проверяем наличие токенов
+            if "hh_access_token" not in user_tokens or "hh_refresh_token" not in user_tokens:
+                raise HTTPException(400, "Необходима авторизация HH.ru")
+            
             # Получение данных вакансии
             logger.info(f"Получение данных вакансии {vacancy_id}...")
-            hh_client = HHApiClient(hh_access_token, hh_refresh_token)
+            hh_client = HHApiClient(user_tokens["hh_access_token"], user_tokens["hh_refresh_token"])
             vacancy_data = await hh_client.request(f'vacancies/{vacancy_id}')
             
             # Парсинг данных вакансии
@@ -134,12 +145,17 @@ async def generate_interview_checklist(
                 logger.error("Не удалось сгенерировать чек-лист")
                 raise HTTPException(500, "Не удалось сгенерировать чек-лист")
             
+            # Сохраняем результат для генерации PDF
+            checklist_id = f"checklist_{hash(str(resume_dict) + str(vacancy_dict))}"
+            checklist_storage[checklist_id] = checklist_result
+            
             # Форматирование результатов для веб-отображения
             formatted_result = format_checklist_for_web(checklist_result)
             
             return JSONResponse({
                 "status": "success",
-                "checklist": formatted_result
+                "checklist": formatted_result,
+                "checklist_id": checklist_id
             })
             
         finally:
@@ -150,10 +166,43 @@ async def generate_interview_checklist(
         logger.error(f"Ошибка при генерации чек-листа: {e}")
         raise HTTPException(500, f"Ошибка генерации: {str(e)}")
 
+@app.get("/download-checklist/{checklist_id}")
+async def download_checklist_pdf(checklist_id: str):
+    """Скачивание PDF чек-листа подготовки к интервью"""
+    try:
+        # Проверяем наличие результата
+        if checklist_id not in checklist_storage:
+            raise HTTPException(404, "Чек-лист не найден")
+        
+        checklist_result = checklist_storage[checklist_id]
+        
+        # Генерируем PDF отчет
+        pdf_generator = InterviewChecklistPDFGenerator()
+        pdf_buffer = pdf_generator.generate_pdf(checklist_result)
+        
+        # Сохраняем PDF в файл
+        report_path = f"/tmp/interview_checklist_{checklist_id}.pdf"
+        with open(report_path, 'wb') as f:
+            f.write(pdf_buffer.getvalue())
+        
+        # Определяем имя файла для скачивания
+        filename = f"Interview_Checklist_{checklist_id[:8]}.pdf"
+        
+        return FileResponse(
+            path=report_path,
+            filename=filename,
+            media_type='application/pdf'
+        )
+        
+    except Exception as e:
+        logger.error(f"Ошибка при генерации PDF: {e}")
+        raise HTTPException(500, f"Ошибка генерации PDF: {str(e)}")
+
 def extract_vacancy_id(vacancy_url: str) -> str:
     """Извлечение ID вакансии из URL"""
     import re
-    pattern = r'https?://(?:www\.)?hh\.ru/vacancy/(\d+)'
+    # Учитываем префиксы городов (например: nn.hh.ru, spb.hh.ru, ekb.hh.ru)
+    pattern = r'https?://(?:(?:www\.|[a-z]+\.)?)?hh\.ru/vacancy/(\d+)'
     match = re.search(pattern, vacancy_url)
     return match.group(1) if match else None
 

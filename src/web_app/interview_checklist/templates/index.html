@@ -302,17 +302,12 @@
                     const response = await fetch('/auth/tokens');
                     const data = await response.json();
                     
-                    if (data.success && data.access_token && data.refresh_token) {
-                        accessToken = data.access_token;
-                        refreshToken = data.refresh_token;
+                    if (data.success) {
+                        accessToken = true;
+                        refreshToken = true;
                         
                         document.getElementById('auth-status').innerHTML = 
                             '<div class="success">✅ Авторизация успешно завершена!</div>';
-                        
-                        document.getElementById('access-token').style.display = 'block';
-                        document.getElementById('access-token').value = accessToken;
-                        document.getElementById('refresh-token').style.display = 'block';
-                        document.getElementById('refresh-token').value = refreshToken;
                         
                         return true;
                     } else if (attempts < maxAttempts) {
@@ -358,8 +353,6 @@
             
             formData.append('resume_file', resumeFile);
             formData.append('vacancy_url', vacancyUrl);
-            formData.append('hh_access_token', accessToken);
-            formData.append('hh_refresh_token', refreshToken);
             
             showLoading();
             hideError();
@@ -374,7 +367,7 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    showResults(data.checklist);
+                    showResults(data.checklist, data.checklist_id);
                 } else {
                     showError(data.detail || 'Ошибка при генерации чек-листа');
                 }
@@ -434,7 +427,7 @@
             `;
         }
 
-        function showResults(checklist) {
+        function showResults(checklist, checklistId) {
             const resultsDiv = document.getElementById('results');
             const contentDiv = document.getElementById('checklist-content');
             
@@ -512,6 +505,16 @@
                     `;
                 }
             }
+            
+            // Добавляем кнопку скачивания PDF
+            content += `
+                <div class="result-item" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 5px; text-align: center;">
+                    <h4>💾 Скачать чек-лист</h4>
+                    <a href="/download-checklist/${checklistId}" download class="btn" style="display: inline-block; text-decoration: none; margin-top: 10px;">
+                        📤 Скачать PDF чек-лист
+                    </a>
+                </div>
+            `;
             
             contentDiv.innerHTML = content;
             resultsDiv.style.display = 'block';

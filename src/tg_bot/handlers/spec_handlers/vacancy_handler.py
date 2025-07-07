@@ -79,7 +79,8 @@ async def handle_vacancy_link(message: types.Message, state: FSMContext):
 
 def is_valid_vacancy_link(link: str) -> bool:
     """Проверка, что ссылка ведет на вакансию hh.ru."""
-    return bool(re.match(r'https?://(?:www\.)?hh\.ru/vacancy/\d+', link))
+    # Учитываем префиксы городов (например: nn.hh.ru, spb.hh.ru, ekb.hh.ru)
+    return bool(re.match(r'https?://(?:(?:www\.|[a-z]+\.)?)?hh\.ru/vacancy/\d+', link))
 
 def extract_vacancy_id(link: str) -> str:
     """Извлечение ID вакансии из ссылки."""
