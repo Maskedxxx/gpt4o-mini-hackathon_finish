@@ -22,12 +22,7 @@ class GapAnalysisPDFGenerator:
     """Генератор PDF отчетов для гап-анализа резюме"""
     
     def __init__(self):
-        self.width, self.height = A4
-        self.styles = getSampleStyleSheet()
-        self.register_fonts()
-        self.setup_custom_styles()
-        
-        # Цветовая схема
+        # Цветовая схема (должна быть первой!)
         self.colors = {
             'primary': colors.HexColor('#2E3A87'),      # Темно-синий
             'secondary': colors.HexColor('#4A90E2'),    # Светло-синий
@@ -38,6 +33,11 @@ class GapAnalysisPDFGenerator:
             'dark_gray': colors.HexColor('#6C757D'),    # Темно-серый
             'text': colors.HexColor('#2C3E50')          # Темный текст
         }
+        
+        self.width, self.height = A4
+        self.styles = getSampleStyleSheet()
+        self.register_fonts()
+        self.setup_custom_styles()
     
     def register_fonts(self):
         """Регистрация шрифтов с поддержкой кириллицы"""
@@ -169,12 +169,18 @@ class GapAnalysisPDFGenerator:
         elements.append(Paragraph("Основные Результаты", self.styles['SectionHeader']))
         
         # Таблица с ключевыми метриками
+        # Безопасное получение атрибутов
+        match_percentage = getattr(analysis_result, 'overall_match_percentage', 0) or 0
+        hiring_rec = getattr(analysis_result, 'hiring_recommendation', 'Не указано') or 'Не указано'
+        key_strengths = getattr(analysis_result, 'key_strengths', None) or []
+        major_gaps = getattr(analysis_result, 'major_gaps', None) or []
+        
         data = [
             ['Показатель', 'Значение'],
-            ['Общий процент соответствия', f"{analysis_result.overall_match_percentage}%"],
-            ['Рекомендация по найму', analysis_result.hiring_recommendation],
-            ['Ключевые сильные стороны', ', '.join(analysis_result.key_strengths[:3])],
-            ['Основные пробелы', ', '.join(analysis_result.major_gaps[:3])]
+            ['Общий процент соответствия', f"{match_percentage}%"],
+            ['Рекомендация по найму', hiring_rec],
+            ['Ключевые сильные стороны', ', '.join(key_strengths[:3]) if key_strengths else 'Не указано'],
+            ['Основные пробелы', ', '.join(major_gaps[:3]) if major_gaps else 'Не указано']
         ]
         
         table = Table(data, colWidths=[3*inch, 3*inch])
@@ -201,17 +207,20 @@ class GapAnalysisPDFGenerator:
         
         elements.append(Paragraph("Первичный Скрининг", self.styles['SectionHeader']))
         
-        screening = analysis_result.primary_screening
+        screening = getattr(analysis_result, 'primary_screening', None)
+        if not screening:
+            elements.append(Paragraph("Нет данных по первичному скринингу", self.styles['CustomBody']))
+            return elements
         
         # Таблица результатов скрининга
         data = [
             ['Критерий', 'Результат'],
-            ['Общий результат', screening.overall_screening_result],
-            ['Соответствие должности', screening.job_title_match],
-            ['Соответствие опыта', screening.experience_years_match],
-            ['Видимость ключевых навыков', screening.key_skills_visible],
-            ['Подходящая локация', screening.location_suitable],
-            ['Соответствие зарплатных ожиданий', screening.salary_expectations_match]
+            ['Общий результат', getattr(screening, 'overall_screening_result', 'Не указано') or 'Не указано'],
+            ['Соответствие должности', str(getattr(screening, 'job_title_match', 'Не указано'))],
+            ['Соответствие опыта', str(getattr(screening, 'experience_years_match', 'Не указано'))],
+            ['Видимость ключевых навыков', str(getattr(screening, 'key_skills_visible', 'Не указано'))],
+            ['Подходящая локация', str(getattr(screening, 'location_suitable', 'Не указано'))],
+            ['Соответствие зарплатных ожиданий', str(getattr(screening, 'salary_expectations_match', 'Не указано'))]
         ]
         
         table = Table(data, colWidths=[3*inch, 3*inch])
@@ -228,10 +237,11 @@ class GapAnalysisPDFGenerator:
         elements.append(table)
         
         # Примечания к скринингу
-        if screening.screening_notes:
+        screening_notes = getattr(screening, 'screening_notes', None)
+        if screening_notes:
             elements.append(Spacer(1, 8))
             elements.append(Paragraph("Примечания:", self.styles['SubHeader']))
-            elements.append(Paragraph(screening.screening_notes, self.styles['CustomBody']))
+            elements.append(Paragraph(str(screening_notes), self.styles['CustomBody']))
         
         return elements
     
@@ -241,15 +251,27 @@ class GapAnalysisPDFGenerator:
         
         elements.append(Paragraph("Анализ Требований", self.styles['SectionHeader']))
         
-        for req in analysis_result.requirements_analysis[:10]:  # Ограничиваем до 10 требований
-            elements.append(Paragraph(f"<b>{req.requirement_text}</b>", self.styles['SubHeader']))
+        # Проверяем, что requirements_analysis не None
+        requirements = getattr(analysis_result, 'requirements_analysis', None) or []
+        
+        for req in requirements[:10]:  # Ограничиваем до 10 требований
+            req_text = getattr(req, 'requirement_text', 'Не указано') or 'Не указано'
+            elements.append(Paragraph(f"<b>{req_text}</b>", self.styles['SubHeader']))
+            
+            # Безопасное получение атрибутов
+            evidence = getattr(req, 'evidence_in_resume', '') or ''
+            gap_desc = getattr(req, 'gap_description', '') or ''
+            
+            # Обрезаем длинные строки
+            evidence_text = evidence[:200] + '...' if len(evidence) > 200 else evidence
+            gap_text = gap_desc[:200] + '...' if len(gap_desc) > 200 else gap_desc
             
             req_data = [
-                ['Тип требования', req.requirement_type],
-                ['Статус соответствия', req.compliance_status],
-                ['Подтверждение в резюме', req.evidence_in_resume[:200] + '...' if len(req.evidence_in_resume) > 200 else req.evidence_in_resume],
-                ['Описание пробела', req.gap_description[:200] + '...' if len(req.gap_description) > 200 else req.gap_description],
-                ['Влияние на решение', req.impact_on_decision]
+                ['Тип требования', getattr(req, 'requirement_type', 'Не указано') or 'Не указано'],
+                ['Статус соответствия', getattr(req, 'compliance_status', 'Не указано') or 'Не указано'],
+                ['Подтверждение в резюме', evidence_text],
+                ['Описание пробела', gap_text],
+                ['Влияние на решение', getattr(req, 'impact_on_decision', 'Не указано') or 'Не указано']
             ]
             
             req_table = Table(req_data, colWidths=[2*inch, 4*inch])
@@ -273,16 +295,19 @@ class GapAnalysisPDFGenerator:
         
         elements.append(Paragraph("Оценка Качества Резюме", self.styles['SectionHeader']))
         
-        quality = analysis_result.quality_assessment
+        quality = getattr(analysis_result, 'quality_assessment', None)
+        if not quality:
+            elements.append(Paragraph("Нет данных по оценке качества", self.styles['CustomBody']))
+            return elements
         
         # Таблица оценок качества
         data = [
             ['Аспект', 'Оценка'],
-            ['Четкость структуры', quality.structure_clarity],
-            ['Релевантность контента', quality.content_relevance],
-            ['Фокус на достижения', quality.achievement_focus],
-            ['Качество адаптации', quality.adaptation_quality],
-            ['Общее впечатление', quality.overall_impression]
+            ['Четкость структуры', str(getattr(quality, 'structure_clarity', 'Не указано'))],
+            ['Релевантность контента', str(getattr(quality, 'content_relevance', 'Не указано'))],
+            ['Фокус на достижения', str(getattr(quality, 'achievement_focus', 'Не указано'))],
+            ['Качество адаптации', str(getattr(quality, 'adaptation_quality', 'Не указано'))],
+            ['Общее впечатление', str(getattr(quality, 'overall_impression', 'Не указано'))]
         ]
         
         table = Table(data, colWidths=[3*inch, 3*inch])
@@ -299,10 +324,11 @@ class GapAnalysisPDFGenerator:
         elements.append(table)
         
         # Примечания к качеству
-        if quality.quality_notes:
+        quality_notes = getattr(quality, 'quality_notes', None)
+        if quality_notes:
             elements.append(Spacer(1, 8))
             elements.append(Paragraph("Примечания к качеству:", self.styles['SubHeader']))
-            elements.append(Paragraph(quality.quality_notes, self.styles['CustomBody']))
+            elements.append(Paragraph(str(quality_notes), self.styles['CustomBody']))
         
         return elements
     
@@ -313,26 +339,36 @@ class GapAnalysisPDFGenerator:
         elements.append(Paragraph("Рекомендации по Улучшению", self.styles['SectionHeader']))
         
         # Критичные рекомендации
-        if analysis_result.critical_recommendations:
+        critical_recs = getattr(analysis_result, 'critical_recommendations', None) or []
+        if critical_recs:
             elements.append(Paragraph("Критичные рекомендации:", self.styles['SubHeader']))
-            for rec in analysis_result.critical_recommendations:
-                elements.append(Paragraph(f"<b>{rec.section}</b> - {rec.issue_description}", self.styles['CustomBody']))
-                elements.append(Paragraph(f"Действия: {rec.specific_actions}", self.styles['CustomBody']))
+            for rec in critical_recs:
+                section = getattr(rec, 'section', 'Не указано') or 'Не указано'
+                issue = getattr(rec, 'issue_description', 'Не указано') or 'Не указано'
+                actions = getattr(rec, 'specific_actions', 'Не указано') or 'Не указано'
+                elements.append(Paragraph(f"<b>{section}</b> - {issue}", self.styles['CustomBody']))
+                elements.append(Paragraph(f"Действия: {actions}", self.styles['CustomBody']))
                 elements.append(Spacer(1, 4))
         
         # Важные рекомендации
-        if analysis_result.important_recommendations:
+        important_recs = getattr(analysis_result, 'important_recommendations', None) or []
+        if important_recs:
             elements.append(Paragraph("Важные рекомендации:", self.styles['SubHeader']))
-            for rec in analysis_result.important_recommendations:
-                elements.append(Paragraph(f"<b>{rec.section}</b> - {rec.issue_description}", self.styles['CustomBody']))
-                elements.append(Paragraph(f"Действия: {rec.specific_actions}", self.styles['CustomBody']))
+            for rec in important_recs:
+                section = getattr(rec, 'section', 'Не указано') or 'Не указано'
+                issue = getattr(rec, 'issue_description', 'Не указано') or 'Не указано'
+                actions = getattr(rec, 'specific_actions', 'Не указано') or 'Не указано'
+                elements.append(Paragraph(f"<b>{section}</b> - {issue}", self.styles['CustomBody']))
+                elements.append(Paragraph(f"Действия: {actions}", self.styles['CustomBody']))
                 elements.append(Spacer(1, 4))
         
         # Следующие шаги
-        if analysis_result.next_steps:
+        next_steps = getattr(analysis_result, 'next_steps', None) or []
+        if next_steps:
             elements.append(Spacer(1, 12))
             elements.append(Paragraph("Рекомендуемые Следующие Шаги:", self.styles['SubHeader']))
-            for step in analysis_result.next_steps:
-                elements.append(Paragraph(f"• {step}", self.styles['CustomBody']))
+            for step in next_steps:
+                step_text = str(step) if step else 'Не указано'
+                elements.append(Paragraph(f"• {step_text}", self.styles['CustomBody']))
         
         return elements

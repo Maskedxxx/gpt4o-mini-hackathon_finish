@@ -22,12 +22,7 @@ class CoverLetterPDFGenerator:
     """Генератор PDF для сопроводительных писем"""
     
     def __init__(self):
-        self.width, self.height = A4
-        self.styles = getSampleStyleSheet()
-        self.register_fonts()
-        self.setup_custom_styles()
-        
-        # Цветовая схема
+        # Цветовая схема (должна быть первой!)
         self.colors = {
             'primary': colors.HexColor('#2C5282'),      # Темно-синий
             'secondary': colors.HexColor('#3182CE'),    # Синий
@@ -38,6 +33,11 @@ class CoverLetterPDFGenerator:
             'dark_gray': colors.HexColor('#4A5568'),    # Темно-серый
             'text': colors.HexColor('#2D3748')          # Темный текст
         }
+        
+        self.width, self.height = A4
+        self.styles = getSampleStyleSheet()
+        self.register_fonts()
+        self.setup_custom_styles()
     
     def register_fonts(self):
         """Регистрация шрифтов с поддержкой кириллицы"""

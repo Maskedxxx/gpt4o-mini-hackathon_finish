@@ -22,12 +22,7 @@ class InterviewChecklistPDFGenerator:
     """Генератор PDF для чек-листов подготовки к интервью"""
     
     def __init__(self):
-        self.width, self.height = A4
-        self.styles = getSampleStyleSheet()
-        self.register_fonts()
-        self.setup_custom_styles()
-        
-        # Цветовая схема
+        # Цветовая схема (должна быть первой!)
         self.colors = {
             'primary': colors.HexColor('#1A365D'),      # Темно-синий
             'secondary': colors.HexColor('#2C5282'),    # Синий
@@ -40,6 +35,11 @@ class InterviewChecklistPDFGenerator:
             'dark_gray': colors.HexColor('#4A5568'),    # Темно-серый
             'text': colors.HexColor('#2D3748')          # Темный текст
         }
+        
+        self.width, self.height = A4
+        self.styles = getSampleStyleSheet()
+        self.register_fonts()
+        self.setup_custom_styles()
     
     def register_fonts(self):
         """Регистрация шрифтов с поддержкой кириллицы"""
