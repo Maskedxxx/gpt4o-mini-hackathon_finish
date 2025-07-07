@@ -24,22 +24,45 @@ class InterviewChecklistPDFGenerator:
     def __init__(self):
         # Цветовая схема (должна быть первой!)
         self.colors = {
-            'primary': colors.HexColor('#1A365D'),      # Темно-синий
-            'secondary': colors.HexColor('#2C5282'),    # Синий
-            'accent': colors.HexColor('#38A169'),       # Зеленый
-            'critical': colors.HexColor('#E53E3E'),     # Красный
-            'warning': colors.HexColor('#D69E2E'),      # Оранжевый
+            # Основные цвета
+            'primary': colors.HexColor('#2B6CB0'),      # Профессиональный синий для заголовков
+            'secondary': colors.HexColor('#3182CE'),    # Светлый синий для подзаголовков
+            'accent': colors.HexColor('#38A169'),       # Зеленый для успеха/исследования
+            'text': colors.HexColor('#2D3748'),         # Темный текст
+            
+            # Приоритеты (интуитивные цвета)
+            'priority_critical': colors.HexColor('#E53E3E'),  # Красный - критично
+            'priority_important': colors.HexColor('#D69E2E'), # Желтый/оранжевый - важно
+            'priority_medium': colors.HexColor('#3182CE'),    # Синий - средне
+            'priority_low': colors.HexColor('#68D391'),       # Светло-зеленый - низко
+            
+            # Фоновые цвета
             'light_blue': colors.HexColor('#EBF8FF'),   # Светло-голубой
             'light_green': colors.HexColor('#F0FFF4'),  # Светло-зеленый
+            'light_red': colors.HexColor('#FED7D7'),    # Светло-красный
+            'light_yellow': colors.HexColor('#FEFCBF'), # Светло-желтый
             'light_gray': colors.HexColor('#F7FAFC'),   # Светло-серый
             'dark_gray': colors.HexColor('#4A5568'),    # Темно-серый
-            'text': colors.HexColor('#2D3748')          # Темный текст
         }
         
         self.width, self.height = A4
         self.styles = getSampleStyleSheet()
         self.register_fonts()
         self.setup_custom_styles()
+    
+    def get_priority_color(self, priority_text: str):
+        """Определяет цвет для приоритета"""
+        priority_lower = priority_text.lower()
+        if 'критич' in priority_lower or 'critical' in priority_lower or 'высок' in priority_lower:
+            return self.colors['priority_critical']
+        elif 'важн' in priority_lower or 'important' in priority_lower:
+            return self.colors['priority_important']
+        elif 'средн' in priority_lower or 'medium' in priority_lower:
+            return self.colors['priority_medium']
+        elif 'низк' in priority_lower or 'low' in priority_lower:
+            return self.colors['priority_low']
+        else:
+            return self.colors['secondary']  # По умолчанию
     
     def register_fonts(self):
         """Регистрация шрифтов с поддержкой кириллицы"""
@@ -95,6 +118,7 @@ class InterviewChecklistPDFGenerator:
             textColor=self.colors['primary'],
             spaceBefore=16,
             spaceAfter=8,
+            alignment=1  # Center
         ))
         
         # Подзаголовок
@@ -226,7 +250,7 @@ class InterviewChecklistPDFGenerator:
             elements.extend(self._create_preparation_section(
                 "Настройка Интервью", 
                 checklist_result.interview_setup,
-                self.colors['critical']
+                self.colors['priority_critical']  # Критично важная секция
             ))
             elements.append(Spacer(1, 12))
         
@@ -268,17 +292,37 @@ class InterviewChecklistPDFGenerator:
         elements = []
         elements.append(Paragraph("Контекст Кандидата", self.styles['SectionHeader']))
         
+        # Обрабатываем enum значения, убирая префиксы
+        candidate_level = getattr(context, 'candidate_level', 'Не указано')
+        if hasattr(candidate_level, 'value'):
+            candidate_level_text = candidate_level.value
+        else:
+            candidate_level_text = str(candidate_level) if candidate_level else 'Не указано'
+            
+        vacancy_type = getattr(context, 'vacancy_type', 'Не указано')
+        if hasattr(vacancy_type, 'value'):
+            vacancy_type_text = vacancy_type.value
+        else:
+            vacancy_type_text = str(vacancy_type) if vacancy_type else 'Не указано'
+            
+        company_format = getattr(context, 'company_format', 'Не указано')
+        if hasattr(company_format, 'value'):
+            company_format_text = company_format.value
+        else:
+            company_format_text = str(company_format) if company_format else 'Не указано'
+        
+        # Создаем данные с обёрнутыми в Paragraph элементами для переноса текста
         data = [
-            ['Параметр', 'Значение'],
-            ['Уровень кандидата', getattr(context, 'candidate_level', 'Не указано')],
-            ['Тип вакансии', getattr(context, 'vacancy_type', 'Не указано')],
-            ['Формат компании', getattr(context, 'company_format', 'Не указано')]
+            [Paragraph('Параметр', self.styles['TableText']), Paragraph('Значение', self.styles['TableText'])],
+            [Paragraph('Уровень кандидата', self.styles['TableText']), Paragraph(candidate_level_text, self.styles['TableText'])],
+            [Paragraph('Тип вакансии', self.styles['TableText']), Paragraph(vacancy_type_text, self.styles['TableText'])],
+            [Paragraph('Формат компании', self.styles['TableText']), Paragraph(company_format_text, self.styles['TableText'])]
         ]
         
         # Добавляем критические области фокуса
         if hasattr(context, 'critical_focus_areas') and context.critical_focus_areas:
             focus_areas = ', '.join(context.critical_focus_areas)
-            data.append(['Критические области фокуса', focus_areas])
+            data.append([Paragraph('Критические области фокуса', self.styles['TableText']), Paragraph(focus_areas, self.styles['TableText'])])
         
         table = Table(data, colWidths=[2.5*inch, 3.5*inch])
         table.setStyle(TableStyle([
@@ -324,9 +368,21 @@ class InterviewChecklistPDFGenerator:
             if hasattr(item, 'time_required'):
                 time_info.append(f"Время: {item.time_required}")
             if hasattr(item, 'priority'):
-                time_info.append(f"Приоритет: {item.priority}")
+                priority_val = item.priority
+                if hasattr(priority_val, 'value'):
+                    priority_text = priority_val.value
+                else:
+                    priority_text = str(priority_val)
+                priority_color = self.get_priority_color(priority_text)
+                time_info.append(f"<font color='{priority_color}'>Приоритет: {priority_text}</font>")
             if hasattr(item, 'urgency'):
-                time_info.append(f"Приоритет: {item.urgency}")
+                urgency_val = item.urgency
+                if hasattr(urgency_val, 'value'):
+                    urgency_text = urgency_val.value
+                else:
+                    urgency_text = str(urgency_val)
+                urgency_color = self.get_priority_color(urgency_text)
+                time_info.append(f"<font color='{urgency_color}'>Приоритет: {urgency_text}</font>")
             
             if time_info:
                 elements.append(Paragraph(f"<i>{' | '.join(time_info)}</i>", self.styles['TaskText']))
@@ -439,7 +495,13 @@ class InterviewChecklistPDFGenerator:
             
             # Приоритет
             if hasattr(skill, 'priority'):
-                elements.append(Paragraph(f"Приоритет: {skill.priority}", self.styles['ChecklistBody']))
+                priority_val = skill.priority
+                if hasattr(priority_val, 'value'):
+                    priority_text = priority_val.value
+                else:
+                    priority_text = str(priority_val)
+                priority_color = self.get_priority_color(priority_text)
+                elements.append(Paragraph(f"<font color='{priority_color}'>Приоритет: {priority_text}</font>", self.styles['ChecklistBody']))
             
             # Ресурсы
             if hasattr(skill, 'resources') and skill.resources:

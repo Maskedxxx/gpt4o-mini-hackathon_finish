@@ -244,11 +244,12 @@ class CoverLetterPDFGenerator:
         elements = []
         elements.append(Paragraph("Контекст Компании", self.styles['SubHeader']))
         
+        # Создаем данные с обёрнутыми в Paragraph элементами для переноса текста
         data = [
-            ['Параметр', 'Значение'],
-            ['Название компании', getattr(company_context, 'company_name', 'Не указано')],
-            ['Размер компании', getattr(company_context, 'company_size', 'Не указано')],
-            ['Тип роли', getattr(company_context, 'role_type', 'Не указано')]
+            [Paragraph('Параметр', self.styles['TableText']), Paragraph('Значение', self.styles['TableText'])],
+            [Paragraph('Название компании', self.styles['TableText']), Paragraph(getattr(company_context, 'company_name', 'Не указано'), self.styles['TableText'])],
+            [Paragraph('Размер компании', self.styles['TableText']), Paragraph(getattr(company_context, 'company_size', 'Не указано'), self.styles['TableText'])],
+            [Paragraph('Тип роли', self.styles['TableText']), Paragraph(getattr(company_context, 'role_type', 'Не указано'), self.styles['TableText'])]
         ]
         
         table = Table(data, colWidths=[2.5*inch, 3.5*inch])
@@ -277,11 +278,12 @@ class CoverLetterPDFGenerator:
         else:
             matched_skills_str = str(matched_skills)
         
+        # Создаем данные с обёрнутыми в Paragraph элементами для переноса текста
         data = [
-            ['Параметр', 'Значение'],
-            ['Соответствующие навыки', matched_skills_str],
-            ['Релевантный опыт', getattr(skills_match, 'relevant_experience', 'Не указано')],
-            ['Количественные достижения', getattr(skills_match, 'quantified_achievement', 'Не указано')]
+            [Paragraph('Параметр', self.styles['TableText']), Paragraph('Значение', self.styles['TableText'])],
+            [Paragraph('Соответствующие навыки', self.styles['TableText']), Paragraph(matched_skills_str, self.styles['TableText'])],
+            [Paragraph('Релевантный опыт', self.styles['TableText']), Paragraph(getattr(skills_match, 'relevant_experience', 'Не указано'), self.styles['TableText'])],
+            [Paragraph('Количественные достижения', self.styles['TableText']), Paragraph(getattr(skills_match, 'quantified_achievement', 'Не указано'), self.styles['TableText'])]
         ]
         
         table = Table(data, colWidths=[2.5*inch, 3.5*inch])
@@ -303,11 +305,12 @@ class CoverLetterPDFGenerator:
         elements = []
         elements.append(Paragraph("Персонализация", self.styles['SubHeader']))
         
+        # Создаем данные с обёрнутыми в Paragraph элементами для переноса текста
         data = [
-            ['Параметр', 'Значение'],
-            ['Ценностное предложение', getattr(personalization, 'value_proposition', 'Не указано')],
-            ['Мотивация роли', getattr(personalization, 'role_motivation', 'Не указано')],
-            ['Знание компании', getattr(personalization, 'company_knowledge', 'Не указано')]
+            [Paragraph('Параметр', self.styles['TableText']), Paragraph('Значение', self.styles['TableText'])],
+            [Paragraph('Ценностное предложение', self.styles['TableText']), Paragraph(getattr(personalization, 'value_proposition', 'Не указано'), self.styles['TableText'])],
+            [Paragraph('Мотивация роли', self.styles['TableText']), Paragraph(getattr(personalization, 'role_motivation', 'Не указано'), self.styles['TableText'])],
+            [Paragraph('Знание компании', self.styles['TableText']), Paragraph(getattr(personalization, 'company_knowledge', 'Не указано'), self.styles['TableText'])]
         ]
         
         table = Table(data, colWidths=[2.5*inch, 3.5*inch])
@@ -329,11 +332,12 @@ class CoverLetterPDFGenerator:
         elements = []
         elements.append(Paragraph("Оценка Качества", self.styles['SubHeader']))
         
+        # Создаем данные с обёрнутыми в Paragraph элементами для переноса текста
         data = [
-            ['Метрика', 'Оценка'],
-            ['Оценка персонализации', f"{getattr(cover_letter_result, 'personalization_score', 'Н/Д')}/10"],
-            ['Оценка релевантности', f"{getattr(cover_letter_result, 'relevance_score', 'Н/Д')}/10"],
-            ['Оценка профессионального тона', f"{getattr(cover_letter_result, 'professional_tone_score', 'Н/Д')}/10"]
+            [Paragraph('Метрика', self.styles['TableText']), Paragraph('Оценка', self.styles['TableText'])],
+            [Paragraph('Оценка персонализации', self.styles['TableText']), Paragraph(f"{getattr(cover_letter_result, 'personalization_score', 'Н/Д')}/10", self.styles['TableText'])],
+            [Paragraph('Оценка релевантности', self.styles['TableText']), Paragraph(f"{getattr(cover_letter_result, 'relevance_score', 'Н/Д')}/10", self.styles['TableText'])],
+            [Paragraph('Оценка профессионального тона', self.styles['TableText']), Paragraph(f"{getattr(cover_letter_result, 'professional_tone_score', 'Н/Д')}/10", self.styles['TableText'])]
         ]
         
         # Добавляем предложения по улучшению, если есть
@@ -343,7 +347,7 @@ class CoverLetterPDFGenerator:
                 suggestions_str = '; '.join(suggestions)
             else:
                 suggestions_str = str(suggestions)
-            data.append(['Предложения по улучшению', suggestions_str])
+            data.append([Paragraph('Предложения по улучшению', self.styles['TableText']), Paragraph(suggestions_str, self.styles['TableText'])])
         
         table = Table(data, colWidths=[2.5*inch, 3.5*inch])
         table.setStyle(TableStyle([

@@ -5,21 +5,21 @@ from enum import Enum
 
 class CriticalityLevel(str, Enum):
     """Уровень критичности рекомендации"""
-    CRITICAL = "КРИТИЧНО"  # Без этого точно откажут
-    IMPORTANT = "ВАЖНО"    # Сильно влияет на решение
-    DESIRED = "ЖЕЛАТЕЛЬНО" # Плюс, но не критично
+    КРИТИЧНО = "CRITICAL"  # Без этого точно откажут
+    ВАЖНО = "IMPORTANT"    # Сильно влияет на решение
+    ЖЕЛАТЕЛЬНО = "DESIRED" # Плюс, но не критично
 
 class ComplianceStatus(str, Enum):
     """Статус соответствия требованию"""
-    FULL_MATCH = "ПОЛНОЕ_СООТВЕТСТВИЕ"
-    PARTIAL_MATCH = "ЧАСТИЧНОЕ_СООТВЕТСТВИЕ"  
-    MISSING = "ОТСУТСТВУЕТ"
-    UNCLEAR = "ТРЕБУЕТ_УТОЧНЕНИЯ"
+    ПОЛНОЕ_СООТВЕТСТВИЕ = "FULL_MATCH"
+    ЧАСТИЧНОЕ_СООТВЕТСТВИЕ = "PARTIAL_MATCH"
+    ОТСУТСТВУЕТ = "MISSING"
+    ТРЕБУЕТ_УТОЧНЕНИЯ = "UNCLEAR"
 
 class RequirementAnalysis(BaseModel):
     """Анализ одного требования вакансии"""
     requirement_text: str = Field(..., description="Текст требования из вакансии")
-    requirement_type: Literal["MUST_HAVE", "NICE_TO_HAVE", "BONUS"] = Field(...,  description="Тип требования: обязательное, желательное или бонус")
+    requirement_type: Literal["ОБЯЗАТЕЛЬНО", "ЖЕЛАТЕЛЬНО", "БОНУС"] = Field(...,  description="Тип требования: обязательное, желательное или бонус")
     compliance_status: ComplianceStatus = Field(..., description="Статус соответствия")
     evidence_in_resume: Optional[str] = Field(None, description="Где в резюме найдено подтверждение (если есть)")
     gap_description: Optional[str] = Field(None, description="Описание разрыва, если соответствие неполное")
@@ -32,12 +32,12 @@ class PrimaryScreeningResult(BaseModel):
     key_skills_visible: bool = Field(..., description="Видны ли ключевые навыки")
     location_suitable: bool = Field(..., description="Подходит ли локация")
     salary_expectations_match: bool = Field(..., description="Совпадают ли зарплатные ожидания")
-    overall_screening_result: Literal["PASS", "MAYBE", "REJECT"] = Field(..., description="Общий результат скрининга")
+    overall_screening_result: Literal["ПРИНЯТЬ", "ВОЗМОЖНО", "ОТКЛОНИТЬ"] = Field(..., description="Общий результат скрининга")
     screening_notes: str = Field(..., description="Комментарии по скринингу")
 
 class DetailedRecommendation(BaseModel):
     """Детальная рекомендация по улучшению"""
-    section: Literal["title", "skills", "experience", "education", "structure"] = Field(..., description="Раздел резюме для улучшения")
+    section: Literal["загаловок", "навыки", "опыт", "образование", "структура"] = Field(..., description="Раздел резюме для улучшения")
     criticality: CriticalityLevel = Field(..., description="Критичность рекомендации")
     issue_description: str = Field(..., description="Описание проблемы")
     specific_actions: List[str] = Field(..., min_items=1, description="Конкретные действия для исправления")
@@ -50,7 +50,7 @@ class ResumeQualityAssessment(BaseModel):
     content_relevance: int = Field(..., ge=1, le=10, description="Релевантность содержания (1-10)")
     achievement_focus: int = Field(..., ge=1, le=10, description="Фокус на достижения vs обязанности (1-10)")
     adaptation_quality: int = Field(..., ge=1, le=10, description="Адаптация под вакансию (1-10)")
-    overall_impression: Literal["STRONG", "AVERAGE", "WEAK"] = Field(..., description="Общее впечатление от резюме")
+    overall_impression: Literal["СИЛЬНЫЙ", "СРЕДНИЙ", "СЛАБЫЙ"] = Field(..., description="Общее впечатление от резюме")
     quality_notes: str = Field(..., description="Комментарии по качеству")
 
 class EnhancedResumeTailoringAnalysis(BaseModel):
@@ -72,7 +72,7 @@ class EnhancedResumeTailoringAnalysis(BaseModel):
     
     # Итоговые выводы
     overall_match_percentage: int = Field(..., ge=0, le=100, description="Общий процент соответствия вакансии")
-    hiring_recommendation: Literal["STRONG_YES", "YES", "MAYBE", "NO", "STRONG_NO"] = Field(..., description="Рекомендация по найму")
+    hiring_recommendation: Literal["СИЛЬНО_ДА", "ДА", "ВОЗМОЖНО", "НЕТ", "СИЛЬНО_НЕТ"] = Field(..., description="Рекомендация по найму")
     key_strengths: List[str] = Field(..., min_items=1, description="Ключевые сильные стороны кандидата")
     major_gaps: List[str] = Field(...,  description="Основные пробелы")
     next_steps: str = Field(..., description="Следующие шаги в процессе найма")

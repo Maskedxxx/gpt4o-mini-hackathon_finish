@@ -175,17 +175,21 @@ class GapAnalysisPDFGenerator:
         key_strengths = getattr(analysis_result, 'key_strengths', None) or []
         major_gaps = getattr(analysis_result, 'major_gaps', None) or []
         
+        # Создаем данные с обёрнутыми в Paragraph элементами для переноса текста
+        key_strengths_text = ', '.join(key_strengths[:3]) if key_strengths else 'Не указано'
+        major_gaps_text = ', '.join(major_gaps[:3]) if major_gaps else 'Не указано'
+        
         data = [
-            ['Показатель', 'Значение'],
-            ['Общий процент соответствия', f"{match_percentage}%"],
-            ['Рекомендация по найму', hiring_rec],
-            ['Ключевые сильные стороны', ', '.join(key_strengths[:3]) if key_strengths else 'Не указано'],
-            ['Основные пробелы', ', '.join(major_gaps[:3]) if major_gaps else 'Не указано']
+            [Paragraph('Показатель', self.styles['TableText']), Paragraph('Значение', self.styles['TableText'])],
+            [Paragraph('Общий процент соответствия', self.styles['TableText']), Paragraph(f"{match_percentage}%", self.styles['TableText'])],
+            [Paragraph('Рекомендация по найму', self.styles['TableText']), Paragraph(hiring_rec, self.styles['TableText'])],
+            [Paragraph('Ключевые сильные стороны', self.styles['TableText']), Paragraph(key_strengths_text, self.styles['TableText'])],
+            [Paragraph('Основные пробелы', self.styles['TableText']), Paragraph(major_gaps_text, self.styles['TableText'])]
         ]
         
         table = Table(data, colWidths=[3*inch, 3*inch])
         table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), self.colors['primary']),
+            ('BACKGROUND', (0, 0), (-1, 0), self.colors['secondary']),  # Изменили на голубой
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (-1, 0), 'DejaVuSans'),
@@ -212,15 +216,15 @@ class GapAnalysisPDFGenerator:
             elements.append(Paragraph("Нет данных по первичному скринингу", self.styles['CustomBody']))
             return elements
         
-        # Таблица результатов скрининга
+        # Таблица результатов скрининга с обёрнутым в Paragraph текстом
         data = [
-            ['Критерий', 'Результат'],
-            ['Общий результат', getattr(screening, 'overall_screening_result', 'Не указано') or 'Не указано'],
-            ['Соответствие должности', str(getattr(screening, 'job_title_match', 'Не указано'))],
-            ['Соответствие опыта', str(getattr(screening, 'experience_years_match', 'Не указано'))],
-            ['Видимость ключевых навыков', str(getattr(screening, 'key_skills_visible', 'Не указано'))],
-            ['Подходящая локация', str(getattr(screening, 'location_suitable', 'Не указано'))],
-            ['Соответствие зарплатных ожиданий', str(getattr(screening, 'salary_expectations_match', 'Не указано'))]
+            [Paragraph('Критерий', self.styles['TableText']), Paragraph('Результат', self.styles['TableText'])],
+            [Paragraph('Общий результат', self.styles['TableText']), Paragraph(getattr(screening, 'overall_screening_result', 'Не указано') or 'Не указано', self.styles['TableText'])],
+            [Paragraph('Соответствие должности', self.styles['TableText']), Paragraph(str(getattr(screening, 'job_title_match', 'Не указано')), self.styles['TableText'])],
+            [Paragraph('Соответствие опыта', self.styles['TableText']), Paragraph(str(getattr(screening, 'experience_years_match', 'Не указано')), self.styles['TableText'])],
+            [Paragraph('Видимость ключевых навыков', self.styles['TableText']), Paragraph(str(getattr(screening, 'key_skills_visible', 'Не указано')), self.styles['TableText'])],
+            [Paragraph('Подходящая локация', self.styles['TableText']), Paragraph(str(getattr(screening, 'location_suitable', 'Не указано')), self.styles['TableText'])],
+            [Paragraph('Соответствие зарплатных ожиданий', self.styles['TableText']), Paragraph(str(getattr(screening, 'salary_expectations_match', 'Не указано')), self.styles['TableText'])]
         ]
         
         table = Table(data, colWidths=[3*inch, 3*inch])
@@ -266,12 +270,19 @@ class GapAnalysisPDFGenerator:
             evidence_text = evidence[:200] + '...' if len(evidence) > 200 else evidence
             gap_text = gap_desc[:200] + '...' if len(gap_desc) > 200 else gap_desc
             
+            # Получаем статус соответствия и извлекаем только значение enum
+            compliance_status = getattr(req, 'compliance_status', 'Не указано')
+            if hasattr(compliance_status, 'value'):
+                compliance_status_text = compliance_status.value
+            else:
+                compliance_status_text = str(compliance_status) if compliance_status else 'Не указано'
+            
             req_data = [
-                ['Тип требования', getattr(req, 'requirement_type', 'Не указано') or 'Не указано'],
-                ['Статус соответствия', getattr(req, 'compliance_status', 'Не указано') or 'Не указано'],
-                ['Подтверждение в резюме', evidence_text],
-                ['Описание пробела', gap_text],
-                ['Влияние на решение', getattr(req, 'impact_on_decision', 'Не указано') or 'Не указано']
+                [Paragraph('Тип требования', self.styles['TableText']), Paragraph(getattr(req, 'requirement_type', 'Не указано') or 'Не указано', self.styles['TableText'])],
+                [Paragraph('Статус соответствия', self.styles['TableText']), Paragraph(compliance_status_text, self.styles['TableText'])],
+                [Paragraph('Подтверждение в резюме', self.styles['TableText']), Paragraph(evidence_text, self.styles['TableText'])],
+                [Paragraph('Описание пробела', self.styles['TableText']), Paragraph(gap_text, self.styles['TableText'])],
+                [Paragraph('Влияние на решение', self.styles['TableText']), Paragraph(getattr(req, 'impact_on_decision', 'Не указано') or 'Не указано', self.styles['TableText'])]
             ]
             
             req_table = Table(req_data, colWidths=[2*inch, 4*inch])
@@ -300,14 +311,14 @@ class GapAnalysisPDFGenerator:
             elements.append(Paragraph("Нет данных по оценке качества", self.styles['CustomBody']))
             return elements
         
-        # Таблица оценок качества
+        # Таблица оценок качества с обёрнутым в Paragraph текстом
         data = [
-            ['Аспект', 'Оценка'],
-            ['Четкость структуры', str(getattr(quality, 'structure_clarity', 'Не указано'))],
-            ['Релевантность контента', str(getattr(quality, 'content_relevance', 'Не указано'))],
-            ['Фокус на достижения', str(getattr(quality, 'achievement_focus', 'Не указано'))],
-            ['Качество адаптации', str(getattr(quality, 'adaptation_quality', 'Не указано'))],
-            ['Общее впечатление', str(getattr(quality, 'overall_impression', 'Не указано'))]
+            [Paragraph('Аспект', self.styles['TableText']), Paragraph('Оценка', self.styles['TableText'])],
+            [Paragraph('Четкость структуры', self.styles['TableText']), Paragraph(str(getattr(quality, 'structure_clarity', 'Не указано')), self.styles['TableText'])],
+            [Paragraph('Релевантность контента', self.styles['TableText']), Paragraph(str(getattr(quality, 'content_relevance', 'Не указано')), self.styles['TableText'])],
+            [Paragraph('Фокус на достижения', self.styles['TableText']), Paragraph(str(getattr(quality, 'achievement_focus', 'Не указано')), self.styles['TableText'])],
+            [Paragraph('Качество адаптации', self.styles['TableText']), Paragraph(str(getattr(quality, 'adaptation_quality', 'Не указано')), self.styles['TableText'])],
+            [Paragraph('Общее впечатление', self.styles['TableText']), Paragraph(str(getattr(quality, 'overall_impression', 'Не указано')), self.styles['TableText'])]
         ]
         
         table = Table(data, colWidths=[3*inch, 3*inch])
@@ -346,8 +357,21 @@ class GapAnalysisPDFGenerator:
                 section = getattr(rec, 'section', 'Не указано') or 'Не указано'
                 issue = getattr(rec, 'issue_description', 'Не указано') or 'Не указано'
                 actions = getattr(rec, 'specific_actions', 'Не указано') or 'Не указано'
+                example_wording = getattr(rec, 'example_wording', '') or ''
+                business_rationale = getattr(rec, 'business_rationale', '') or ''
+                
+                # Форматируем действия правильно (убираем квадратные скобки)
+                if isinstance(actions, list):
+                    actions_text = '; '.join(actions)
+                else:
+                    actions_text = str(actions)
+                
                 elements.append(Paragraph(f"<b>{section}</b> - {issue}", self.styles['CustomBody']))
-                elements.append(Paragraph(f"Действия: {actions}", self.styles['CustomBody']))
+                elements.append(Paragraph(f"Действия: {actions_text}", self.styles['CustomBody']))
+                if example_wording:
+                    elements.append(Paragraph(f"Пример формулировки: {example_wording}", self.styles['CustomBody']))
+                if business_rationale:
+                    elements.append(Paragraph(f"Бизнес-обоснование: {business_rationale}", self.styles['CustomBody']))
                 elements.append(Spacer(1, 4))
         
         # Важные рекомендации
@@ -358,17 +382,40 @@ class GapAnalysisPDFGenerator:
                 section = getattr(rec, 'section', 'Не указано') or 'Не указано'
                 issue = getattr(rec, 'issue_description', 'Не указано') or 'Не указано'
                 actions = getattr(rec, 'specific_actions', 'Не указано') or 'Не указано'
+                example_wording = getattr(rec, 'example_wording', '') or ''
+                business_rationale = getattr(rec, 'business_rationale', '') or ''
+                
+                # Форматируем действия правильно (убираем квадратные скобки)
+                if isinstance(actions, list):
+                    actions_text = '; '.join(actions)
+                else:
+                    actions_text = str(actions)
+                
                 elements.append(Paragraph(f"<b>{section}</b> - {issue}", self.styles['CustomBody']))
-                elements.append(Paragraph(f"Действия: {actions}", self.styles['CustomBody']))
+                elements.append(Paragraph(f"Действия: {actions_text}", self.styles['CustomBody']))
+                if example_wording:
+                    elements.append(Paragraph(f"Пример формулировки: {example_wording}", self.styles['CustomBody']))
+                if business_rationale:
+                    elements.append(Paragraph(f"Бизнес-обоснование: {business_rationale}", self.styles['CustomBody']))
                 elements.append(Spacer(1, 4))
         
         # Следующие шаги
-        next_steps = getattr(analysis_result, 'next_steps', None) or []
+        next_steps = getattr(analysis_result, 'next_steps', None)
         if next_steps:
             elements.append(Spacer(1, 12))
             elements.append(Paragraph("Рекомендуемые Следующие Шаги:", self.styles['SubHeader']))
-            for step in next_steps:
-                step_text = str(step) if step else 'Не указано'
-                elements.append(Paragraph(f"• {step_text}", self.styles['CustomBody']))
+            
+            # Проверяем тип next_steps - может быть строкой или списком
+            if isinstance(next_steps, str):
+                # Если это строка, выводим её как один элемент
+                elements.append(Paragraph(f"• {next_steps}", self.styles['CustomBody']))
+            elif isinstance(next_steps, list):
+                # Если это список, выводим каждый элемент
+                for step in next_steps:
+                    step_text = str(step) if step else 'Не указано'
+                    elements.append(Paragraph(f"• {step_text}", self.styles['CustomBody']))
+            else:
+                # В остальных случаях преобразуем в строку
+                elements.append(Paragraph(f"• {str(next_steps)}", self.styles['CustomBody']))
         
         return elements
