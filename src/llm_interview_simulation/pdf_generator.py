@@ -223,17 +223,17 @@ class ProfessionalInterviewPDFGenerator:
         subtitle = f"{simulation.position_title}"
         elements.append(Paragraph(subtitle, self.subtitle_style))
         
-        # Информационная таблица
+        # Информационная таблица с обёрнутым в Paragraph содержимым
         info_data = [
-            ['Кандидат:', simulation.candidate_name],
-            ['Дата симуляции:', datetime.now().strftime('%d.%m.%Y %H:%M')],
-            ['Уровень кандидата:', simulation.candidate_profile.detected_level.value.title()],
-            ['IT-роль:', simulation.candidate_profile.detected_role.value.replace('_', ' ').title()],
-            ['Количество раундов:', str(simulation.total_rounds_completed)],
-            ['Общая рекомендация:', self._get_recommendation_text(simulation.assessment.overall_recommendation)]
+            [Paragraph('Кандидат:', self.metadata_style), Paragraph(simulation.candidate_name, self.metadata_style)],
+            [Paragraph('Дата симуляции:', self.metadata_style), Paragraph(datetime.now().strftime('%d.%m.%Y %H:%M'), self.metadata_style)],
+            [Paragraph('Уровень кандидата:', self.metadata_style), Paragraph(simulation.candidate_profile.detected_level.value.title(), self.metadata_style)],
+            [Paragraph('IT-роль:', self.metadata_style), Paragraph(simulation.candidate_profile.detected_role.value.replace('_', ' ').title(), self.metadata_style)],
+            [Paragraph('Количество раундов:', self.metadata_style), Paragraph(str(simulation.total_rounds_completed), self.metadata_style)],
+            [Paragraph('Общая рекомендация:', self.metadata_style), Paragraph(self._get_recommendation_text(simulation.assessment.overall_recommendation), self.metadata_style)]
         ]
         
-        info_table = Table(info_data, colWidths=[4*cm, 6*cm])
+        info_table = Table(info_data, colWidths=[5*cm, 7*cm])
         info_table.setStyle(TableStyle([
             ('FONTNAME', (0, 0), (-1, -1), self.font_family),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
@@ -326,8 +326,9 @@ class ProfessionalInterviewPDFGenerator:
         elements.append(Paragraph("Сильные стороны", self.subsection_style))
         
         if simulation.assessment.strengths:
-            strengths_data = [[f"✓ {strength}"] for strength in simulation.assessment.strengths]
-            strengths_table = Table(strengths_data, colWidths=[14*cm])
+            # Создаем Paragraph элементы для каждой сильной стороны
+            strengths_data = [[Paragraph(f"✓ {strength}", self.body_style)] for strength in simulation.assessment.strengths]
+            strengths_table = Table(strengths_data, colWidths=[15*cm])
             strengths_table.setStyle(TableStyle([
                 ('FONTNAME', (0, 0), (-1, -1), self.font_family),
                 ('FONTSIZE', (0, 0), (-1, -1), 10),
@@ -349,8 +350,9 @@ class ProfessionalInterviewPDFGenerator:
         elements.append(Paragraph("Области для развития", self.subsection_style))
         
         if simulation.assessment.weaknesses:
-            weaknesses_data = [[f"⚠ {weakness}"] for weakness in simulation.assessment.weaknesses]
-            weaknesses_table = Table(weaknesses_data, colWidths=[14*cm])
+            # Создаем Paragraph элементы для каждой области развития
+            weaknesses_data = [[Paragraph(f"⚠ {weakness}", self.body_style)] for weakness in simulation.assessment.weaknesses]
+            weaknesses_table = Table(weaknesses_data, colWidths=[15*cm])
             weaknesses_table.setStyle(TableStyle([
                 ('FONTNAME', (0, 0), (-1, -1), self.font_family),
                 ('FONTSIZE', (0, 0), (-1, -1), 10),
@@ -371,8 +373,9 @@ class ProfessionalInterviewPDFGenerator:
         # Красные флаги
         if simulation.assessment.red_flags:
             elements.append(Paragraph("Красные флаги", self.subsection_style))
-            red_flags_data = [[f"🚩 {flag}"] for flag in simulation.assessment.red_flags]
-            red_flags_table = Table(red_flags_data, colWidths=[14*cm])
+            # Создаем Paragraph элементы для каждого красного флага
+            red_flags_data = [[Paragraph(f"🚩 {flag}", self.body_style)] for flag in simulation.assessment.red_flags]
+            red_flags_table = Table(red_flags_data, colWidths=[15*cm])
             red_flags_table.setStyle(TableStyle([
                 ('FONTNAME', (0, 0), (-1, -1), self.font_family),
                 ('FONTSIZE', (0, 0), (-1, -1), 10),
