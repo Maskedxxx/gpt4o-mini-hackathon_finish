@@ -28,7 +28,9 @@ services:
       - key: CALLBACK_LOCAL_HOST
         value: "ai-resume-oauth-server.onrender.com"
       - key: CALLBACK_LOCAL_PORT
-        value: "10000"
+        value: "443"
+      - key: CALLBACK_LOCAL_PROTOCOL
+        value: "https"
     domains:
       - ai-resume-assistant.onrender.com
 

@@ -132,7 +132,7 @@ async def get_tokens_from_callback(_: bool = Depends(auth_system.require_auth)):
                 "message": "Авторизация уже выполнена"
             }
         
-        callback_url = f"http://{callback_settings.host}:{callback_settings.port}/api/code"
+        callback_url = f"{callback_settings.protocol}://{callback_settings.host}:{callback_settings.port}/api/code"
         
         async with aiohttp.ClientSession() as session:
             async with session.get(callback_url) as response:

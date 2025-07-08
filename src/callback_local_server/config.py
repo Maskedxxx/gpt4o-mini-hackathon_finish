@@ -8,6 +8,7 @@ class CallbackServerSettings(BaseAppSettings):
     """
     host: str = "0.0.0.0"
     port: int = 8080
+    protocol: str = "http"  # http для локальной разработки, https для продакшн
     
     model_config = ConfigDict(
         env_file='.env',
