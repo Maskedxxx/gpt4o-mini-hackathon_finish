@@ -15,7 +15,7 @@ import os
 import tempfile
 import asyncio
 from pathlib import Path
-from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Request
+from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Request, Depends
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -36,6 +36,10 @@ from src.llm_interview_checklist.llm_interview_checklist_generator import LLMInt
 from src.llm_interview_simulation.llm_interview_simulator import ProfessionalInterviewSimulator
 from src.utils import get_logger
 
+# Импорт системы авторизации
+from src.security.auth import SimpleAuth
+from src.security.health_dashboard import add_health_dashboard_routes
+
 # PDF генераторы
 from src.web_app.gap_analysis.pdf_generator import GapAnalysisPDFGenerator
 from src.web_app.cover_letter.pdf_generator import CoverLetterPDFGenerator
@@ -45,8 +49,19 @@ logger = get_logger()
 
 app = FastAPI(title="AI Resume Assistant - Unified Web App")
 
-# Настройка шаблонов
+# Настройка системы авторизации
 current_dir = Path(__file__).parent
+auth_system = SimpleAuth(templates_dir=str(current_dir.parent.parent / "security" / "templates"))
+
+# Добавляем middleware авторизации
+app.add_middleware(
+    auth_system.get_middleware().__class__,
+    config=auth_system.config,
+    session_manager=auth_system.session_manager,
+    templates=auth_system.templates
+)
+
+# Настройка шаблонов
 templates = Jinja2Templates(directory=str(current_dir / "templates"))
 
 # Статические файлы (если нужны)
@@ -74,23 +89,40 @@ checklist_storage = {}
 simulation_storage = {}
 simulation_progress_storage = {}
 
+# ================== АВТОРИЗАЦИЯ ==================
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    """Страница авторизации"""
+    return await auth_system.login_page(request)
+
+@app.post("/login")
+async def login_post(request: Request, password: str = Form(...)):
+    """Обработка авторизации"""
+    return await auth_system.login_post(request, password)
+
+@app.get("/logout")
+async def logout(request: Request):
+    """Выход из системы"""
+    return await auth_system.logout(request)
+
 # ================== ГЛАВНАЯ СТРАНИЦА ==================
 
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
+async def index(request: Request, _: bool = Depends(auth_system.require_auth)):
     """Главная страница с навигацией по всем функциям"""
     return templates.TemplateResponse("index.html", {"request": request})
 
-# ================== АВТОРИЗАЦИЯ ==================
+# ================== HH.RU АВТОРИЗАЦИЯ ==================
 
 @app.post("/auth/hh")
-async def start_hh_auth():
+async def start_hh_auth(_: bool = Depends(auth_system.require_auth)):
     """Начало авторизации HH.ru"""
     auth_url = hh_auth_service.get_auth_url()
     return {"auth_url": auth_url}
 
 @app.get("/auth/tokens")
-async def get_tokens_from_callback():
+async def get_tokens_from_callback(_: bool = Depends(auth_system.require_auth)):
     """Получение токенов из callback сервера"""
     try:
         # Сначала проверяем, есть ли уже сохраненные токены
@@ -137,22 +169,22 @@ async def get_tokens_from_callback():
 # ================== СТРАНИЦЫ ФУНКЦИЙ ==================
 
 @app.get("/gap-analysis", response_class=HTMLResponse)
-async def gap_analysis_page(request: Request):
+async def gap_analysis_page(request: Request, _: bool = Depends(auth_system.require_auth)):
     """Страница гап-анализа"""
     return templates.TemplateResponse("gap_analysis.html", {"request": request})
 
 @app.get("/cover-letter", response_class=HTMLResponse)
-async def cover_letter_page(request: Request):
+async def cover_letter_page(request: Request, _: bool = Depends(auth_system.require_auth)):
     """Страница генерации сопроводительного письма"""
     return templates.TemplateResponse("cover_letter.html", {"request": request})
 
 @app.get("/interview-checklist", response_class=HTMLResponse)
-async def interview_checklist_page(request: Request):
+async def interview_checklist_page(request: Request, _: bool = Depends(auth_system.require_auth)):
     """Страница чек-листа подготовки к интервью"""
     return templates.TemplateResponse("interview_checklist.html", {"request": request})
 
 @app.get("/interview-simulation", response_class=HTMLResponse)
-async def interview_simulation_page(request: Request):
+async def interview_simulation_page(request: Request, _: bool = Depends(auth_system.require_auth)):
     """Страница симуляции интервью"""
     return templates.TemplateResponse("interview_simulation.html", {"request": request})
 
@@ -161,7 +193,8 @@ async def interview_simulation_page(request: Request):
 @app.post("/gap-analysis")
 async def perform_gap_analysis(
     resume_file: UploadFile = File(...),
-    vacancy_url: str = Form(...)
+    vacancy_url: str = Form(...),
+    _: bool = Depends(auth_system.require_auth)
 ):
     """Выполнение гап-анализа резюме"""
     try:
@@ -225,7 +258,7 @@ async def perform_gap_analysis(
         raise HTTPException(500, f"Ошибка анализа: {str(e)}")
 
 @app.get("/download-gap-analysis/{analysis_id}")
-async def download_gap_analysis_pdf(analysis_id: str):
+async def download_gap_analysis_pdf(analysis_id: str, _: bool = Depends(auth_system.require_auth)):
     """Скачивание PDF отчета гап-анализа"""
     try:
         if analysis_id not in analysis_storage:
@@ -259,7 +292,8 @@ async def download_gap_analysis_pdf(analysis_id: str):
 @app.post("/generate-cover-letter")
 async def generate_cover_letter(
     resume_file: UploadFile = File(...),
-    vacancy_url: str = Form(...)
+    vacancy_url: str = Form(...),
+    _: bool = Depends(auth_system.require_auth)
 ):
     """Генерация сопроводительного письма"""
     try:
@@ -327,7 +361,7 @@ async def generate_cover_letter(
         raise HTTPException(500, f"Ошибка генерации: {str(e)}")
 
 @app.get("/download-cover-letter/{letter_id}")
-async def download_cover_letter_pdf(letter_id: str):
+async def download_cover_letter_pdf(letter_id: str, _: bool = Depends(auth_system.require_auth)):
     """Скачивание PDF сопроводительного письма"""
     try:
         if letter_id not in cover_letter_storage:
@@ -361,7 +395,8 @@ async def download_cover_letter_pdf(letter_id: str):
 @app.post("/generate-interview-checklist")
 async def generate_interview_checklist(
     resume_file: UploadFile = File(...),
-    vacancy_url: str = Form(...)
+    vacancy_url: str = Form(...),
+    _: bool = Depends(auth_system.require_auth)
 ):
     """Генерация чек-листа подготовки к интервью"""
     try:
@@ -429,7 +464,7 @@ async def generate_interview_checklist(
         raise HTTPException(500, f"Ошибка генерации: {str(e)}")
 
 @app.get("/download-interview-checklist/{checklist_id}")
-async def download_interview_checklist_pdf(checklist_id: str):
+async def download_interview_checklist_pdf(checklist_id: str, _: bool = Depends(auth_system.require_auth)):
     """Скачивание PDF чек-листа"""
     try:
         if checklist_id not in checklist_storage:
@@ -470,7 +505,8 @@ async def start_interview_simulation(
     hr_persona: str = Form("professional"),
     focus_areas: str = Form("[]"),  # JSON строка с массивом
     include_behavioral: bool = Form(True),
-    include_technical: bool = Form(True)
+    include_technical: bool = Form(True),
+    _: bool = Depends(auth_system.require_auth)
 ):
     """Запуск симуляции интервью"""
     try:
@@ -574,7 +610,7 @@ async def start_interview_simulation(
         raise HTTPException(500, f"Ошибка запуска: {str(e)}")
 
 @app.get("/simulation-progress/{simulation_id}")
-async def get_simulation_progress(simulation_id: str):
+async def get_simulation_progress(simulation_id: str, _: bool = Depends(auth_system.require_auth)):
     """Получение прогресса симуляции"""
     if simulation_id not in simulation_progress_storage:
         raise HTTPException(404, "Симуляция не найдена")
@@ -582,7 +618,7 @@ async def get_simulation_progress(simulation_id: str):
     return simulation_progress_storage[simulation_id]
 
 @app.get("/simulation-result/{simulation_id}")
-async def get_simulation_result(simulation_id: str):
+async def get_simulation_result(simulation_id: str, _: bool = Depends(auth_system.require_auth)):
     """Получение результатов симуляции"""
     if simulation_id not in simulation_storage:
         raise HTTPException(404, "Результаты симуляции не найдены")
@@ -597,7 +633,7 @@ async def get_simulation_result(simulation_id: str):
     })
 
 @app.get("/download-interview-simulation/{simulation_id}")
-async def download_interview_simulation_pdf(simulation_id: str):
+async def download_interview_simulation_pdf(simulation_id: str, _: bool = Depends(auth_system.require_auth)):
     """Скачивание PDF отчета симуляции интервью"""
     try:
         if simulation_id not in simulation_storage:
@@ -1058,6 +1094,33 @@ def format_simulation_for_web(simulation) -> dict:
             "key_insights": simulation.assessment.weaknesses[:3] if simulation.assessment and simulation.assessment.weaknesses else ["Нет инсайтов"]
         }
     }
+
+# ================== МОНИТОРИНГ ==================
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint для мониторинга"""
+    try:
+        return {
+            "status": "healthy",
+            "service": "ai-resume-assistant-unified",
+            "version": "1.0.0",
+            "port": 3000,
+            "checks": {
+                "auth_system": "ok",
+                "templates": "ok",
+                "storage": "ok"
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "service": "ai-resume-assistant-unified",
+            "error": str(e)
+        }
+
+# Добавляем маршруты панели мониторинга
+add_health_dashboard_routes(app, auth_system.templates)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=3000)

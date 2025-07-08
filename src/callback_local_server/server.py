@@ -30,6 +30,7 @@ async def callback_handler(code: str = Query(None)):
 async def get_auth_code_api():
     """API эндпоинт для получения кода авторизации."""
     import time
+    global auth_code, auth_code_timestamp
     
     if auth_code:
         # Проверяем что код не старше 10 минут
@@ -37,7 +38,6 @@ async def get_auth_code_api():
             return JSONResponse({"code": auth_code})
         else:
             # Код устарел, очищаем его
-            global auth_code, auth_code_timestamp
             auth_code = None
             auth_code_timestamp = None
             logger.info("Код авторизации устарел и был очищен")
@@ -53,3 +53,25 @@ async def reset_auth_code_api():
     auth_code_timestamp = None
     logger.info(f"Код авторизации сброшен: {old_code}")
     return JSONResponse({"status": "success"})
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint для мониторинга"""
+    global auth_code
+    try:
+        return {
+            "status": "healthy",
+            "service": "ai-resume-assistant-oauth",
+            "version": "1.0.0",
+            "port": 8080,
+            "checks": {
+                "auth_code_status": "active" if auth_code else "waiting",
+                "callback_handler": "ok"
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "service": "ai-resume-assistant-oauth",
+            "error": str(e)
+        }

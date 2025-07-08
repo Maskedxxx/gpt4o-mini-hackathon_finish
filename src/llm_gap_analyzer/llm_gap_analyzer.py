@@ -13,6 +13,7 @@ from src.utils import get_logger
 from src.llm_gap_analyzer import settings
 from src.models.gap_analysis_models import EnhancedResumeTailoringAnalysis
 from src.llm_gap_analyzer.formatter import format_resume_data, format_vacancy_data
+from src.security.openai_control import openai_controller
 
 logger = get_logger()
 
@@ -159,6 +160,9 @@ class LLMGapAnalyzer:
     @traceable(client=ls_client, project_name="llamaindex_test", run_type = "retriever")
     async def gap_analysis(self, parsed_resume: Dict[str, Any], parsed_vacancy: Dict[str, Any]) -> Optional[EnhancedResumeTailoringAnalysis]:
         """Выполняет расширенный GAP-анализ резюме относительно вакансии с трейсингом."""
+        # Проверка разрешения использования OpenAI API
+        openai_controller.check_api_permission()
+        
         try:
             logger.info("Начат расширенный GAP анализ резюме с трейсингом")
             
@@ -188,10 +192,15 @@ class LLMGapAnalyzer:
                 response_format=EnhancedResumeTailoringAnalysis,
             )
 
+            # Записать статистику использования API
+            tokens_used = completion.usage.total_tokens if completion.usage else 0
+            openai_controller.record_request(success=True, tokens=tokens_used)
+
             # 4. Извлечь ответ
             raw_response_text = completion.choices[0].message.content
             if not raw_response_text:
                 logger.error("Пустой ответ от модели при расширенном GAP-анализе")
+                openai_controller.record_request(success=False, error="Пустой ответ от модели")
                 return None
             
             # 5. Попробовать распарсить JSON в модель
@@ -206,12 +215,14 @@ class LLMGapAnalyzer:
 
         except ValidationError as ve:
             logger.error(f"Ошибка валидации расширенного GAP-анализа: {ve}")
+            openai_controller.record_request(success=False, error=f"Ошибка валидации: {ve}")
             # Логируем ошибку в трейсинг
             if ls_client:
                 logger.error(f"Трейсинг: ошибка валидации - {ve}")
             return None
         except Exception as e:
             logger.error(f"Ошибка при расширенном GAP-анализе: {e}", exc_info=True)
+            openai_controller.record_request(success=False, error=str(e))
             # Логируем ошибку в трейсинг
             if ls_client:
                 logger.error(f"Трейсинг: общая ошибка - {e}")

@@ -7,6 +7,7 @@ from pydantic import ValidationError
 from src.llm_interview_checklist.config import settings
 from src.models.interview_checklist_models import InterviewChecklist, ProfessionalInterviewChecklist
 from src.llm_interview_checklist.formatter import format_resume_for_interview_prep, format_vacancy_for_interview_prep
+from src.security.openai_control import openai_controller
 
 from src.utils import get_logger
 logger = get_logger()
@@ -420,6 +421,9 @@ class LLMInterviewChecklistGenerator:
         Returns:
             ProfessionalInterviewChecklist: Объект с профессиональным чек-листом подготовки или None в случае ошибки
         """
+        # Проверка разрешения использования OpenAI API
+        openai_controller.check_api_permission()
+        
         try:
             # 1. Формируем профессиональный промпт
             prompt_text = self._create_professional_interview_checklist_prompt(parsed_resume, parsed_vacancy)
@@ -451,10 +455,15 @@ class LLMInterviewChecklistGenerator:
                 temperature=0.3  # Более консервативный подход для professional контента
             )
             
+            # Записать статистику использования API
+            tokens_used = completion.usage.total_tokens if completion.usage else 0
+            openai_controller.record_request(success=True, tokens=tokens_used)
+            
             # 4. Извлекаем ответ
             raw_response_text = completion.choices[0].message.content
             if not raw_response_text:
                 logger.error("Пустой ответ от модели при генерации профессионального чек-листа интервью.")
+                openai_controller.record_request(success=False, error="Пустой ответ от модели")
                 return None
             
             # 5. Парсим JSON в модель ProfessionalInterviewChecklist
@@ -464,15 +473,20 @@ class LLMInterviewChecklistGenerator:
             
         except ValidationError as ve:
             logger.error(f"Ошибка валидации профессионального чек-листа интервью: {ve}")
+            openai_controller.record_request(success=False, error=f"Ошибка валидации: {ve}")
             return None
         except Exception as e:
             logger.error(f"Ошибка при генерации профессионального чек-листа интервью: {e}")
+            openai_controller.record_request(success=False, error=str(e))
             return None
     
     async def generate_interview_checklist(self, parsed_resume: Dict[str, Any], parsed_vacancy: Dict[str, Any]) -> Optional[InterviewChecklist]:
         """
         Генерирует персонализированный чек-лист подготовки к интервью (старая версия для совместимости).
         """
+        # Проверка разрешения использования OpenAI API
+        openai_controller.check_api_permission()
+        
         try:
             # 1. Формируем промпт
             prompt_text = self._create_interview_checklist_prompt(parsed_resume, parsed_vacancy)
@@ -503,10 +517,15 @@ class LLMInterviewChecklistGenerator:
                 response_format=InterviewChecklist
             )
             
+            # Записать статистику использования API
+            tokens_used = completion.usage.total_tokens if completion.usage else 0
+            openai_controller.record_request(success=True, tokens=tokens_used)
+            
             # 4. Извлекаем ответ
             raw_response_text = completion.choices[0].message.content
             if not raw_response_text:
                 logger.error("Пустой ответ от модели при генерации чек-листа интервью.")
+                openai_controller.record_request(success=False, error="Пустой ответ от модели")
                 return None
             
             # 5. Парсим JSON в модель InterviewChecklist
@@ -516,7 +535,9 @@ class LLMInterviewChecklistGenerator:
             
         except ValidationError as ve:
             logger.error(f"Ошибка валидации чек-листа интервью: {ve}")
+            openai_controller.record_request(success=False, error=f"Ошибка валидации: {ve}")
             return None
         except Exception as e:
             logger.error(f"Ошибка при генерации чек-листа интервью: {e}")
+            openai_controller.record_request(success=False, error=str(e))
             return None

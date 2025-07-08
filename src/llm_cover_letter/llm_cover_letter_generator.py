@@ -11,6 +11,7 @@ from src.llm_cover_letter.formatter import (
     format_vacancy_for_cover_letter,
     format_cover_letter_context
 )
+from src.security.openai_control import openai_controller
 
 from src.utils import get_logger
 logger = get_logger()
@@ -244,6 +245,9 @@ class EnhancedLLMCoverLetterGenerator:
         Returns:
             EnhancedCoverLetter или None в случае ошибки
         """
+        # Проверка разрешения использования OpenAI API
+        openai_controller.check_api_permission()
+        
         try:
             # 1. Анализируем контекст вакансии
             context = self._analyze_vacancy_context(parsed_vacancy)
@@ -272,11 +276,16 @@ class EnhancedLLMCoverLetterGenerator:
                 temperature=0.5  # Немного креативности для уникальности
             )
             
+            # Записать статистику использования API
+            tokens_used = completion.usage.total_tokens if completion.usage else 0
+            openai_controller.record_request(success=True, tokens=tokens_used)
+            
             # 5. Извлекаем и валидируем ответ
             raw_response_text = completion.choices[0].message.content
             print(f"Raw response text: {raw_response_text}")  # Для отладки
             if not raw_response_text:
                 logger.error("Пустой ответ от модели при генерации сопроводительного письма.")
+                openai_controller.record_request(success=False, error="Пустой ответ от модели")
                 return None
             
             # 6. Парсим в модель
@@ -292,9 +301,11 @@ class EnhancedLLMCoverLetterGenerator:
             
         except ValidationError as ve:
             logger.error(f"Ошибка валидации сопроводительного письма: {ve}")
+            openai_controller.record_request(success=False, error=f"Ошибка валидации: {ve}")
             return None
         except Exception as e:
             logger.error(f"Ошибка при генерации сопроводительного письма: {e}")
+            openai_controller.record_request(success=False, error=str(e))
             return None
     
     def _validate_quality(self, cover_letter: EnhancedCoverLetter, parsed_vacancy: Dict[str, Any]) -> bool:
