@@ -4,6 +4,7 @@ python-multipart
 jinja2
 aiofiles
 pydantic
+pydantic-settings
 openai
 aiogram
 aiohttp
