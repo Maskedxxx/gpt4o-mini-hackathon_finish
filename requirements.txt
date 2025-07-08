@@ -6,6 +6,7 @@ aiofiles
 pydantic
 pydantic-settings
 openai
+instructor
 aiogram
 aiohttp
 httpx
