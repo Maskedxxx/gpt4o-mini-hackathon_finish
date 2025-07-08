@@ -191,18 +191,34 @@
         
         <div class="header">
             <h1>📊 GAP-анализ резюме</h1>
-            <p>Проанализируйте соответствие вашего резюме требованиям вакансии</p>
+            <p><strong>Анализ соответствия резюме требованиям вакансии</strong></p>
+            <p>Загрузите PDF резюме и укажите ссылку на интересующую вакансию. Система проанализирует насколько ваш профиль соответствует требованиям и даст конкретные рекомендации по улучшению.</p>
+            <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-top: 15px; text-align: left;">
+                <strong>Что вы получите:</strong>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li>Процентное соответствие вакансии</li>
+                    <li>Анализ каждого требования</li>
+                    <li>Рекомендации по улучшению резюме</li>
+                    <li>PDF отчет с детальным анализом</li>
+                </ul>
+            </div>
         </div>
 
         <form id="gapAnalysisForm">
             <div class="form-group">
                 <label for="resumeFile">Загрузите ваше резюме (PDF):</label>
                 <input type="file" id="resumeFile" name="resume_file" accept=".pdf" required>
+                <small style="color: #666; font-size: 14px;">
+                    📄 Пример: "Иванов_Иван_Python_разработчик.pdf" (файл должен содержать структурированную информацию о вашем опыте, навыках и образовании)
+                </small>
             </div>
 
             <div class="form-group">
                 <label for="vacancyUrl">Ссылка на вакансию HH.ru:</label>
-                <input type="url" id="vacancyUrl" name="vacancy_url" placeholder="https://hh.ru/vacancy/..." required>
+                <input type="url" id="vacancyUrl" name="vacancy_url" placeholder="https://hh.ru/vacancy/123456789" required>
+                <small style="color: #666; font-size: 14px;">
+                    🔗 Пример: "https://hh.ru/vacancy/123456789" или "https://spb.hh.ru/vacancy/987654321"
+                </small>
             </div>
 
             <button type="submit" class="submit-btn">Провести анализ</button>
@@ -210,7 +226,11 @@
 
         <div class="loading" id="loading">
             <div class="loading-spinner"></div>
-            <p>Анализируем резюме...</p>
+            <p id="loadingMessage">Анализируем резюме...</p>
+            <div style="background: #e9ecef; border-radius: 10px; height: 8px; margin: 20px 0; overflow: hidden;">
+                <div id="progressBar" style="height: 100%; background: linear-gradient(45deg, #667eea, #764ba2); width: 0%; transition: width 0.5s ease;"></div>
+            </div>
+            <p id="progressText" style="font-size: 14px; color: #666;">Подготовка к анализу...</p>
         </div>
 
         <div class="error" id="error"></div>
@@ -261,18 +281,29 @@
             error.style.display = 'none';
             success.style.display = 'none';
             
-            // Показываем загрузку
+            // Показываем загрузку с прогрессом
             loading.style.display = 'block';
+            updateProgress(0, 'Загрузка файлов...');
             
             try {
+                updateProgress(20, 'Парсинг резюме...');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                updateProgress(40, 'Получение данных вакансии...');
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                updateProgress(60, 'Выполнение GAP-анализа...');
+                
                 const response = await fetch('/gap-analysis', {
                     method: 'POST',
                     body: formData
                 });
                 
+                updateProgress(90, 'Формирование результатов...');
                 const data = await response.json();
                 
                 if (data.status === 'success') {
+                    updateProgress(100, 'Анализ завершен!');
                     analysisId = data.analysis_id;
                     displayResults(data.analysis);
                     results.style.display = 'block';
@@ -288,6 +319,14 @@
                 loading.style.display = 'none';
             }
         });
+
+        function updateProgress(percentage, message) {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            progressBar.style.width = percentage + '%';
+            progressText.textContent = message;
+        }
 
         function displayResults(analysis) {
             // Первичный скрининг

@@ -137,10 +137,22 @@
 </head>
 <body>
     <div class="container">
-        <h1>🤖 AI Resume Assistant</h1>
-        <p style="text-align: center; color: #666; margin-bottom: 30px;">
-            Загрузите PDF резюме и ссылку на вакансию для получения персонального гап-анализа
+        <h1>📊 GAP-анализ резюме</h1>
+        <p style="text-align: center; color: #333; margin-bottom: 15px; font-weight: 600;">
+            <strong>Анализ соответствия резюме требованиям вакансии</strong>
         </p>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Загрузите PDF резюме и ссылку на вакансию для получения детального анализа соответствия. Система оценит ваши навыки, опыт и даст конкретные рекомендации по улучшению.
+        </p>
+        <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-bottom: 30px; text-align: left;">
+            <strong>Что включает анализ:</strong>
+            <ul style="margin: 10px 0 0 20px; color: #555;">
+                <li>Процентное соответствие требованиям вакансии</li>
+                <li>Детальный анализ каждого навыка и требования</li>
+                <li>Рекомендации по улучшению резюме</li>
+                <li>PDF отчет для скачивания</li>
+            </ul>
+        </div>
 
         <!-- Авторизация HH.ru -->
         <div class="auth-section">
@@ -157,11 +169,17 @@
             <div class="form-group">
                 <label for="resume-file">2. Загрузите PDF резюме:</label>
                 <input type="file" id="resume-file" accept=".pdf" required>
+                <small style="color: #666; font-size: 14px; display: block; margin-top: 5px;">
+                    📄 Пример: "Иванов_Иван_Python_разработчик.pdf" (файл должен содержать структурированную информацию о навыках, опыте и образовании)
+                </small>
             </div>
 
             <div class="form-group">
                 <label for="vacancy-url">3. Ссылка на вакансию HH.ru:</label>
-                <input type="url" id="vacancy-url" placeholder="https://hh.ru/vacancy/123456" required>
+                <input type="url" id="vacancy-url" placeholder="https://hh.ru/vacancy/123456789" required>
+                <small style="color: #666; font-size: 14px; display: block; margin-top: 5px;">
+                    🔗 Пример: "https://hh.ru/vacancy/123456789" или "https://spb.hh.ru/vacancy/987654321"
+                </small>
             </div>
 
             <button type="submit" class="btn">Выполнить гап-анализ</button>
@@ -170,7 +188,11 @@
         <!-- Загрузка -->
         <div id="loading" class="loading">
             <div class="spinner"></div>
-            <p>Выполняется анализ... Это может занять несколько минут.</p>
+            <p id="loadingMessage">Выполняется анализ... Это может занять несколько минут.</p>
+            <div style="background: #e9ecef; border-radius: 10px; height: 8px; margin: 20px 0; overflow: hidden;">
+                <div id="progressBar" style="height: 100%; background: linear-gradient(45deg, #007bff, #0056b3); width: 0%; transition: width 0.5s ease;"></div>
+            </div>
+            <p id="progressText" style="font-size: 14px; color: #666;">Подготовка к анализу...</p>
         </div>
 
         <!-- Ошибки -->

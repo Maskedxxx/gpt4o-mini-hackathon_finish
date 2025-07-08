@@ -57,6 +57,187 @@
             border: 2px solid #e9ecef;
         }
 
+        .description-section {
+            background: #e8f4f8;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #bee5eb;
+        }
+
+        .description-section h3 {
+            color: #0c5460;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+        }
+
+        .description-section h3::before {
+            content: "📝";
+            margin-right: 10px;
+        }
+
+        .description-content {
+            color: #495057;
+            line-height: 1.6;
+        }
+
+        .description-list {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        .description-list li {
+            margin: 8px 0;
+        }
+
+        .examples-section {
+            background: #fff3cd;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #ffeaa7;
+        }
+
+        .examples-section h3 {
+            color: #856404;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+        }
+
+        .examples-section h3::before {
+            content: "💡";
+            margin-right: 10px;
+        }
+
+        .example-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #ffc107;
+        }
+
+        .example-item strong {
+            color: #856404;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 10px;
+            background: #e9ecef;
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 0.9em;
+            position: relative;
+        }
+
+        .progress-step.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .progress-step.completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid #e9ecef;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            z-index: 1;
+        }
+
+        .progress-step.active::after {
+            border-left-color: #667eea;
+        }
+
+        .progress-step.completed::after {
+            border-left-color: #28a745;
+        }
+
+        .progress-step:last-child::after {
+            display: none;
+        }
+
+        .result-info {
+            background: #d1ecf1;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #bee5eb;
+        }
+
+        .result-info h3 {
+            color: #0c5460;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+        }
+
+        .result-info h3::before {
+            content: "📊";
+            margin-right: 10px;
+        }
+
+        .result-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .result-feature {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #17a2b8;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .result-feature .icon {
+            font-size: 2em;
+            color: #17a2b8;
+        }
+
+        .result-feature .content {
+            flex: 1;
+        }
+
+        .result-feature .title {
+            font-weight: 600;
+            color: #0c5460;
+            margin-bottom: 5px;
+        }
+
+        .result-feature .description {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
         .auth-section h3 {
             color: #495057;
             margin-bottom: 15px;
@@ -364,11 +545,90 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎭 Симуляция интервью</h1>
+            <h1>🎭 Интерактивная тренировка собеседования с ИИ</h1>
             <p>Персонализированная подготовка к собеседованию с AI-интервьюером</p>
         </div>
 
         <div class="content">
+            <!-- Секция описания -->
+            <div class="description-section">
+                <h3>Что включает симуляция интервью?</h3>
+                <div class="description-content">
+                    <p>Наша AI-система проводит полноценное собеседование, максимально приближенное к реальному интервью в компании. Симуляция включает:</p>
+                    <ul class="description-list">
+                        <li><strong>Персонализированные вопросы</strong> - основанные на вашем резюме и требованиях вакансии</li>
+                        <li><strong>Адаптивный диалог</strong> - вопросы подстраиваются под ваши ответы</li>
+                        <li><strong>Различные типы вопросов</strong> - поведенческие, технические, ситуационные</li>
+                        <li><strong>Детальная обратная связь</strong> - анализ каждого ответа с рекомендациями</li>
+                        <li><strong>Итоговая оценка</strong> - общий балл и рекомендации для улучшения</li>
+                        <li><strong>PDF-отчет</strong> - полный разбор интервью для дальнейшего изучения</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Секция примеров -->
+            <div class="examples-section">
+                <h3>Примеры входных данных</h3>
+                <div class="example-item">
+                    <strong>PDF резюме:</strong> Загрузите свое резюме в формате PDF. Система автоматически извлечет информацию о вашем опыте, навыках и образовании.
+                </div>
+                <div class="example-item">
+                    <strong>Ссылка на вакансию HH.ru:</strong> Например, https://hh.ru/vacancy/123456789 - система проанализирует требования и подготовит соответствующие вопросы.
+                </div>
+                <div class="example-item">
+                    <strong>Настройки симуляции:</strong> Выберите уровень сложности, количество раундов (3-7), тип интервьюера и области фокуса для максимально релевантного опыта.
+                </div>
+            </div>
+
+            <!-- Секция результатов -->
+            <div class="result-info">
+                <h3>Что вы получите после симуляции?</h3>
+                <div class="result-features">
+                    <div class="result-feature">
+                        <div class="icon">🎯</div>
+                        <div class="content">
+                            <div class="title">Детальная оценка</div>
+                            <div class="description">Балльная оценка каждого ответа с комментариями</div>
+                        </div>
+                    </div>
+                    <div class="result-feature">
+                        <div class="icon">📈</div>
+                        <div class="content">
+                            <div class="title">Анализ сильных сторон</div>
+                            <div class="description">Выявление ваших преимуществ и навыков</div>
+                        </div>
+                    </div>
+                    <div class="result-feature">
+                        <div class="icon">⚠️</div>
+                        <div class="content">
+                            <div class="title">Красные флаги</div>
+                            <div class="description">Потенциальные проблемы и способы их устранения</div>
+                        </div>
+                    </div>
+                    <div class="result-feature">
+                        <div class="icon">💡</div>
+                        <div class="content">
+                            <div class="title">Рекомендации</div>
+                            <div class="description">Конкретные советы для улучшения результатов</div>
+                        </div>
+                    </div>
+                    <div class="result-feature">
+                        <div class="icon">📄</div>
+                        <div class="content">
+                            <div class="title">PDF-отчет</div>
+                            <div class="description">Полный отчет с диалогом и анализом для изучения</div>
+                        </div>
+                    </div>
+                    <div class="result-feature">
+                        <div class="icon">🎓</div>
+                        <div class="content">
+                            <div class="title">Обучающие материалы</div>
+                            <div class="description">Ссылки на ресурсы для развития навыков</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Секция авторизации -->
             <div class="auth-section">
                 <h3>🔐 Авторизация HeadHunter.ru</h3>
@@ -386,12 +646,18 @@
                     <div class="form-group">
                         <label for="resumeFile">📄 Загрузите резюме (PDF)</label>
                         <input type="file" id="resumeFile" name="resume_file" accept=".pdf" required>
+                        <small style="color: #6c757d; font-size: 0.9em; margin-top: 5px; display: block;">
+                            Пример: resume_python_developer.pdf (максимум 10 МБ)
+                        </small>
                     </div>
 
                     <div class="form-group">
                         <label for="vacancyUrl">🔗 Ссылка на вакансию HH.ru</label>
                         <input type="url" id="vacancyUrl" name="vacancy_url" 
-                               placeholder="https://hh.ru/vacancy/123456" required>
+                               placeholder="https://hh.ru/vacancy/123456789" required>
+                        <small style="color: #6c757d; font-size: 0.9em; margin-top: 5px; display: block;">
+                            Пример: https://hh.ru/vacancy/98765432 или https://spb.hh.ru/vacancy/12345678
+                        </small>
                     </div>
                 </div>
 
@@ -473,6 +739,17 @@
             <!-- Секция прогресса -->
             <div id="progressSection" class="progress-section">
                 <h3>⏳ Выполнение симуляции...</h3>
+                
+                <!-- Индикаторы состояния -->
+                <div class="progress-steps">
+                    <div class="progress-step" id="step1">📄 Анализ резюме</div>
+                    <div class="progress-step" id="step2">🔍 Изучение вакансии</div>
+                    <div class="progress-step" id="step3">🤖 Подготовка ИИ</div>
+                    <div class="progress-step" id="step4">💬 Проведение интервью</div>
+                    <div class="progress-step" id="step5">📊 Анализ результатов</div>
+                    <div class="progress-step" id="step6">📄 Создание отчета</div>
+                </div>
+                
                 <div class="progress-text" id="progressText">Подготовка...</div>
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
@@ -635,6 +912,9 @@
                     document.getElementById('progressFill').style.width = (data.progress || 0) + '%';
                     document.getElementById('progressPercent').textContent = (data.progress || 0) + '%';
                     
+                    // Обновление индикаторов состояния
+                    updateProgressSteps(data.progress || 0);
+                    
                     if (data.status === 'completed') {
                         clearInterval(progressInterval);
                         showResults(data);
@@ -647,6 +927,31 @@
                     console.error('Ошибка отслеживания прогресса:', error);
                 }
             }, 2000);
+        }
+
+        // Обновление индикаторов состояния
+        function updateProgressSteps(progress) {
+            const steps = ['step1', 'step2', 'step3', 'step4', 'step5', 'step6'];
+            const stepProgress = [
+                { threshold: 10, message: 'Анализ резюме' },
+                { threshold: 25, message: 'Изучение вакансии' },
+                { threshold: 40, message: 'Подготовка ИИ-интервьюера' },
+                { threshold: 80, message: 'Проведение интервью' },
+                { threshold: 95, message: 'Анализ результатов' },
+                { threshold: 100, message: 'Создание отчета' }
+            ];
+            
+            steps.forEach((stepId, index) => {
+                const stepElement = document.getElementById(stepId);
+                if (progress >= stepProgress[index].threshold) {
+                    stepElement.className = 'progress-step completed';
+                } else if (index === 0 || progress >= stepProgress[index - 1].threshold) {
+                    stepElement.className = 'progress-step active';
+                    document.getElementById('progressText').textContent = stepProgress[index].message;
+                } else {
+                    stepElement.className = 'progress-step';
+                }
+            });
         }
 
         // Показ результатов
