@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Assistant - Сопроводительное письмо</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #f8f9fa;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .back-link:hover {
+            background: #e9ecef;
+            transform: translateX(-5px);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        input[type="file"], input[type="url"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        input[type="file"]:focus, input[type="url"]:focus {
+            outline: none;
+            border-color: #4ECDC4;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #4ECDC4, #44A08D);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4ECDC4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .results {
+            display: none;
+            margin-top: 30px;
+        }
+        .result-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #4ECDC4;
+        }
+        .result-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        .result-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .result-item h4 {
+            color: #4ECDC4;
+            margin-bottom: 8px;
+        }
+        .result-item p {
+            color: #666;
+            line-height: 1.6;
+        }
+        .letter-text {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            font-family: 'Times New Roman', serif;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            margin: 20px 0;
+        }
+        .score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .download-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        .download-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            display: none;
+        }
+        .success {
+            color: #155724;
+            background: #d4edda;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Назад к главной</a>
+        
+        <div class="header">
+            <h1>✉️ Сопроводительное письмо</h1>
+            <p>Создайте персонализированное сопроводительное письмо для вашей вакансии</p>
+        </div>
+
+        <form id="coverLetterForm">
+            <div class="form-group">
+                <label for="resumeFile">Загрузите ваше резюме (PDF):</label>
+                <input type="file" id="resumeFile" name="resume_file" accept=".pdf" required>
+            </div>
+
+            <div class="form-group">
+                <label for="vacancyUrl">Ссылка на вакансию HH.ru:</label>
+                <input type="url" id="vacancyUrl" name="vacancy_url" placeholder="https://hh.ru/vacancy/..." required>
+            </div>
+
+            <button type="submit" class="submit-btn">Создать письмо</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>Генерируем сопроводительное письмо...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+        <div class="success" id="success"></div>
+
+        <div class="results" id="results">
+            <div class="result-section">
+                <h3>Готовое сопроводительное письмо</h3>
+                <div id="finalLetter"></div>
+            </div>
+
+            <div class="result-section">
+                <h3>Анализ соответствия</h3>
+                <div id="skillsMatch"></div>
+            </div>
+
+            <div class="result-section">
+                <h3>Персонализация</h3>
+                <div id="personalization"></div>
+            </div>
+
+            <div class="result-section">
+                <h3>Оценка качества</h3>
+                <div id="qualityAssessment"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let letterId = null;
+
+        document.getElementById('coverLetterForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const error = document.getElementById('error');
+            const success = document.getElementById('success');
+            
+            // Скрываем предыдущие результаты
+            results.style.display = 'none';
+            error.style.display = 'none';
+            success.style.display = 'none';
+            
+            // Показываем загрузку
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('/generate-cover-letter', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    letterId = data.letter_id;
+                    displayResults(data.cover_letter);
+                    results.style.display = 'block';
+                    success.textContent = 'Сопроводительное письмо создано успешно!';
+                    success.style.display = 'block';
+                } else {
+                    throw new Error(data.message || 'Ошибка при создании письма');
+                }
+            } catch (err) {
+                error.textContent = err.message;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+
+        function displayResults(coverLetter) {
+            // Готовое письмо
+            const finalLetter = document.getElementById('finalLetter');
+            finalLetter.innerHTML = `
+                <div class="letter-text">${coverLetter.final_letter}</div>
+                <a href="/download-cover-letter/${letterId}" class="download-btn">Скачать PDF</a>
+            `;
+
+            // Анализ соответствия
+            const skillsMatch = document.getElementById('skillsMatch');
+            skillsMatch.innerHTML = `
+                <div class="result-item">
+                    <h4>Соответствие навыков</h4>
+                    <p><strong>Совпадающие навыки:</strong> ${coverLetter.skills_match.matching_skills ? coverLetter.skills_match.matching_skills.join(', ') : 'Не указано'}</p>
+                    <p><strong>Релевантные достижения:</strong> ${coverLetter.skills_match.relevant_achievements ? coverLetter.skills_match.relevant_achievements.join(', ') : 'Не указано'}</p>
+                    <p><strong>Уникальные преимущества:</strong> ${coverLetter.skills_match.unique_selling_points ? coverLetter.skills_match.unique_selling_points.join(', ') : 'Не указано'}</p>
+                    <p class="score">Оценка релевантности опыта: ${coverLetter.skills_match.experience_relevance_score}/10</p>
+                </div>
+            `;
+
+            // Персонализация
+            const personalization = document.getElementById('personalization');
+            personalization.innerHTML = `
+                <div class="result-item">
+                    <h4>Персонализация письма</h4>
+                    <p><strong>Тон:</strong> ${coverLetter.personalization.tone}</p>
+                    <p><strong>Мотивация:</strong> ${coverLetter.personalization.key_motivations ? coverLetter.personalization.key_motivations.join(', ') : 'Не указано'}</p>
+                    <p><strong>Исследование компании:</strong> ${coverLetter.personalization.company_research_points ? coverLetter.personalization.company_research_points.join(', ') : 'Не указано'}</p>
+                    <p><strong>Уровень кастомизации:</strong> ${coverLetter.personalization.customization_level}</p>
+                </div>
+            `;
+
+            // Оценка качества
+            const qualityAssessment = document.getElementById('qualityAssessment');
+            qualityAssessment.innerHTML = `
+                <div class="result-item">
+                    <h4>Оценка качества письма</h4>
+                    <p class="score">Оценка персонализации: ${coverLetter.quality_assessment.personalization_score}/10</p>
+                    <p class="score">Оценка релевантности: ${coverLetter.quality_assessment.relevance_score}/10</p>
+                    <p class="score">Оценка вовлечения: ${coverLetter.quality_assessment.engagement_score}/10</p>
+                    <p><strong>Общее качество:</strong> ${coverLetter.quality_assessment.overall_quality}</p>
+                    <p><strong>Рекомендации по улучшению:</strong> ${coverLetter.quality_assessment.improvement_suggestions ? coverLetter.quality_assessment.improvement_suggestions.join(', ') : 'Не указано'}</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Assistant - GAP-анализ</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #f8f9fa;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .back-link:hover {
+            background: #e9ecef;
+            transform: translateX(-5px);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        input[type="file"], input[type="url"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        input[type="file"]:focus, input[type="url"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .results {
+            display: none;
+            margin-top: 30px;
+        }
+        .result-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #FF6B6B;
+        }
+        .result-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        .result-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .result-item h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        .result-item p {
+            color: #666;
+            line-height: 1.6;
+        }
+        .score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .recommendation {
+            background: #e8f4f8;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .download-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        .download-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            display: none;
+        }
+        .success {
+            color: #155724;
+            background: #d4edda;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Назад к главной</a>
+        
+        <div class="header">
+            <h1>📊 GAP-анализ резюме</h1>
+            <p>Проанализируйте соответствие вашего резюме требованиям вакансии</p>
+        </div>
+
+        <form id="gapAnalysisForm">
+            <div class="form-group">
+                <label for="resumeFile">Загрузите ваше резюме (PDF):</label>
+                <input type="file" id="resumeFile" name="resume_file" accept=".pdf" required>
+            </div>
+
+            <div class="form-group">
+                <label for="vacancyUrl">Ссылка на вакансию HH.ru:</label>
+                <input type="url" id="vacancyUrl" name="vacancy_url" placeholder="https://hh.ru/vacancy/..." required>
+            </div>
+
+            <button type="submit" class="submit-btn">Провести анализ</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>Анализируем резюме...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+        <div class="success" id="success"></div>
+
+        <div class="results" id="results">
+            <div class="result-section">
+                <h3>Первичный скрининг</h3>
+                <div id="primaryScreening"></div>
+            </div>
+
+            <div class="result-section">
+                <h3>Анализ требований</h3>
+                <div id="requirementsAnalysis"></div>
+            </div>
+
+            <div class="result-section">
+                <h3>Оценка качества</h3>
+                <div id="qualityAssessment"></div>
+            </div>
+
+            <div class="result-section">
+                <h3>Рекомендации</h3>
+                <div id="recommendations"></div>
+            </div>
+
+            <div class="result-section">
+                <h3>Итоговая оценка</h3>
+                <div id="finalAssessment"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let analysisId = null;
+
+        document.getElementById('gapAnalysisForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const error = document.getElementById('error');
+            const success = document.getElementById('success');
+            
+            // Скрываем предыдущие результаты
+            results.style.display = 'none';
+            error.style.display = 'none';
+            success.style.display = 'none';
+            
+            // Показываем загрузку
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('/gap-analysis', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    analysisId = data.analysis_id;
+                    displayResults(data.analysis);
+                    results.style.display = 'block';
+                    success.textContent = 'Анализ завершен успешно!';
+                    success.style.display = 'block';
+                } else {
+                    throw new Error(data.message || 'Ошибка при анализе');
+                }
+            } catch (err) {
+                error.textContent = err.message;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+
+        function displayResults(analysis) {
+            // Первичный скрининг
+            const primaryScreening = document.getElementById('primaryScreening');
+            primaryScreening.innerHTML = `
+                <div class="result-item">
+                    <h4>Результат скрининга</h4>
+                    <p><strong>Общий результат:</strong> ${analysis.primary_screening.overall_result}</p>
+                    <p><strong>Соответствие должности:</strong> ${analysis.primary_screening.job_title_match}</p>
+                    <p><strong>Соответствие опыта:</strong> ${analysis.primary_screening.experience_match}</p>
+                    <p><strong>Навыки видны:</strong> ${analysis.primary_screening.skills_visible}</p>
+                    <p><strong>Локация подходит:</strong> ${analysis.primary_screening.location_suitable}</p>
+                    <p><strong>Зарплата:</strong> ${analysis.primary_screening.salary_match}</p>
+                    <p><strong>Заметки:</strong> ${analysis.primary_screening.notes}</p>
+                </div>
+            `;
+
+            // Анализ требований
+            const requirementsAnalysis = document.getElementById('requirementsAnalysis');
+            requirementsAnalysis.innerHTML = analysis.requirements_analysis.map(req => `
+                <div class="result-item">
+                    <h4>${req.requirement_text}</h4>
+                    <p><strong>Тип:</strong> ${req.requirement_type}</p>
+                    <p><strong>Статус:</strong> ${req.compliance_status}</p>
+                    <p><strong>Доказательства:</strong> ${req.evidence_in_resume}</p>
+                    <p><strong>Пробел:</strong> ${req.gap_description}</p>
+                    <p><strong>Влияние:</strong> ${req.impact_on_decision}</p>
+                </div>
+            `).join('');
+
+            // Оценка качества
+            const qualityAssessment = document.getElementById('qualityAssessment');
+            qualityAssessment.innerHTML = `
+                <div class="result-item">
+                    <h4>Оценка качества резюме</h4>
+                    <p><strong>Структура:</strong> ${analysis.quality_assessment.structure_clarity}</p>
+                    <p><strong>Релевантность:</strong> ${analysis.quality_assessment.content_relevance}</p>
+                    <p><strong>Фокус на достижения:</strong> ${analysis.quality_assessment.achievement_focus}</p>
+                    <p><strong>Адаптация:</strong> ${analysis.quality_assessment.adaptation_quality}</p>
+                    <p><strong>Общее впечатление:</strong> ${analysis.quality_assessment.overall_impression}</p>
+                    <p><strong>Заметки:</strong> ${analysis.quality_assessment.quality_notes}</p>
+                </div>
+            `;
+
+            // Рекомендации
+            const recommendations = document.getElementById('recommendations');
+            let recommendationsHtml = '';
+            
+            if (analysis.critical_recommendations.length > 0) {
+                recommendationsHtml += '<h4>Критические рекомендации:</h4>';
+                analysis.critical_recommendations.forEach(rec => {
+                    recommendationsHtml += `
+                        <div class="recommendation">
+                            <h5>Раздел: ${rec.section}</h5>
+                            <p><strong>Проблема:</strong> ${rec.issue_description}</p>
+                            <p><strong>Действия:</strong> ${rec.specific_actions}</p>
+                            <p><strong>Пример:</strong> ${rec.example_wording}</p>
+                            <p><strong>Обоснование:</strong> ${rec.business_rationale}</p>
+                        </div>
+                    `;
+                });
+            }
+            
+            if (analysis.important_recommendations.length > 0) {
+                recommendationsHtml += '<h4>Важные рекомендации:</h4>';
+                analysis.important_recommendations.forEach(rec => {
+                    recommendationsHtml += `
+                        <div class="recommendation">
+                            <h5>Раздел: ${rec.section}</h5>
+                            <p><strong>Проблема:</strong> ${rec.issue_description}</p>
+                            <p><strong>Действия:</strong> ${rec.specific_actions}</p>
+                            <p><strong>Пример:</strong> ${rec.example_wording}</p>
+                            <p><strong>Обоснование:</strong> ${rec.business_rationale}</p>
+                        </div>
+                    `;
+                });
+            }
+            
+            recommendations.innerHTML = recommendationsHtml;
+
+            // Итоговая оценка
+            const finalAssessment = document.getElementById('finalAssessment');
+            finalAssessment.innerHTML = `
+                <div class="result-item">
+                    <h4>Итоговая оценка</h4>
+                    <p class="score">Процент соответствия: ${analysis.match_percentage}%</p>
+                    <p><strong>Рекомендация по найму:</strong> ${analysis.hiring_recommendation}</p>
+                    <p><strong>Сильные стороны:</strong> ${analysis.key_strengths ? analysis.key_strengths.join(', ') : 'Не указано'}</p>
+                    <p><strong>Основные пробелы:</strong> ${analysis.major_gaps ? analysis.major_gaps.join(', ') : 'Не указано'}</p>
+                    <p><strong>Следующие шаги:</strong> ${analysis.next_steps}</p>
+                    <a href="/download-gap-analysis/${analysisId}" class="download-btn">Скачать PDF отчет</a>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
