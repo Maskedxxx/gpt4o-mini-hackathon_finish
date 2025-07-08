@@ -16,6 +16,7 @@ from src.llm_interview_simulation.formatter import (
     format_dialog_history,
     create_candidate_profile_and_config
 )
+from src.security.openai_control import openai_controller
 
 from src.utils import get_logger
 logger = get_logger()
@@ -401,6 +402,9 @@ class ProfessionalInterviewSimulator:
                              candidate_profile: CandidateProfile, 
                              interview_config: InterviewConfiguration) -> Tuple[Optional[str], Optional[QuestionType]]:
         """Получает вопрос от HR-менеджера."""
+        # Проверка разрешения использования OpenAI API
+        openai_controller.check_api_permission()
+        
         try:
             prompt, question_type = self._create_adaptive_hr_prompt(
                 resume_data, vacancy_data, dialog_history, round_number,
@@ -425,16 +429,24 @@ class ProfessionalInterviewSimulator:
                 max_tokens=1500
             )
             
+            # Записать статистику использования API
+            tokens_used = completion.usage.total_tokens if completion.usage else 0
+            openai_controller.record_request(success=True, tokens=tokens_used)
+            
             return completion.choices[0].message.content.strip(), question_type
             
         except Exception as e:
             logger.error(f"Ошибка при получении вопроса HR: {e}")
+            openai_controller.record_request(success=False, error=str(e))
             return None, None
     
     async def _get_candidate_answer(self, resume_data: Dict[str, Any], vacancy_data: Dict[str, Any], 
                                   dialog_history: List[DialogMessage], hr_question: str,
                                   candidate_profile: CandidateProfile) -> Optional[str]:
         """Получает ответ от кандидата."""
+        # Проверка разрешения использования OpenAI API
+        openai_controller.check_api_permission()
+        
         try:
             prompt = self._create_adaptive_candidate_prompt(
                 resume_data, vacancy_data, dialog_history, hr_question, candidate_profile
@@ -458,10 +470,15 @@ class ProfessionalInterviewSimulator:
                 max_tokens=4000
             )
             
+            # Записать статистику использования API
+            tokens_used = completion.usage.total_tokens if completion.usage else 0
+            openai_controller.record_request(success=True, tokens=tokens_used)
+            
             return completion.choices[0].message.content.strip()
             
         except Exception as e:
             logger.error(f"Ошибка при получении ответа кандидата: {e}")
+            openai_controller.record_request(success=False, error=str(e))
             return None
     
     def _evaluate_response_quality(self, answer: str, question_type: QuestionType, 
@@ -517,6 +534,9 @@ class ProfessionalInterviewSimulator:
         parsed_vacancy: Данные вакансии
         progress_callback: Функция для обновления прогресса (current_round, total_rounds)
         """
+        # Проверка разрешения использования OpenAI API
+        openai_controller.check_api_permission()
+        
         try:
             
             # Создаем профиль кандидата и конфигурацию
@@ -643,6 +663,7 @@ class ProfessionalInterviewSimulator:
             
         except Exception as e:
             logger.error(f"Ошибка при симуляции интервью: {e}")
+            openai_controller.record_request(success=False, error=str(e))
             return None
 
 # Для обратной совместимости

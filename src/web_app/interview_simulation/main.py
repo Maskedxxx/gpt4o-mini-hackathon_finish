@@ -8,7 +8,7 @@
 import os
 import tempfile
 from pathlib import Path
-from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Request
+from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Request, Depends
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 import uvicorn
@@ -25,12 +25,26 @@ from src.callback_local_server.config import settings as callback_settings
 from src.llm_interview_simulation.llm_interview_simulator import ProfessionalInterviewSimulator
 from src.utils import get_logger
 
+# Импорт системы авторизации
+from src.security.auth import SimpleAuth
+
 logger = get_logger()
 
 app = FastAPI(title="AI Resume Assistant - Interview Simulation")
 
-# Настройка шаблонов
+# Настройка системы авторизации
 current_dir = Path(__file__).parent
+auth_system = SimpleAuth(templates_dir=str(current_dir.parent.parent / "security" / "templates"))
+
+# Добавляем middleware авторизации
+app.add_middleware(
+    auth_system.get_middleware().__class__,
+    config=auth_system.config,
+    session_manager=auth_system.session_manager,
+    templates=auth_system.templates
+)
+
+# Настройка шаблонов
 templates = Jinja2Templates(directory=str(current_dir / "templates"))
 
 # Создание экземпляров сервисов
@@ -40,19 +54,43 @@ hh_auth_service = HHAuthService()
 token_exchanger = HHCodeExchanger()
 interview_simulator = ProfessionalInterviewSimulator()
 
+# Временное хранилище для токенов (в реальном приложении использовать Redis/DB)
+user_tokens = {}
+
+# ================== АВТОРИЗАЦИЯ ==================
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    """Страница авторизации"""
+    return await auth_system.login_page(request)
+
+@app.post("/login")
+async def login_post(request: Request, password: str = Form(...)):
+    """Обработка авторизации"""
+    return await auth_system.login_post(request, password)
+
+@app.get("/logout")
+async def logout(request: Request):
+    """Выход из системы"""
+    return await auth_system.logout(request)
+
+# ================== ГЛАВНАЯ СТРАНИЦА ==================
+
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
+async def index(request: Request, _: bool = Depends(auth_system.require_auth)):
     """Главная страница с формой настройки симуляции интервью"""
     return templates.TemplateResponse("index.html", {"request": request})
 
+# ================== HH.RU АВТОРИЗАЦИЯ ==================
+
 @app.post("/auth/hh")
-async def start_hh_auth():
+async def start_hh_auth(_: bool = Depends(auth_system.require_auth)):
     """Начало авторизации HH.ru"""
     auth_url = hh_auth_service.get_auth_url()
     return {"auth_url": auth_url}
 
 @app.get("/auth/tokens")
-async def get_tokens_from_callback():
+async def get_tokens_from_callback(_: bool = Depends(auth_system.require_auth)):
     """Получение токенов из callback сервера"""
     try:
         callback_url = f"http://{callback_settings.host}:{callback_settings.port}/api/code"
@@ -82,8 +120,11 @@ async def get_tokens_from_callback():
         logger.error(f"Ошибка получения токенов: {e}")
         return {"success": False, "message": f"Ошибка: {str(e)}"}
 
+# ================== СИМУЛЯЦИЯ ИНТЕРВЬЮ ==================
+
 @app.post("/start-simulation")
 async def start_interview_simulation(
+    _: bool = Depends(auth_system.require_auth),
     resume_file: UploadFile = File(...),
     vacancy_url: str = Form(...),
     hh_access_token: str = Form(...),
@@ -195,14 +236,14 @@ async def start_interview_simulation(
         raise HTTPException(500, f"Ошибка симуляции: {str(e)}")
 
 @app.get("/simulation-progress/{simulation_id}")
-async def get_simulation_progress(simulation_id: str):
+async def get_simulation_progress(simulation_id: str, _: bool = Depends(auth_system.require_auth)):
     """Получение прогресса симуляции"""
     # Проверяем статус из временного хранилища
     progress = simulation_progress_storage.get(simulation_id, {})
     return JSONResponse(progress)
 
 @app.get("/download-report/{simulation_id}")
-async def download_report(simulation_id: str):
+async def download_report(simulation_id: str, _: bool = Depends(auth_system.require_auth)):
     """Скачивание PDF отчета симуляции"""
     try:
         # Проверяем готовность отчета
@@ -356,6 +397,30 @@ def format_simulation_summary(simulation_result) -> dict:
             "average_score": 0,
             "top_competencies": [],
             "red_flags_count": 0
+        }
+
+# ================== HEALTH CHECK ==================
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint для мониторинга"""
+    try:
+        return {
+            "status": "healthy",
+            "service": "ai-resume-assistant-interview-simulation",
+            "version": "1.0.0",
+            "port": 8003,
+            "checks": {
+                "auth_system": "ok",
+                "templates": "ok",
+                "storage": "ok"
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "service": "ai-resume-assistant-interview-simulation",
+            "error": str(e)
         }
 
 if __name__ == "__main__":

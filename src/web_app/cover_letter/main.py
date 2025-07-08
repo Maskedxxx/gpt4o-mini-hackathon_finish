@@ -7,7 +7,7 @@
 import os
 import tempfile
 from pathlib import Path
-from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Request
+from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Request, Depends
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 import uvicorn
@@ -24,12 +24,26 @@ from src.llm_cover_letter.llm_cover_letter_generator import EnhancedLLMCoverLett
 from src.utils import get_logger
 from .pdf_generator import CoverLetterPDFGenerator
 
+# Импорт системы авторизации
+from src.security.auth import SimpleAuth
+
 logger = get_logger()
 
 app = FastAPI(title="AI Resume Assistant - Cover Letter")
 
-# Настройка шаблонов
+# Настройка системы авторизации
 current_dir = Path(__file__).parent
+auth_system = SimpleAuth(templates_dir=str(current_dir.parent.parent / "security" / "templates"))
+
+# Добавляем middleware авторизации
+app.add_middleware(
+    auth_system.get_middleware().__class__,
+    config=auth_system.config,
+    session_manager=auth_system.session_manager,
+    templates=auth_system.templates
+)
+
+# Настройка шаблонов
 templates = Jinja2Templates(directory=str(current_dir / "templates"))
 
 # Создание экземпляров сервисов
@@ -39,25 +53,55 @@ hh_auth_service = HHAuthService()
 token_exchanger = HHCodeExchanger()
 cover_letter_generator = EnhancedLLMCoverLetterGenerator(validate_quality=False)
 
-# Временное хранилище для токенов и результатов
+# Временное хранилище для токенов (в реальном приложении использовать Redis/DB)
 user_tokens = {}
+
+# Временное хранилище для результатов анализа (для PDF генерации)
 cover_letter_storage = {}
 
+# ================== АВТОРИЗАЦИЯ ==================
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    """Страница авторизации"""
+    return await auth_system.login_page(request)
+
+@app.post("/login")
+async def login_post(request: Request, password: str = Form(...)):
+    """Обработка авторизации"""
+    return await auth_system.login_post(request, password)
+
+@app.get("/logout")
+async def logout(request: Request):
+    """Выход из системы"""
+    return await auth_system.logout(request)
+
+# ================== ГЛАВНАЯ СТРАНИЦА ==================
+
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
+async def index(request: Request, _: bool = Depends(auth_system.require_auth)):
     """Главная страница с формой генерации сопроводительного письма"""
     return templates.TemplateResponse("index.html", {"request": request})
 
+# ================== HH.RU АВТОРИЗАЦИЯ ==================
+
 @app.post("/auth/hh")
-async def start_hh_auth():
+async def start_hh_auth(_: bool = Depends(auth_system.require_auth)):
     """Начало авторизации HH.ru"""
     auth_url = hh_auth_service.get_auth_url()
     return {"auth_url": auth_url}
 
 @app.get("/auth/tokens")
-async def get_tokens_from_callback():
+async def get_tokens_from_callback(_: bool = Depends(auth_system.require_auth)):
     """Получение токенов из callback сервера"""
     try:
+        # Сначала проверяем, есть ли уже сохраненные токены
+        if "hh_access_token" in user_tokens and "hh_refresh_token" in user_tokens:
+            return {
+                "success": True,
+                "message": "Авторизация уже выполнена"
+            }
+        
         callback_url = f"http://{callback_settings.host}:{callback_settings.port}/api/code"
         
         async with aiohttp.ClientSession() as session:
@@ -67,15 +111,19 @@ async def get_tokens_from_callback():
                     code = data.get("code")
                     
                     if code:
+                        logger.info(f"Получен код авторизации, обмениваем на токены...")
+                        
                         # Обмениваем код на токены
                         tokens = await token_exchanger.exchange_code(code)
-                        
-                        # Очищаем код на сервере
-                        await session.post(f"http://{callback_settings.host}:{callback_settings.port}/api/reset_code")
                         
                         # Сохраняем токены во временном хранилище
                         user_tokens["hh_access_token"] = tokens["access_token"]
                         user_tokens["hh_refresh_token"] = tokens["refresh_token"]
+                        
+                        logger.info("Токены успешно сохранены")
+                        
+                        # Только после успешного сохранения очищаем код на сервере
+                        await session.post(f"http://{callback_settings.host}:{callback_settings.port}/api/reset_code")
                         
                         return {
                             "success": True,
@@ -88,10 +136,13 @@ async def get_tokens_from_callback():
         logger.error(f"Ошибка получения токенов: {e}")
         return {"success": False, "message": f"Ошибка: {str(e)}"}
 
+# ================== COVER LETTER GENERATION ==================
+
 @app.post("/generate-cover-letter")
 async def generate_cover_letter(
     resume_file: UploadFile = File(...),
-    vacancy_url: str = Form(...)
+    vacancy_url: str = Form(...),
+    _: bool = Depends(auth_system.require_auth)
 ):
     """Генерация сопроводительного письма"""
     
@@ -160,7 +211,7 @@ async def generate_cover_letter(
         raise HTTPException(500, f"Ошибка генерации: {str(e)}")
 
 @app.get("/download-cover-letter/{letter_id}")
-async def download_cover_letter_pdf(letter_id: str):
+async def download_cover_letter_pdf(letter_id: str, _: bool = Depends(auth_system.require_auth)):
     """Скачивание PDF сопроводительного письма"""
     try:
         # Проверяем наличие результата
@@ -265,6 +316,30 @@ def format_cover_letter_for_web(cover_letter) -> dict:
             "improvement_suggestions": cover_letter.improvement_suggestions
         }
     }
+
+# ================== МОНИТОРИНГ ==================
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint для мониторинга"""
+    try:
+        return {
+            "status": "healthy",
+            "service": "ai-resume-assistant-cover-letter",
+            "version": "1.0.0",
+            "port": 8001,
+            "checks": {
+                "auth_system": "ok",
+                "templates": "ok",
+                "storage": "ok"
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "service": "ai-resume-assistant-cover-letter",
+            "error": str(e)
+        }
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)

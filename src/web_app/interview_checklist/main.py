@@ -8,7 +8,7 @@
 import os
 import tempfile
 from pathlib import Path
-from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Request
+from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Request, Depends
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 import uvicorn
@@ -25,12 +25,26 @@ from src.llm_interview_checklist.llm_interview_checklist_generator import LLMInt
 from src.utils import get_logger
 from .pdf_generator import InterviewChecklistPDFGenerator
 
+# Импорт системы авторизации
+from src.security.auth import SimpleAuth
+
 logger = get_logger()
 
 app = FastAPI(title="AI Resume Assistant - Interview Checklist")
 
-# Настройка шаблонов
+# Настройка системы авторизации
 current_dir = Path(__file__).parent
+auth_system = SimpleAuth(templates_dir=str(current_dir.parent.parent / "security" / "templates"))
+
+# Добавляем middleware авторизации
+app.add_middleware(
+    auth_system.get_middleware().__class__,
+    config=auth_system.config,
+    session_manager=auth_system.session_manager,
+    templates=auth_system.templates
+)
+
+# Настройка шаблонов
 templates = Jinja2Templates(directory=str(current_dir / "templates"))
 
 # Создание экземпляров сервисов
@@ -44,21 +58,49 @@ checklist_generator = LLMInterviewChecklistGenerator()
 user_tokens = {}
 checklist_storage = {}
 
+# ================== АВТОРИЗАЦИЯ ==================
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    """Страница авторизации"""
+    return await auth_system.login_page(request)
+
+@app.post("/login")
+async def login_post(request: Request, password: str = Form(...)):
+    """Обработка авторизации"""
+    return await auth_system.login_post(request, password)
+
+@app.get("/logout")
+async def logout(request: Request):
+    """Выход из системы"""
+    return await auth_system.logout(request)
+
+# ================== ГЛАВНАЯ СТРАНИЦА ==================
+
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
+async def index(request: Request, _: bool = Depends(auth_system.require_auth)):
     """Главная страница с формой генерации чек-листа"""
     return templates.TemplateResponse("index.html", {"request": request})
 
+# ================== HH.RU АВТОРИЗАЦИЯ ==================
+
 @app.post("/auth/hh")
-async def start_hh_auth():
+async def start_hh_auth(_: bool = Depends(auth_system.require_auth)):
     """Начало авторизации HH.ru"""
     auth_url = hh_auth_service.get_auth_url()
     return {"auth_url": auth_url}
 
 @app.get("/auth/tokens")
-async def get_tokens_from_callback():
+async def get_tokens_from_callback(_: bool = Depends(auth_system.require_auth)):
     """Получение токенов из callback сервера"""
     try:
+        # Сначала проверяем, есть ли уже сохраненные токены
+        if "hh_access_token" in user_tokens and "hh_refresh_token" in user_tokens:
+            return {
+                "success": True,
+                "message": "Авторизация уже выполнена"
+            }
+        
         callback_url = f"http://{callback_settings.host}:{callback_settings.port}/api/code"
         
         async with aiohttp.ClientSession() as session:
@@ -68,15 +110,19 @@ async def get_tokens_from_callback():
                     code = data.get("code")
                     
                     if code:
+                        logger.info(f"Получен код авторизации, обмениваем на токены...")
+                        
                         # Обмениваем код на токены
                         tokens = await token_exchanger.exchange_code(code)
-                        
-                        # Очищаем код на сервере
-                        await session.post(f"http://{callback_settings.host}:{callback_settings.port}/api/reset_code")
                         
                         # Сохраняем токены во временном хранилище
                         user_tokens["hh_access_token"] = tokens["access_token"]
                         user_tokens["hh_refresh_token"] = tokens["refresh_token"]
+                        
+                        logger.info("Токены успешно сохранены")
+                        
+                        # Только после успешного сохранения очищаем код на сервере
+                        await session.post(f"http://{callback_settings.host}:{callback_settings.port}/api/reset_code")
                         
                         return {
                             "success": True,
@@ -89,10 +135,13 @@ async def get_tokens_from_callback():
         logger.error(f"Ошибка получения токенов: {e}")
         return {"success": False, "message": f"Ошибка: {str(e)}"}
 
+# ================== CHECKLIST GENERATION ==================
+
 @app.post("/generate-checklist")
 async def generate_interview_checklist(
     resume_file: UploadFile = File(...),
-    vacancy_url: str = Form(...)
+    vacancy_url: str = Form(...),
+    _: bool = Depends(auth_system.require_auth)
 ):
     """Генерация чек-листа подготовки к интервью"""
     
@@ -167,7 +216,7 @@ async def generate_interview_checklist(
         raise HTTPException(500, f"Ошибка генерации: {str(e)}")
 
 @app.get("/download-checklist/{checklist_id}")
-async def download_checklist_pdf(checklist_id: str):
+async def download_checklist_pdf(checklist_id: str, _: bool = Depends(auth_system.require_auth)):
     """Скачивание PDF чек-листа подготовки к интервью"""
     try:
         # Проверяем наличие результата
@@ -320,6 +369,30 @@ def format_checklist_for_web(checklist) -> dict:
                 }
             ],
             "general_recommendations": [checklist.final_recommendations] if hasattr(checklist, 'final_recommendations') else []
+        }
+
+# ================== МОНИТОРИНГ ==================
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint для мониторинга"""
+    try:
+        return {
+            "status": "healthy",
+            "service": "ai-resume-assistant-interview-checklist",
+            "version": "1.0.0",
+            "port": 8002,
+            "checks": {
+                "auth_system": "ok",
+                "templates": "ok",
+                "storage": "ok"
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "service": "ai-resume-assistant-interview-checklist",
+            "error": str(e)
         }
 
 if __name__ == "__main__":

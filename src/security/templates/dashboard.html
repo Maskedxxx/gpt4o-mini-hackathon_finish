@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Dashboard - AI Resume Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .overall-status {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 1rem;
+        }
+
+        .status-healthy { background: #d4edda; color: #155724; }
+        .status-degraded { background: #fff3cd; color: #856404; }
+        .status-critical { background: #f8d7da; color: #721c24; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .service-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #ddd;
+        }
+
+        .service-card.healthy { border-left-color: #28a745; }
+        .service-card.unhealthy { border-left-color: #ffc107; }
+        .service-card.offline { border-left-color: #dc3545; }
+
+        .service-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .service-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .service-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .service-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .openai-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .openai-section h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .api-enabled {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .api-enabled.true { background: #d4edda; color: #155724; }
+        .api-enabled.false { background: #f8d7da; color: #721c24; }
+
+        .openai-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .refresh-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-size: 1.2rem;
+            transition: background 0.3s ease;
+        }
+
+        .refresh-button:hover {
+            background: #764ba2;
+        }
+
+        .timestamp {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1rem;
+            }
+            
+            .services-grid,
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>🚀 AI Resume Assistant</h1>
+            <p>Панель мониторинга системы</p>
+            <div class="overall-status status-{{ status_data.overall_status }}">
+                {{ status_data.overall_status | upper }}
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Работающие сервисы</h3>
+                <div class="stat-value">{{ status_data.healthy_services }}/{{ status_data.total_services }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Доступность системы</h3>
+                <div class="stat-value">
+                    {{ "%.0f" | format((status_data.healthy_services / status_data.total_services * 100)) }}%
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3>Последняя проверка</h3>
+                <div class="stat-value" style="font-size: 1.2rem;">{{ status_data.timestamp.split(' ')[1][:8] }}</div>
+            </div>
+        </div>
+
+        <div class="openai-section">
+            <h2>
+                🤖 OpenAI API Статистика
+                <span class="api-enabled {{ status_data.openai_stats.api_enabled | lower }}">
+                    {{ "ВКЛЮЧЕН" if status_data.openai_stats.api_enabled else "ВЫКЛЮЧЕН" }}
+                </span>
+            </h2>
+            
+            <div class="openai-stats">
+                <div class="stat-card">
+                    <h3>Всего запросов</h3>
+                    <div class="stat-value">{{ status_data.openai_stats.total_requests }}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Успешных запросов</h3>
+                    <div class="stat-value">{{ status_data.openai_stats.successful_requests }}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Успешность</h3>
+                    <div class="stat-value">{{ "%.1f" | format(status_data.openai_stats.success_rate) }}%</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Использовано токенов</h3>
+                    <div class="stat-value">{{ "{:,}".format(status_data.openai_stats.total_tokens_used) }}</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 style="color: white; margin-bottom: 1rem; text-align: center;">🔧 Статус сервисов</h2>
+        
+        <div class="services-grid">
+            {% for service in status_data.services %}
+            <div class="service-card {{ service.status }}">
+                <div class="service-header">
+                    <div class="service-name">{{ service.name }}</div>
+                    <div class="service-status {{ service.status }}">{{ service.status }}</div>
+                </div>
+                
+                <div class="service-info">
+                    <div><strong>Порт:</strong> {{ service.port }}</div>
+                    <div><strong>Время ответа:</strong> {{ service.response_time }}</div>
+                    <div><strong>Последняя проверка:</strong> {{ service.last_check }}</div>
+                    {% if service.error %}
+                    <div><strong>Ошибка:</strong> {{ service.error }}</div>
+                    {% endif %}
+                </div>
+                
+                {% if service.details %}
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
+                    <strong>Детали:</strong>
+                    <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                        {% for key, value in service.details.items() %}
+                        <li>{{ key }}: {{ value }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="timestamp">
+            Обновлено: {{ status_data.timestamp }}
+        </div>
+    </div>
+
+    <button class="refresh-button" onclick="window.location.reload()" title="Обновить данные">
+        🔄
+    </button>
+
+    <script>
+        // Автообновление каждые 30 секунд
+        setTimeout(function() {
+            window.location.reload();
+        }, 30000);
+
+        // Анимация загрузки при клике на кнопку обновления
+        document.querySelector('.refresh-button').addEventListener('click', function() {
+            this.innerHTML = '⏳';
+            this.style.backgroundColor = '#ffc107';
+        });
+    </script>
+</body>
+</html>

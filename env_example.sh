@@ -23,6 +23,10 @@ OPENAI_API_KEY=sk-proj-ABCdefghijklmnopqrstuvwxyz123456789
 # Модель для использования (gpt-4 рекомендуется для лучшего качества)
 OPENAI_MODEL_NAME=gpt-4
 
+# Флаг разрешения использования OpenAI API (true/false)
+# Установите false для отключения всех запросов к OpenAI
+OPENAI_API_ENABLED=true
+
 # Опциональные настройки OpenAI
 # OPENAI_TEMPERATURE=0.7
 # OPENAI_MAX_TOKENS=2000
@@ -66,6 +70,18 @@ LOG_LEVEL=INFO
 
 # Путь к папке логов (по умолчанию: ./LOGS)
 # LOGS_PATH=./LOGS
+
+# ===================
+# SECURITY SETTINGS
+# ===================
+# Пароль для демо-доступа к веб-приложениям
+DEMO_PASSWORD=demo2025
+
+# Таймаут сессии авторизации (в часах)
+SESSION_TIMEOUT_HOURS=24
+
+# Секретный ключ для подписи сессий (генерируется автоматически если не указан)
+# AUTH_SECRET_KEY=your_secret_key_here
 
 # ===================
 # ADVANCED SETTINGS

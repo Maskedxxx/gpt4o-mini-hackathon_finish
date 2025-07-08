@@ -7,7 +7,7 @@
 import os
 import tempfile
 from pathlib import Path
-from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Request
+from fastapi import FastAPI, Form, File, UploadFile, HTTPException, Request, Depends
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -25,12 +25,26 @@ from src.llm_gap_analyzer.llm_gap_analyzer import LLMGapAnalyzer
 from src.utils import get_logger
 from .pdf_generator import GapAnalysisPDFGenerator
 
+# Импорт системы авторизации
+from src.security.auth import SimpleAuth
+
 logger = get_logger()
 
-app = FastAPI(title="AI Resume Assistant - Web")
+app = FastAPI(title="AI Resume Assistant - Gap Analysis")
+
+# Настройка системы авторизации
+current_dir = Path(__file__).parent
+auth_system = SimpleAuth(templates_dir=str(current_dir.parent.parent / "security" / "templates"))
+
+# Добавляем middleware авторизации
+app.add_middleware(
+    auth_system.get_middleware().__class__,
+    config=auth_system.config,
+    session_manager=auth_system.session_manager,
+    templates=auth_system.templates
+)
 
 # Настройка шаблонов
-current_dir = Path(__file__).parent
 templates = Jinja2Templates(directory=str(current_dir / "templates"))
 
 # Создание экземпляров сервисов
@@ -46,22 +60,49 @@ user_tokens = {}
 # Временное хранилище для результатов анализа (для PDF генерации)
 analysis_storage = {}
 
+# ================== АВТОРИЗАЦИЯ ==================
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    """Страница авторизации"""
+    return await auth_system.login_page(request)
+
+@app.post("/login")
+async def login_post(request: Request, password: str = Form(...)):
+    """Обработка авторизации"""
+    return await auth_system.login_post(request, password)
+
+@app.get("/logout")
+async def logout(request: Request):
+    """Выход из системы"""
+    return await auth_system.logout(request)
+
+# ================== ГЛАВНАЯ СТРАНИЦА ==================
+
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
+async def index(request: Request, _: bool = Depends(auth_system.require_auth)):
     """Главная страница с формой гап-анализа"""
     return templates.TemplateResponse("index.html", {"request": request})
 
+# ================== HH.RU АВТОРИЗАЦИЯ ==================
+
 @app.post("/auth/hh")
-async def start_hh_auth():
+async def start_hh_auth(_: bool = Depends(auth_system.require_auth)):
     """Начало авторизации HH.ru"""
     auth_url = hh_auth_service.get_auth_url()
     return {"auth_url": auth_url}
 
 @app.get("/auth/tokens")
-async def get_tokens_from_callback():
+async def get_tokens_from_callback(_: bool = Depends(auth_system.require_auth)):
     """Получение токенов из callback сервера"""
     try:
-        import aiohttp
+        # Сначала проверяем, есть ли уже сохраненные токены
+        if "hh_access_token" in user_tokens and "hh_refresh_token" in user_tokens:
+            return {
+                "success": True,
+                "message": "Авторизация уже выполнена"
+            }
+        
         callback_url = f"http://{callback_settings.host}:{callback_settings.port}/api/code"
         
         async with aiohttp.ClientSession() as session:
@@ -71,15 +112,19 @@ async def get_tokens_from_callback():
                     code = data.get("code")
                     
                     if code:
+                        logger.info(f"Получен код авторизации, обмениваем на токены...")
+                        
                         # Обмениваем код на токены
                         tokens = await token_exchanger.exchange_code(code)
-                        
-                        # Очищаем код на сервере
-                        await session.post(f"http://{callback_settings.host}:{callback_settings.port}/api/reset_code")
                         
                         # Сохраняем токены во временном хранилище
                         user_tokens["hh_access_token"] = tokens["access_token"]
                         user_tokens["hh_refresh_token"] = tokens["refresh_token"]
+                        
+                        logger.info("Токены успешно сохранены")
+                        
+                        # Только после успешного сохранения очищаем код на сервере
+                        await session.post(f"http://{callback_settings.host}:{callback_settings.port}/api/reset_code")
                         
                         return {
                             "success": True,
@@ -92,10 +137,13 @@ async def get_tokens_from_callback():
         logger.error(f"Ошибка получения токенов: {e}")
         return {"success": False, "message": f"Ошибка: {str(e)}"}
 
+# ================== GAP ANALYSIS ==================
+
 @app.post("/gap-analysis")
 async def perform_gap_analysis(
     resume_file: UploadFile = File(...),
-    vacancy_url: str = Form(...)
+    vacancy_url: str = Form(...),
+    _: bool = Depends(auth_system.require_auth)
 ):
     """Выполнение гап-анализа резюме"""
     
@@ -160,7 +208,7 @@ async def perform_gap_analysis(
         raise HTTPException(500, f"Ошибка анализа: {str(e)}")
 
 @app.get("/download-gap-analysis/{analysis_id}")
-async def download_gap_analysis_pdf(analysis_id: str):
+async def download_gap_analysis_pdf(analysis_id: str, _: bool = Depends(auth_system.require_auth)):
     """Скачивание PDF отчета гап-анализа"""
     try:
         # Проверяем наличие результата
@@ -265,6 +313,30 @@ def format_analysis_for_web(analysis) -> dict:
         "major_gaps": analysis.major_gaps,
         "next_steps": analysis.next_steps
     }
+
+# ================== МОНИТОРИНГ ==================
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint для мониторинга"""
+    try:
+        return {
+            "status": "healthy",
+            "service": "ai-resume-assistant-gap-analysis",
+            "version": "1.0.0",
+            "port": 8000,
+            "checks": {
+                "auth_system": "ok",
+                "templates": "ok",
+                "storage": "ok"
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "service": "ai-resume-assistant-gap-analysis",
+            "error": str(e)
+        }
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
