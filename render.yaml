@@ -1,0 +1,89 @@
+services:
+  # Unified Web Application
+  - type: web
+    name: ai-resume-assistant-web
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m src.web_app.unified_app.main
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL_NAME
+        value: gpt-4.1
+      - key: OPENAI_API_ENABLED
+        value: "true"
+      - key: HH_CLIENT_ID
+        sync: false
+      - key: HH_CLIENT_SECRET
+        sync: false
+      - key: HH_REDIRECT_URI
+        value: https://ai-resume-oauth-server.onrender.com/callback
+      - key: DEMO_PASSWORD
+        value: demo2025
+      - key: SESSION_TIMEOUT_HOURS
+        value: "24"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CALLBACK_LOCAL_HOST
+        value: "ai-resume-oauth-server.onrender.com"
+      - key: CALLBACK_LOCAL_PORT
+        value: "10000"
+    domains:
+      - ai-resume-assistant.onrender.com
+
+  # OAuth Callback Server
+  - type: web
+    name: ai-resume-oauth-server
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m src.callback_local_server.main
+    envVars:
+      - key: HH_CLIENT_ID
+        sync: false
+      - key: HH_CLIENT_SECRET
+        sync: false
+      - key: HH_REDIRECT_URI
+        value: https://ai-resume-oauth-server.onrender.com/callback
+      - key: CALLBACK_LOCAL_HOST
+        value: "0.0.0.0"
+      - key: CALLBACK_LOCAL_PORT
+        value: "10000"
+    domains:
+      - ai-resume-oauth.onrender.com
+
+  # Telegram Bot
+  - type: web
+    name: ai-resume-telegram-bot
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m src.tg_bot.main
+    envVars:
+      - key: TG_BOT_BOT_TOKEN
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL_NAME
+        value: gpt-4.1
+      - key: OPENAI_API_ENABLED
+        value: "true"
+      - key: HH_CLIENT_ID
+        sync: false
+      - key: HH_CLIENT_SECRET
+        sync: false
+      - key: HH_REDIRECT_URI
+        value: https://ai-resume-oauth-server.onrender.com/callback
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CALLBACK_LOCAL_HOST
+        value: "0.0.0.0"
+      - key: CALLBACK_LOCAL_PORT
+        value: "10000"
+
+databases:
+  - name: ai-resume-db
+    databaseName: ai_resume_db
+    user: ai_resume_user
+    plan: starter
