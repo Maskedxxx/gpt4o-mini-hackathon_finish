@@ -132,7 +132,7 @@ class ProfessionalAssessmentEngine:
         
         try:
             # Получаем оценку от LLM
-            response = await self._get_llm_assessment(assessment_prompt)
+            response = self._get_llm_assessment(assessment_prompt)
             
             # Парсим ответ LLM
             score, evidence, improvement_notes = self._parse_competency_response(response)
@@ -284,7 +284,7 @@ IMPROVEMENT: [конкретные рекомендации по улучшен�
         
         return prompt
     
-    async def _get_llm_assessment(self, prompt: str) -> str:
+    def _get_llm_assessment(self, prompt: str) -> str:
         """Получает оценку от LLM."""
         
         messages = [
@@ -407,7 +407,7 @@ WEAKNESSES: [список слабых сторон через точку с з�
 """
         
         try:
-            response = await self._get_llm_assessment(analysis_prompt)
+            response = self._get_llm_assessment(analysis_prompt)
             
             # Парсим ответ
             strengths_match = re.search(r'STRENGTHS:\s*(.+?)(?=WEAKNESSES:|$)', response, re.IGNORECASE | re.DOTALL)
@@ -511,7 +511,7 @@ WEAKNESSES: [список слабых сторон через точку с з�
 Ответь только числом от 1 до 5.
 """
             
-            response = await self._get_llm_assessment(cultural_prompt)
+            response = self._get_llm_assessment(cultural_prompt)
             score = int(re.search(r'\d+', response).group()) if re.search(r'\d+', response) else 3
             return max(1, min(5, score))
             
@@ -546,7 +546,7 @@ PERFORMANCE_ANALYSIS: [детальный анализ]
 IMPROVEMENT_RECOMMENDATIONS: [конкретные рекомендации]
 """
             
-            response = await self._get_llm_assessment(feedback_prompt)
+            response = self._get_llm_assessment(feedback_prompt)
             
             # Парсим ответ
             hr_assessment = self._extract_section(response, "HR_ASSESSMENT")
