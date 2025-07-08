@@ -93,6 +93,13 @@ async def start_hh_auth():
 async def get_tokens_from_callback():
     """Получение токенов из callback сервера"""
     try:
+        # Сначала проверяем, есть ли уже сохраненные токены
+        if "hh_access_token" in user_tokens and "hh_refresh_token" in user_tokens:
+            return {
+                "success": True,
+                "message": "Авторизация уже выполнена"
+            }
+        
         callback_url = f"http://{callback_settings.host}:{callback_settings.port}/api/code"
         
         async with aiohttp.ClientSession() as session:
@@ -102,15 +109,19 @@ async def get_tokens_from_callback():
                     code = data.get("code")
                     
                     if code:
+                        logger.info(f"Получен код авторизации, обмениваем на токены...")
+                        
                         # Обмениваем код на токены
                         tokens = await token_exchanger.exchange_code(code)
-                        
-                        # Очищаем код на сервере
-                        await session.post(f"http://{callback_settings.host}:{callback_settings.port}/api/reset_code")
                         
                         # Сохраняем токены во временном хранилище
                         user_tokens["hh_access_token"] = tokens["access_token"]
                         user_tokens["hh_refresh_token"] = tokens["refresh_token"]
+                        
+                        logger.info("Токены успешно сохранены")
+                        
+                        # Только после успешного сохранения очищаем код на сервере
+                        await session.post(f"http://{callback_settings.host}:{callback_settings.port}/api/reset_code")
                         
                         return {
                             "success": True,
