@@ -228,7 +228,7 @@ def main():
     # ===============================================
     
     # ПУТИ К JSON ФАЙЛАМ
-    resume_json_path = "/Users/mask/Documents/Проеты_2025/gpt_4_mini_hackaton_final/tests/test_models_res_vac/fetched_resume_6d807532ff0ed6b79f0039ed1f63386d724a62.json"    # 👈 УКАЖИТЕ ПУТЬ К РЕЗЮМЕ
+    resume_json_path = "/Users/mask/Documents/Проеты_2025/gpt_4_mini_hackaton_final/tests/test_models_res_vac/resume_nlp.json"    # 👈 УКАЖИТЕ ПУТЬ К РЕЗЮМЕ
     vacancy_json_path = "/Users/mask/Documents/Проеты_2025/gpt_4_mini_hackaton_final/tests/test_models_res_vac/fetched_vacancy_120234346.json"    # 👈 УКАЖИТЕ ПУТЬ К ВАКАНСИИ
     
     # ФЛАГИ УПРАВЛЕНИЯ (True/False)

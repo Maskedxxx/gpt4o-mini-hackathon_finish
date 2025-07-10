@@ -350,6 +350,7 @@
                 <div class="result-item">
                     <h4>${req.requirement_text}</h4>
                     <p><strong>Тип:</strong> ${req.requirement_type}</p>
+                    ${req.skill_category ? `<p><strong>Категория навыка:</strong> ${req.skill_category}</p>` : ''}
                     <p><strong>Статус:</strong> ${req.compliance_status}</p>
                     <p><strong>Доказательства:</strong> ${req.evidence_in_resume}</p>
                     <p><strong>Пробел:</strong> ${req.gap_description}</p>

@@ -35,6 +35,7 @@ from src.llm_cover_letter.llm_cover_letter_generator import EnhancedLLMCoverLett
 from src.llm_interview_checklist.llm_interview_checklist_generator import LLMInterviewChecklistGenerator
 from src.llm_interview_simulation.llm_interview_simulator import ProfessionalInterviewSimulator
 from src.utils import get_logger
+from src.models.gap_analysis_models import EnhancedResumeTailoringAnalysis
 
 # Импорт системы авторизации
 from src.security.auth import SimpleAuth
@@ -782,7 +783,7 @@ def extract_vacancy_id(vacancy_url: str) -> str:
     match = re.search(pattern, vacancy_url)
     return match.group(1) if match else None
 
-def format_gap_analysis_for_web(analysis) -> dict:
+def format_gap_analysis_for_web(analysis: EnhancedResumeTailoringAnalysis) -> dict:
     """Форматирование результатов гап-анализа для веб-отображения"""
     return {
         "primary_screening": {
@@ -798,6 +799,7 @@ def format_gap_analysis_for_web(analysis) -> dict:
             {
                 "requirement_text": req.requirement_text,
                 "requirement_type": req.requirement_type,
+                "skill_category": req.skill_category,
                 "compliance_status": req.compliance_status,
                 "evidence_in_resume": req.evidence_in_resume,
                 "gap_description": req.gap_description,

@@ -277,8 +277,19 @@ class GapAnalysisPDFGenerator:
             else:
                 compliance_status_text = str(compliance_status) if compliance_status else 'Не указано'
             
+            # Получаем категорию навыков
+            skill_category = getattr(req, 'skill_category', None)
+            if skill_category:
+                if hasattr(skill_category, 'value'):
+                    skill_category_text = skill_category.value
+                else:
+                    skill_category_text = str(skill_category)
+            else:
+                skill_category_text = 'Не указано'
+            
             req_data = [
                 [Paragraph('Тип требования', self.styles['TableText']), Paragraph(getattr(req, 'requirement_type', 'Не указано') or 'Не указано', self.styles['TableText'])],
+                [Paragraph('Категория навыков', self.styles['TableText']), Paragraph(skill_category_text, self.styles['TableText'])],
                 [Paragraph('Статус соответствия', self.styles['TableText']), Paragraph(compliance_status_text, self.styles['TableText'])],
                 [Paragraph('Подтверждение в резюме', self.styles['TableText']), Paragraph(evidence_text, self.styles['TableText'])],
                 [Paragraph('Описание пробела', self.styles['TableText']), Paragraph(gap_text, self.styles['TableText'])],
