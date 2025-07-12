@@ -24,6 +24,7 @@ from src.callback_local_server.config import settings as callback_settings
 from src.llm_gap_analyzer.llm_gap_analyzer import LLMGapAnalyzer
 from src.utils import get_logger
 from .pdf_generator import GapAnalysisPDFGenerator
+from src.models.gap_analysis_models import EnhancedResumeTailoringAnalysis
 
 # Импорт системы авторизации
 from src.security.auth import SimpleAuth
@@ -247,7 +248,7 @@ def extract_vacancy_id(vacancy_url: str) -> str:
     match = re.search(pattern, vacancy_url)
     return match.group(1) if match else None
 
-def format_analysis_for_web(analysis) -> dict:
+def format_analysis_for_web(analysis: EnhancedResumeTailoringAnalysis) -> dict:
     """Форматирование результатов анализа для веб-отображения"""
     return {
         "primary_screening": {
@@ -263,6 +264,7 @@ def format_analysis_for_web(analysis) -> dict:
             {
                 "requirement_text": req.requirement_text,
                 "requirement_type": req.requirement_type,
+                "skill_category": req.skill_category,
                 "compliance_status": req.compliance_status,
                 "evidence_in_resume": req.evidence_in_resume,
                 "gap_description": req.gap_description,

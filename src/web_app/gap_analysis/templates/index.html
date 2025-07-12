@@ -387,6 +387,7 @@
                         ${mustHave.map(req => `
                             <div style="border-left: 3px solid red; padding-left: 10px; margin-bottom: 10px;">
                                 <strong>${req.requirement_text}</strong><br>
+                                ${req.skill_category ? `<em>Категория навыка:</em> ${req.skill_category}<br>` : ''}
                                 <span style="color: ${req.compliance_status === 'ПОЛНОЕ_СООТВЕТСТВИЕ' ? 'green' : req.compliance_status === 'ЧАСТИЧНОЕ_СООТВЕТСТВИЕ' ? 'orange' : 'red'};">
                                     ${req.compliance_status === 'ПОЛНОЕ_СООТВЕТСТВИЕ' ? '✅' : req.compliance_status === 'ЧАСТИЧНОЕ_СООТВЕТСТВИЕ' ? '⚠️' : '❌'} 
                                     ${req.compliance_status}
@@ -403,6 +404,7 @@
                         ${niceToHave.map(req => `
                             <div style="border-left: 3px solid orange; padding-left: 10px; margin-bottom: 10px;">
                                 <strong>${req.requirement_text}</strong><br>
+                                ${req.skill_category ? `<em>Категория навыка:</em> ${req.skill_category}<br>` : ''}
                                 <span style="color: ${req.compliance_status === 'ПОЛНОЕ_СООТВЕТСТВИЕ' ? 'green' : req.compliance_status === 'ЧАСТИЧНОЕ_СООТВЕТСТВИЕ' ? 'orange' : 'red'};">
                                     ${req.compliance_status === 'ПОЛНОЕ_СООТВЕТСТВИЕ' ? '✅' : req.compliance_status === 'ЧАСТИЧНОЕ_СООТВЕТСТВИЕ' ? '⚠️' : '❌'} 
                                     ${req.compliance_status}
@@ -419,6 +421,7 @@
                         ${bonus.map(req => `
                             <div style="border-left: 3px solid green; padding-left: 10px; margin-bottom: 10px;">
                                 <strong>${req.requirement_text}</strong><br>
+                                ${req.skill_category ? `<em>Категория навыка:</em> ${req.skill_category}<br>` : ''}
                                 <span style="color: ${req.compliance_status === 'ПОЛНОЕ_СООТВЕТСТВИЕ' ? 'green' : req.compliance_status === 'ЧАСТИЧНОЕ_СООТВЕТСТВИЕ' ? 'orange' : 'red'};">
                                     ${req.compliance_status === 'ПОЛНОЕ_СООТВЕТСТВИЕ' ? '✅' : req.compliance_status === 'ЧАСТИЧНОЕ_СООТВЕТСТВИЕ' ? '⚠️' : '❌'} 
                                     ${req.compliance_status}
