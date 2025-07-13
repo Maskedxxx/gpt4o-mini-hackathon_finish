@@ -23,7 +23,7 @@ def load_test_data():
     """Загружает и парсит тестовые данные."""
     try:
         # Пути к тестовым данным
-        resume_path = Path("/Users/mask/Documents/Проеты_2025/gpt_4_mini_hackaton_final/tests/test_models_res_vac/fetched_resume_6d807532ff0ed6b79f0039ed1f63386d724a62.json")
+        resume_path = Path("/Users/mask/Documents/Проеты_2025/gpt_4_mini_hackaton_final/tests/test_models_res_vac/resume_nlp.json")
         vacancy_path = Path("/Users/mask/Documents/Проеты_2025/gpt_4_mini_hackaton_final/tests/test_models_res_vac/fetched_vacancy_120234346.json")
         
         # Загружаем сырые данные

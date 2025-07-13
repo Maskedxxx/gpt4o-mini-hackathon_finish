@@ -389,13 +389,13 @@ def main():
     # ===============================================
     
     # ПУТИ К JSON ФАЙЛАМ
-    resume_json_path = "/Users/mask/Documents/Проеты_2025/gpt_4_mini_hackaton_final/tests/test_models_res_vac/fetched_resume_6d807532ff0ed6b79f0039ed1f63386d724a62.json"      # 👈 УКАЖИТЕ ПУТЬ К РЕЗЮМЕ
+    resume_json_path = "/Users/mask/Documents/Проеты_2025/gpt_4_mini_hackaton_final/tests/test_models_res_vac/resume_nlp.json"      # 👈 УКАЖИТЕ ПУТЬ К РЕЗЮМЕ
     vacancy_json_path = "/Users/mask/Documents/Проеты_2025/gpt_4_mini_hackaton_final/tests/test_models_res_vac/fetched_vacancy_120234346.json"    # 👈 УКАЖИТЕ ПУТЬ К ВАКАНСИИ
     
     # ФЛАГИ УПРАВЛЕНИЯ (True/False)
     show_system_prompt = False       # 👈 Показать системный промпт
-    show_formatted_data = False      # 👈 Показать форматированные данные
-    show_vacancy_context = False     # 👈 Показать анализ контекста вакансии
+    show_formatted_data = True      # 👈 Показать форматированные данные
+    show_vacancy_context = True     # 👈 Показать анализ контекста вакансии
     show_user_prompt = False         # 👈 Показать пользовательский промпт  
     show_messages = True            # 👈 Показать полный массив messages
     show_components = True          # 👈 Показать компоненты промпта
