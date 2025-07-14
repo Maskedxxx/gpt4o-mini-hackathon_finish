@@ -48,14 +48,14 @@ class RequirementAnalysis(BaseModel):
 
 class PrimaryScreeningResult(BaseModel):
     """Результат первичного скрининга (7-15 секунд) - точно из промпта"""
-    job_title_match: bool = Field(..., description="Соответствие должности в резюме и вакансии")
+    job_title_match: bool = Field(...,   description = "Соответствие должности в резюме и вакансии. Примеры: true - если в резюме указана должность 'Python Developer', а в вакансии требуется 'Python Developer'; false - если в резюме указана должность 'Frontend Developer', а в вакансии требуется 'Backend Developer'.")
     experience_years_match: bool = Field(..., description="Общий стаж в нужной сфере vs требуемый")
-    key_skills_visible: bool = Field(..., description="Наличие критичных навыков (видны ли ключевые слова)")
+    key_skills_visible: bool = Field(..., description="Наличие критичных навыков, где все ключевые навыки совпадают с навыками в резюме. Пример: true - если критичные навыки 'Python', 'Django' указаны в резюме; false - если критичные навыки 'Python', 'Django', но в резюме указан только 'Python'.")
     location_suitable: bool = Field(..., description="Локация и готовность к работе")
     salary_expectations_match: bool = Field(..., description="Зарплатные ожидания vs бюджет вакансии")
     
     overall_screening_result: Literal["ПРИНЯТЬ", "ВОЗМОЖНО", "ОТКЛОНИТЬ"] = Field(..., description="Общий результат скрининга")
-    screening_notes: str = Field(..., description="Комментарии по скринингу")
+    screening_notes: str = Field(..., description="Комментарии по скринингу, которые лаконично указывают, что не хватает в скрининге")
 
 # УЛУЧШЕНИЕ 3: Более точные описания полей
 class DetailedRecommendation(BaseModel):

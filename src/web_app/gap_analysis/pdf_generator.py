@@ -111,6 +111,18 @@ class GapAnalysisPDFGenerator:
             leading=14
         ))
         
+        # Жирный основной текст (используем тот же шрифт, но с HTML разметкой)
+        self.styles.add(ParagraphStyle(
+            name='CustomBodyBold',
+            parent=self.styles['Normal'],
+            fontName='DejaVuSans',
+            fontSize=10,
+            textColor=self.colors['text'],
+            spaceBefore=4,
+            spaceAfter=4,
+            leading=14
+        ))
+        
         # Текст в таблице
         self.styles.add(ParagraphStyle(
             name='TableText',
