@@ -430,3 +430,223 @@ class GapAnalysisPDFGenerator:
                 elements.append(Paragraph(f"• {str(next_steps)}", self.styles['CustomBody']))
         
         return elements
+    
+    def generate_adapted_resume_pdf(self, adapted_resume) -> io.BytesIO:
+        """
+        Генерирует PDF для адаптированного резюме
+        
+        Args:
+            adapted_resume: ResumeInfo - адаптированное резюме
+            
+        Returns:
+            io.BytesIO: PDF файл в виде буфера
+        """
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(
+            buffer, 
+            pagesize=A4,
+            rightMargin=inch*0.75,
+            leftMargin=inch*0.75,
+            topMargin=inch*0.75,
+            bottomMargin=inch*0.75
+        )
+        
+        elements = []
+        
+        # Заголовок
+        title = "Адаптированное Резюме"
+        elements.append(Paragraph(title, self.styles['Title']))
+        elements.append(Spacer(1, 20))
+        
+        # Подзаголовок
+        subtitle = "Резюме оптимизировано под требования вакансии на основе GAP-анализа"
+        elements.append(Paragraph(subtitle, self.styles['SubHeader']))
+        elements.append(Spacer(1, 15))
+        
+        # Персональная информация
+        elements.append(Paragraph("Персональная информация:", self.styles['SubHeader']))
+        
+        # ФИО
+        full_name_parts = []
+        if hasattr(adapted_resume, 'last_name') and adapted_resume.last_name:
+            full_name_parts.append(adapted_resume.last_name)
+        if hasattr(adapted_resume, 'first_name') and adapted_resume.first_name:
+            full_name_parts.append(adapted_resume.first_name)
+        if hasattr(adapted_resume, 'middle_name') and adapted_resume.middle_name:
+            full_name_parts.append(adapted_resume.middle_name)
+        
+        full_name = ' '.join(full_name_parts) if full_name_parts else 'Не указано'
+        elements.append(Paragraph(f"<b>ФИО:</b> {full_name}", self.styles['CustomBody']))
+        
+        # Желаемая должность
+        if hasattr(adapted_resume, 'title') and adapted_resume.title:
+            elements.append(Paragraph(f"<b>Желаемая должность:</b> {adapted_resume.title}", self.styles['CustomBody']))
+        
+        # Общий опыт работы
+        if hasattr(adapted_resume, 'total_experience') and adapted_resume.total_experience:
+            years = adapted_resume.total_experience // 12
+            months = adapted_resume.total_experience % 12
+            exp_text = f"{years} лет {months} мес." if years > 0 else f"{months} мес."
+            elements.append(Paragraph(f"<b>Общий опыт работы:</b> {exp_text}", self.styles['CustomBody']))
+        
+        elements.append(Spacer(1, 12))
+        
+        # Навыки
+        elements.append(Paragraph("Навыки и компетенции:", self.styles['SubHeader']))
+        
+        # Описание навыков
+        if hasattr(adapted_resume, 'skills') and adapted_resume.skills:
+            skills_text = adapted_resume.skills
+            if isinstance(skills_text, list):
+                skills_text = ', '.join(skills_text)
+            elements.append(Paragraph(f"<b>Описание навыков:</b> {skills_text}", self.styles['CustomBody']))
+        
+        # Ключевые навыки
+        if hasattr(adapted_resume, 'skill_set') and adapted_resume.skill_set:
+            elements.append(Paragraph("<b>Ключевые навыки:</b>", self.styles['CustomBody']))
+            for skill in adapted_resume.skill_set:
+                elements.append(Paragraph(f"• {skill}", self.styles['CustomBody']))
+        
+        elements.append(Spacer(1, 12))
+        
+        # Опыт работы
+        if hasattr(adapted_resume, 'experience') and adapted_resume.experience:
+            elements.append(Paragraph("Опыт работы:", self.styles['SubHeader']))
+            
+            for i, exp in enumerate(adapted_resume.experience, 1):
+                position = getattr(exp, 'position', 'Должность не указана')
+                company = getattr(exp, 'company', 'Компания не указана')
+                start = getattr(exp, 'start', 'Дата не указана')
+                end = getattr(exp, 'end', 'по настоящее время')
+                description = getattr(exp, 'description', 'Описание отсутствует')
+                
+                elements.append(Paragraph(f"<b>{position}</b>", self.styles['CustomBodyBold']))
+                elements.append(Paragraph(f"Компания: {company}", self.styles['CustomBody']))
+                elements.append(Paragraph(f"Период: {start} - {end}", self.styles['CustomBody']))
+                elements.append(Paragraph(f"Описание: {description}", self.styles['CustomBody']))
+                elements.append(Spacer(1, 8))
+        
+        # Образование
+        if hasattr(adapted_resume, 'education') and adapted_resume.education:
+            elements.append(Paragraph("Образование:", self.styles['SubHeader']))
+            
+            education = adapted_resume.education
+            
+            # Уровень образования
+            if hasattr(education, 'level') and education.level and hasattr(education.level, 'name'):
+                elements.append(Paragraph(f"<b>Уровень:</b> {education.level.name}", self.styles['CustomBody']))
+            
+            # Основное образование
+            if hasattr(education, 'primary') and education.primary:
+                elements.append(Paragraph("<b>Основное образование:</b>", self.styles['CustomBodyBold']))
+                for edu in education.primary:
+                    name = getattr(edu, 'name', 'Учебное заведение не указано')
+                    year = getattr(edu, 'year', '')
+                    organization = getattr(edu, 'organization', '')
+                    result = getattr(edu, 'result', '')
+                    
+                    edu_text = f"• {name}"
+                    if year:
+                        edu_text += f" ({year})"
+                    elements.append(Paragraph(edu_text, self.styles['CustomBody']))
+                    
+                    if organization:
+                        elements.append(Paragraph(f"  Факультет/Организация: {organization}", self.styles['CustomBody']))
+                    if result:
+                        elements.append(Paragraph(f"  Специальность: {result}", self.styles['CustomBody']))
+            
+            # Дополнительное образование
+            if hasattr(education, 'additional') and education.additional:
+                elements.append(Paragraph("<b>Дополнительное образование:</b>", self.styles['CustomBodyBold']))
+                for edu in education.additional:
+                    name = getattr(edu, 'name', 'Курс не указан')
+                    year = getattr(edu, 'year', '')
+                    organization = getattr(edu, 'organization', '')
+                    
+                    edu_text = f"• {name}"
+                    if year:
+                        edu_text += f" ({year})"
+                    elements.append(Paragraph(edu_text, self.styles['CustomBody']))
+                    
+                    if organization:
+                        elements.append(Paragraph(f"  Организация: {organization}", self.styles['CustomBody']))
+        
+        # Сертификаты
+        if hasattr(adapted_resume, 'certificate') and adapted_resume.certificate:
+            elements.append(Spacer(1, 12))
+            elements.append(Paragraph("Сертификаты:", self.styles['SubHeader']))
+            for cert in adapted_resume.certificate:
+                title = getattr(cert, 'title', 'Название сертификата не указано')
+                url = getattr(cert, 'url', None)
+                
+                if url:
+                    elements.append(Paragraph(f"• {title} (ссылка: {url})", self.styles['CustomBody']))
+                else:
+                    elements.append(Paragraph(f"• {title}", self.styles['CustomBody']))
+        
+        # Профессиональные роли
+        if hasattr(adapted_resume, 'professional_roles') and adapted_resume.professional_roles:
+            elements.append(Spacer(1, 12))
+            elements.append(Paragraph("Профессиональные роли:", self.styles['SubHeader']))
+            for role in adapted_resume.professional_roles:
+                role_name = getattr(role, 'name', '') if hasattr(role, 'name') else str(role)
+                if role_name:
+                    elements.append(Paragraph(f"• {role_name}", self.styles['CustomBody']))
+        
+        # Языки
+        if hasattr(adapted_resume, 'languages') and adapted_resume.languages:
+            elements.append(Spacer(1, 12))
+            elements.append(Paragraph("Знание языков:", self.styles['SubHeader']))
+            for lang in adapted_resume.languages:
+                lang_name = getattr(lang, 'name', '')
+                lang_level = ''
+                if hasattr(lang, 'level') and lang.level and hasattr(lang.level, 'name'):
+                    lang_level = lang.level.name
+                
+                lang_text = f"• {lang_name}"
+                if lang_level:
+                    lang_text += f": {lang_level}"
+                elements.append(Paragraph(lang_text, self.styles['CustomBody']))
+        
+        # Контактная информация
+        if hasattr(adapted_resume, 'contact') and adapted_resume.contact:
+            elements.append(Spacer(1, 12))
+            elements.append(Paragraph("Контактная информация:", self.styles['SubHeader']))
+            for contact in adapted_resume.contact:
+                contact_type = ''
+                if hasattr(contact, 'type') and contact.type and hasattr(contact.type, 'name'):
+                    contact_type = contact.type.name
+                
+                contact_value = ''
+                if hasattr(contact, 'value'):
+                    if isinstance(contact.value, dict) and 'formatted' in contact.value:
+                        contact_value = contact.value['formatted']
+                    elif isinstance(contact.value, str):
+                        contact_value = contact.value
+                    else:
+                        contact_value = str(contact.value)
+                
+                if contact_type and contact_value:
+                    elements.append(Paragraph(f"• {contact_type}: {contact_value}", self.styles['CustomBody']))
+        
+        # Зарплатные ожидания
+        if hasattr(adapted_resume, 'salary') and adapted_resume.salary and hasattr(adapted_resume.salary, 'amount'):
+            elements.append(Spacer(1, 12))
+            elements.append(Paragraph("Зарплатные ожидания:", self.styles['SubHeader']))
+            elements.append(Paragraph(f"{adapted_resume.salary.amount} руб.", self.styles['CustomBody']))
+        
+        # Заключение об адаптации
+        elements.append(Spacer(1, 20))
+        elements.append(Paragraph("Заключение:", self.styles['SubHeader']))
+        conclusion_text = """
+        Данное резюме было автоматически адаптировано под требования конкретной вакансии 
+        на основе результатов GAP-анализа. Были улучшены формулировки навыков и опыта, 
+        добавлены ключевые слова и переакцентированы достижения для максимального 
+        соответствия требованиям работодателя.
+        """
+        elements.append(Paragraph(conclusion_text, self.styles['CustomBody']))
+        
+        # Собираем документ
+        doc.build(elements)
+        buffer.seek(0)
+        return buffer
