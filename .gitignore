@@ -3,3 +3,5 @@ docs.txt
 .env
 LOGS/
 legacy/
+*.code-workspace
+*.log
