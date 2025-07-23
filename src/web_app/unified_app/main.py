@@ -34,8 +34,10 @@ from src.llm_gap_analyzer.llm_gap_analyzer import LLMGapAnalyzer
 from src.llm_cover_letter.llm_cover_letter_generator import EnhancedLLMCoverLetterGenerator
 from src.llm_interview_checklist.llm_interview_checklist_generator import LLMInterviewChecklistGenerator
 from src.llm_interview_simulation.llm_interview_simulator import ProfessionalInterviewSimulator
+from src.llm_resume_rewriter.llm_resume_rewriter import LLMResumeRewriter
 from src.utils import get_logger
 from src.models.gap_analysis_models import EnhancedResumeTailoringAnalysis
+from src.models.resume_models import ResumeInfo
 
 # Импорт системы авторизации
 from src.security.auth import SimpleAuth
@@ -81,6 +83,7 @@ llm_gap_analyzer = LLMGapAnalyzer()
 cover_letter_generator = EnhancedLLMCoverLetterGenerator(validate_quality=False)
 checklist_generator = LLMInterviewChecklistGenerator()
 interview_simulator = ProfessionalInterviewSimulator()
+resume_rewriter = LLMResumeRewriter()
 
 # Временное хранилище для токенов и результатов
 user_tokens = {}
@@ -89,6 +92,7 @@ cover_letter_storage = {}
 checklist_storage = {}
 simulation_storage = {}
 simulation_progress_storage = {}
+adapted_resume_storage = {}
 
 # ================== АВТОРИЗАЦИЯ ==================
 
@@ -237,9 +241,13 @@ async def perform_gap_analysis(
             vacancy_dict = parsed_vacancy.model_dump()
             analysis_result = await llm_gap_analyzer.gap_analysis(resume_dict, vacancy_dict)
             
-            # Сохраняем результат для генерации PDF
+            # Сохраняем результат для генерации PDF и адаптации резюме
             analysis_id = f"gap_{hash(str(resume_dict) + str(vacancy_dict))}"
-            analysis_storage[analysis_id] = analysis_result
+            analysis_storage[analysis_id] = {
+                'analysis_result': analysis_result,
+                'resume_data': resume_dict,
+                'vacancy_data': vacancy_dict
+            }
             
             # Форматирование результатов для веб-отображения
             formatted_result = format_gap_analysis_for_web(analysis_result)
@@ -265,7 +273,8 @@ async def download_gap_analysis_pdf(analysis_id: str, _: bool = Depends(auth_sys
         if analysis_id not in analysis_storage:
             raise HTTPException(404, "Анализ не найден")
         
-        analysis_result = analysis_storage[analysis_id]
+        analysis_data = analysis_storage[analysis_id]
+        analysis_result = analysis_data['analysis_result'] if isinstance(analysis_data, dict) else analysis_data
         
         # Генерируем PDF отчет
         pdf_generator = GapAnalysisPDFGenerator()
@@ -286,6 +295,97 @@ async def download_gap_analysis_pdf(analysis_id: str, _: bool = Depends(auth_sys
         
     except Exception as e:
         logger.error(f"Ошибка при генерации PDF: {e}")
+        raise HTTPException(500, f"Ошибка генерации PDF: {str(e)}")
+
+# ================== RESUME REWRITER ==================
+
+@app.post("/adapt-resume/{analysis_id}")
+async def adapt_resume(analysis_id: str, _: bool = Depends(auth_system.require_auth)):
+    """Адаптация резюме на основе GAP-анализа"""
+    try:
+        if analysis_id not in analysis_storage:
+            raise HTTPException(404, "Анализ не найден")
+        
+        # Извлекаем данные из хранилища
+        analysis_data = analysis_storage[analysis_id]
+        if isinstance(analysis_data, dict):
+            resume_data = analysis_data['resume_data']
+            gap_analysis_data = analysis_data['analysis_result'].model_dump()
+        else:
+            raise HTTPException(400, "Для адаптации резюме требуются исходные данные резюме")
+        
+        logger.info(f"Начало адаптации резюме для анализа {analysis_id}")
+        
+        # Вызов LLM сервиса для адаптации резюме
+        adapted_resume = await resume_rewriter.rewrite_resume(resume_data, gap_analysis_data)
+        
+        if adapted_resume is None:
+            raise HTTPException(500, "Не удалось адаптировать резюме")
+        
+        # Сохраняем адаптированное резюме
+        adaptation_id = f"adapted_{analysis_id}_{hash(str(adapted_resume.model_dump()))}"
+        adapted_resume_storage[adaptation_id] = {
+            'adapted_resume': adapted_resume,
+            'original_resume': resume_data,
+            'gap_analysis_id': analysis_id
+        }
+        
+        logger.info(f"Резюме успешно адаптировано: {adaptation_id}")
+        
+        return JSONResponse({
+            "status": "success",
+            "message": "Резюме успешно адаптировано под требования вакансии",
+            "adaptation_id": adaptation_id
+        })
+        
+    except Exception as e:
+        logger.error(f"Ошибка при адаптации резюме: {e}")
+        raise HTTPException(500, f"Ошибка адаптации резюме: {str(e)}")
+
+@app.get("/download-adapted-resume/{adaptation_id}")
+async def download_adapted_resume_pdf(adaptation_id: str, _: bool = Depends(auth_system.require_auth)):
+    """Скачивание PDF адаптированного резюме"""
+    try:
+        if adaptation_id not in adapted_resume_storage:
+            raise HTTPException(404, "Адаптированное резюме не найдено")
+        
+        adaptation_data = adapted_resume_storage[adaptation_id]
+        adapted_resume = adaptation_data['adapted_resume']
+        
+        logger.info(f"Генерация PDF для адаптированного резюме {adaptation_id}")
+        
+        # Генерируем PDF с адаптированным резюме
+        # Используем тот же PDF генератор, что и для обычных резюме
+        from src.web_app.gap_analysis.pdf_generator import GapAnalysisPDFGenerator
+        pdf_generator = GapAnalysisPDFGenerator()
+        
+        # Создаем временную структуру для PDF генератора
+        temp_analysis = {
+            'resume_info': adapted_resume,
+            'match_percentage': 95,  # Высокий процент для адаптированного резюме
+            'hiring_recommendation': 'Рекомендуется к найму - резюме адаптировано под требования вакансии',
+            'key_strengths': ['Адаптированное резюме', 'Соответствует требованиям вакансии'],
+            'major_gaps': ['Минимальные'],
+            'next_steps': 'Отправить резюме работодателю'
+        }
+        
+        pdf_buffer = pdf_generator.generate_adapted_resume_pdf(adapted_resume)
+        
+        # Сохраняем PDF в файл
+        report_path = f"/tmp/adapted_resume_{adaptation_id}.pdf"
+        with open(report_path, 'wb') as f:
+            f.write(pdf_buffer.getvalue())
+        
+        filename = f"Adapted_Resume_{adaptation_id[:8]}.pdf"
+        
+        return FileResponse(
+            path=report_path,
+            filename=filename,
+            media_type='application/pdf'
+        )
+        
+    except Exception as e:
+        logger.error(f"Ошибка при генерации PDF адаптированного резюме: {e}")
         raise HTTPException(500, f"Ошибка генерации PDF: {str(e)}")
 
 # ================== COVER LETTER ==================

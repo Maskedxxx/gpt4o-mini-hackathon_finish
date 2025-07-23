@@ -1,5 +1,4 @@
 # src/llm_cover_letter/enhanced_llm_cover_letter_generator.py
-import logging
 from typing import Optional, Dict, Any
 from openai import OpenAI
 from pydantic import ValidationError

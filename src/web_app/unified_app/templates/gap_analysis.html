@@ -419,9 +419,116 @@
                     <p><strong>Основные пробелы:</strong> ${analysis.major_gaps ? analysis.major_gaps.join(', ') : 'Не указано'}</p>
                     <p><strong>Следующие шаги:</strong> ${analysis.next_steps}</p>
                     <a href="/download-gap-analysis/${analysisId}" class="download-btn">Скачать PDF отчет</a>
+                    <a href="#" onclick="adaptResume('${analysisId}')" class="download-btn" style="background: #007bff; margin-left: 10px;">🚀 Адаптировать резюме</a>
+                    <div id="adaptedResumeDownload-${analysisId}" style="display: none; margin-top: 10px;">
+                        <a href="#" class="download-btn" style="background: #28a745;">📄 Скачать адаптированное резюме</a>
+                    </div>
                 </div>
             `;
         }
+
+        // Функция для адаптации резюме
+        async function adaptResume(analysisId) {
+            const adaptButton = event.target;
+            const originalText = adaptButton.textContent;
+            
+            try {
+                // Показать загрузку
+                adaptButton.textContent = '⏳ Адаптируем резюме...';
+                adaptButton.style.background = '#6c757d';
+                adaptButton.onclick = null;
+                
+                // Отправить запрос на адаптацию
+                const response = await fetch(`/adapt-resume/${analysisId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // Показать успешное завершение
+                    adaptButton.textContent = '✅ Резюме адаптировано';
+                    adaptButton.style.background = '#28a745';
+                    
+                    // Показать кнопку скачивания адаптированного резюме
+                    const downloadDiv = document.getElementById(`adaptedResumeDownload-${analysisId}`);
+                    const downloadLink = downloadDiv.querySelector('a');
+                    downloadLink.href = `/download-adapted-resume/${data.adaptation_id}`;
+                    downloadDiv.style.display = 'block';
+                    
+                    // Показать уведомление
+                    showNotification('Резюме успешно адаптировано под требования вакансии!', 'success');
+                } else {
+                    throw new Error(data.message || 'Произошла ошибка при адаптации резюме');
+                }
+                
+            } catch (error) {
+                console.error('Ошибка при адаптации резюме:', error);
+                
+                // Восстановить кнопку
+                adaptButton.textContent = originalText;
+                adaptButton.style.background = '#007bff';
+                adaptButton.onclick = () => adaptResume(analysisId);
+                
+                // Показать ошибку
+                showNotification('Ошибка при адаптации резюме: ' + error.message, 'error');
+            }
+        }
+
+        // Функция для показа уведомлений
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 5px;
+                color: white;
+                font-weight: bold;
+                z-index: 10000;
+                max-width: 400px;
+                animation: slideIn 0.3s ease-out;
+            `;
+            
+            const colors = {
+                success: '#28a745',
+                error: '#dc3545',
+                info: '#17a2b8'
+            };
+            
+            notification.style.background = colors[type] || colors.info;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Убрать уведомление через 5 секунд
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        // CSS анимации для уведомлений
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
