@@ -8,6 +8,7 @@ from src.llm_interview_checklist.config import settings
 from src.models.interview_checklist_models import InterviewChecklist, ProfessionalInterviewChecklist
 from src.llm_interview_checklist.formatter import format_resume_for_interview_prep, format_vacancy_for_interview_prep
 from src.security.openai_control import openai_controller
+from src.demo_cache.demo_manager import DemoManager
 
 from src.utils import get_logger
 logger = get_logger()
@@ -413,6 +414,7 @@ class LLMInterviewChecklistGenerator:
     async def generate_professional_interview_checklist(self, parsed_resume: Dict[str, Any], parsed_vacancy: Dict[str, Any]) -> Optional[ProfessionalInterviewChecklist]:
         """
         Генерирует профессиональный чек-лист подготовки к интервью на основе HR-экспертизы.
+        Поддерживает демо-режим с кешированием ответов.
         
         Args:
             parsed_resume: Словарь с распарсенными данными резюме
@@ -420,6 +422,36 @@ class LLMInterviewChecklistGenerator:
         
         Returns:
             ProfessionalInterviewChecklist: Объект с профессиональным чек-листом подготовки или None в случае ошибки
+        """
+        demo_manager = DemoManager()
+        
+        # Проверяем демо-режим
+        if demo_manager.is_demo_mode():
+            profile_level = demo_manager.detect_profile_level(parsed_resume)
+            cached_response = demo_manager.load_cached_response("interview_checklist", profile_level)
+            
+            if cached_response:
+                logger.info(f"🎭 Using cached interview checklist response for {profile_level} profile")
+                try:
+                    return ProfessionalInterviewChecklist.model_validate(cached_response)
+                except ValidationError as ve:
+                    logger.error(f"❌ Invalid cached response format: {ve}")
+                    # Fallback to real generation if cache is corrupted
+        
+        # Продолжаем с реальной генерацией (живой режим или fallback)
+        return await self._generate_real_checklist_response(parsed_resume, parsed_vacancy, demo_manager)
+    
+    async def _generate_real_checklist_response(self, parsed_resume: Dict[str, Any], parsed_vacancy: Dict[str, Any], demo_manager: DemoManager = None) -> Optional[ProfessionalInterviewChecklist]:
+        """
+        Выполняет реальную генерацию чек-листа через OpenAI API
+        
+        Args:
+            parsed_resume: Словарь с распарсенными данными резюме
+            parsed_vacancy: Словарь с распарсенными данными вакансии
+            demo_manager: Менеджер демо-режима для сохранения ответов
+        
+        Returns:
+            ProfessionalInterviewChecklist: Объект с профессиональным чек-листом или None в случае ошибки
         """
         # Проверка разрешения использования OpenAI API
         openai_controller.check_api_permission()
@@ -468,6 +500,16 @@ class LLMInterviewChecklistGenerator:
             
             # 5. Парсим JSON в модель ProfessionalInterviewChecklist
             professional_checklist = ProfessionalInterviewChecklist.model_validate_json(raw_response_text)
+            
+            # 6. Сохраняем ответ для демо-режима (если активен)
+            if demo_manager and demo_manager.is_demo_mode():
+                try:
+                    profile_level = demo_manager.detect_profile_level(parsed_resume)
+                    demo_manager.save_response("interview_checklist", profile_level, professional_checklist.model_dump())
+                    logger.info(f"💾 Saved interview checklist response for demo cache: {profile_level}")
+                except Exception as save_error:
+                    logger.warning(f"⚠️ Failed to save response to demo cache: {save_error}")
+            
             logger.info("Профессиональный чек-лист подготовки к интервью успешно сгенерирован.")
             return professional_checklist
             

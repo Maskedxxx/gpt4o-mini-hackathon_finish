@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Резюме - Senior Python Developer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .name {
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        .contact-info {
+            color: #666;
+            font-size: 14px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 19px;
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 2px solid #f39c12;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        .job {
+            margin-bottom: 25px;
+            padding: 18px;
+            background-color: #fef9e7;
+            border-left: 5px solid #f39c12;
+            border-radius: 5px;
+        }
+        .job-period {
+            color: #7f8c8d;
+            font-style: italic;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .job-title {
+            font-weight: bold;
+            font-size: 17px;
+            margin-bottom: 5px;
+            color: #f39c12;
+        }
+        .job-company {
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        .achievements {
+            margin-top: 12px;
+        }
+        .project {
+            background-color: #fff;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #f39c12;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .skill {
+            background-color: #f39c12;
+            color: white;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .leadership-skill {
+            background-color: #e74c3c;
+            color: white;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .salary {
+            font-size: 22px;
+            font-weight: bold;
+            color: #f39c12;
+            margin: 10px 0;
+        }
+        .education-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            background-color: #fef9e7;
+            border-radius: 5px;
+        }
+        .course-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-left: 3px solid #f39c12;
+            background-color: #fff8e1;
+        }
+        .metric {
+            font-weight: bold;
+            color: #f39c12;
+            font-size: 16px;
+        }
+        .highlight {
+            background-color: #f39c12;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .team-size {
+            background-color: #e74c3c;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="name">Козлов Дмитрий Александрович</div>
+        <div class="contact-info">
+            Мужчина, 32 года, родился 12 ноября 1992<br>
+            +7 (916) 345-67-89 — предпочитаемый способ связи<br>
+            dmitry.kozlov.senior@gmail.com<br>
+            Telegram: @dmitry_tech_lead<br>
+            LinkedIn: linkedin.com/in/dmitry-kozlov-senior<br>
+            Проживает: Москва<br>
+            Гражданство: Россия, есть разрешение на работу: Россия<br>
+            Готов к переезду, готов к командировкам
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Желаемая должность и зарплата</div>
+        <div><strong>Senior Python Developer / Tech Lead</strong></div>
+        <div class="salary">320 000 ₽ на руки</div>
+        <div style="margin-top: 15px;">
+            <strong>Специализации:</strong><br>
+            — Технический руководитель<br>
+            — Архитектор решений<br>
+            — Senior Backend Developer<br>
+            — Python Team Lead<br><br>
+            
+            <strong>Занятость:</strong> полная занятость, проектная работа<br>
+            <strong>График работы:</strong> полный день, гибкий график, удаленная работа
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Опыт работы — 5 лет 6 месяцев</div>
+        
+        <div class="job">
+            <div class="job-period">Январь 2022 — настоящее время (2 года 6 месяцев)</div>
+            <div class="job-title">Senior Python Developer / Tech Lead</div>
+            <div class="job-company">Сбер Технологии | Москва | sber.tech<br>
+            Банковские технологии, финтех, enterprise решения</div>
+            
+            <div class="achievements">
+                <strong>Руководство командой:</strong> <span class="team-size">15 разработчиков</span><br>
+                <strong>Ключевые достижения:</strong><br>
+                - Спроектировал и внедрил <span class="highlight">high-load платформу</span> обрабатывающую <span class="metric">1M+ запросов/день</span><br>
+                - Руководил командой из <span class="metric">15 разработчиков</span> (3 тимлида + 12 разработчиков)<br>
+                - Провел техническое интервью <span class="metric">80+ кандидатов</span>, нанял <span class="metric">12 сильных разработчиков</span><br>
+                - Сократил время разработки новых фич на <span class="metric">40%</span> через внедрение best practices<br>
+                - Увеличил reliability системы до <span class="metric">99.95% uptime</span><br>
+                - Снизил технический долг на <span class="metric">60%</span> через систематический рефакторинг
+            </div>
+            
+            <div class="project">
+                <strong>ПРОЕКТ 1: Платформа real-time платежей</strong><br>
+                <strong>Результат:</strong> Высоконагруженная система обрабатывающая 1M+ транзакций/день с latency &lt;50ms<br>
+                <strong>Задача:</strong> Создать новое поколение платежной системы для корпоративных клиентов<br>
+                <strong>Роль:</strong> <span class="highlight">Технический лидер и архитектор</span><br>
+                <strong>Решение:</strong><br>
+                - Спроектировал event-driven архитектуру на базе Apache Kafka<br>
+                - Внедрил CQRS/Event Sourcing паттерны для аудита транзакций<br>
+                - Настроил автоматическое масштабирование в Kubernetes с HPA<br>
+                - Реализовал circuit breaker pattern для защиты от каскадных сбоев<br>
+                - Внедрил comprehensive мониторинг с custom метриками<br>
+                <strong>Команда:</strong> 8 разработчиков под моим руководством<br>
+                <strong>Бизнес-impact:</strong> Увеличение выручки на 25M₽/год, привлечение 50+ корпоративных клиентов<br>
+                <strong>Технический стек:</strong> Python, FastAPI, PostgreSQL, Apache Kafka, Redis, Kubernetes, Istio, Prometheus
+            </div>
+
+            <div class="project">
+                <strong>ПРОЕКТ 2: ML-платформа для fraud detection</strong><br>
+                <strong>Результат:</strong> Снижение мошеннических операций на 85%, экономия 100M₽/год<br>
+                <strong>Задача:</strong> Создать real-time систему детекции мошенничества с ML-моделями<br>
+                <strong>Роль:</strong> <span class="highlight">Архитектор и ментор ML-команды</span><br>
+                <strong>Решение:</strong><br>
+                - Спроектировал MLOps pipeline с автоматическим переобучением моделей<br>
+                - Интегрировал feature store на базе Apache Airflow + DVC<br>
+                - Реализовал A/B тестирование моделей в production<br>
+                - Настроил real-time инференс с latency &lt;10ms через gRPC<br>
+                <strong>Масштаб:</strong> Обрабатывает 500k+ транзакций/день, анализирует 200+ признаков
+            </div>
+        </div>
+
+        <div class="job">
+            <div class="job-period">Март 2020 — Декабрь 2021 (1 год 10 месяцев)</div>
+            <div class="job-title">Python Developer / Team Lead</div>
+            <div class="job-company">Yandex Cloud | Москва | cloud.yandex.ru<br>
+            Облачные технологии, инфраструктура как сервис</div>
+            
+            <div class="achievements">
+                <strong>Руководство командой:</strong> <span class="team-size">8 разработчиков</span><br>
+                <strong>Ключевые достижения:</strong><br>
+                - Разработал cloud-native платформу для управления инфраструктурой<br>
+                - Внедрил Infrastructure as Code подход с Terraform + Ansible<br>
+                - Создал внутренний PaaS решения для команд разработки<br>
+                - Оптимизировал затраты на инфраструктуру на <span class="metric">30%</span> через автоматическое управление ресурсами<br>
+                - Провел обучение <span class="metric">50+ разработчиков</span> по cloud-native практикам
+            </div>
+
+            <div class="project">
+                <strong>ПРОЕКТ: Платформа Kubernetes-as-a-Service</strong><br>
+                <strong>Результат:</strong> Внутренняя платформа обслуживающая 200+ проектов и 500+ разработчиков<br>
+                <strong>Задача:</strong> Создать self-service платформу для разработчиков с автоматическим управлением K8s<br>
+                <strong>Решение:</strong><br>
+                - Разработал операторы Kubernetes на Go для автоматизации lifecycle приложений<br>
+                - Создал веб-интерфейс на Python/Django для self-service доступа<br>
+                - Интегрировал с системами мониторинга, логирования и alerting<br>
+                - Внедрил GitOps подход с ArgoCD для continuous deployment<br>
+                <strong>Технический стек:</strong> Python, Django, Kubernetes, Go, Terraform, ArgoCD, Prometheus
+            </div>
+        </div>
+
+        <div class="job">
+            <div class="job-period">Июль 2019 — Февраль 2020 (8 месяцев)</div>
+            <div class="job-title">Middle+ Python Developer</div>
+            <div class="job-company">Авито | Москва | avito.ru<br>
+            Интернет-торговля, объявления, marketplace</div>
+            
+            <div class="achievements">
+                <strong>Ключевые достижения:</strong><br>
+                - Разработал высоконагруженные API для поиска и рекомендаций<br>
+                - Участвовал в миграции монолита в микросервисную архитектуру<br>
+                - Оптимизировал производительность поисковой системы на <span class="metric">150%</span><br>
+                - Внедрил caching стратегии, снизившие load на БД на <span class="metric">70%</span>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <strong>Технический стек:</strong> Python, Flask, PostgreSQL, Redis, Elasticsearch, RabbitMQ, Docker
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Образование</div>
+        <div class="education-item">
+            <strong>Высшее техническое</strong><br>
+            <strong>2010-2015</strong> Московский государственный технический университет им. Н.Э. Баумана, Москва<br>
+            Факультет информатики и систем управления, Автоматизированные системы обработки информации<br>
+            <em>Диплом специалиста с отличием, средний балл: 4.9</em>
+        </div>
+        <div class="education-item">
+            <strong>Бизнес-образование</strong><br>
+            <strong>2023</strong> Московская школа управления СКОЛКОВО<br>
+            Executive программа "Управление IT-продуктами", 120 часов<br>
+            <em>Сертификат с отличием</em>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Повышение квалификации, курсы</div>
+        <div class="course-item">
+            <strong>2024</strong> AWS Solutions Architect Professional<br>
+            Amazon Web Services, Solutions Architect
+        </div>
+        <div class="course-item">
+            <strong>2024</strong> Kubernetes Administrator (CKA)<br>
+            The Linux Foundation, DevOps Engineer
+        </div>
+        <div class="course-item">
+            <strong>2023</strong> System Design для высоконагруженных систем<br>
+            OTUS, Senior Backend Developer
+        </div>
+        <div class="course-item">
+            <strong>2023</strong> Management 3.0 - Agile Leadership<br>
+            Management 3.0, Team Lead
+        </div>
+        <div class="course-item">
+            <strong>2022</strong> Apache Kafka для архитекторов<br>
+            Confluent, Data Engineer
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Сертификаты</div>
+        <div class="course-item">
+            <strong>2024</strong> AWS Certified Solutions Architect – Professional<br>
+            Amazon Web Services
+        </div>
+        <div class="course-item">
+            <strong>2024</strong> Certified Kubernetes Administrator (CKA)<br>
+            The Linux Foundation
+        </div>
+        <div class="course-item">
+            <strong>2023</strong> Google Cloud Professional Cloud Architect<br>
+            Google Cloud Platform
+        </div>
+        <div class="course-item">
+            <strong>2023</strong> HashiCorp Certified: Terraform Associate<br>
+            HashiCorp
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Навыки</div>
+        <div>
+            <strong>Знание языков:</strong> Русский — Родной, Английский — C1 (Advanced)<br><br>
+            
+            <strong>Технические навыки:</strong>
+            <div class="skills">
+                <span class="skill">Python</span>
+                <span class="skill">FastAPI</span>
+                <span class="skill">Django</span>
+                <span class="skill">Flask</span>
+                <span class="skill">Go</span>
+                <span class="skill">PostgreSQL</span>
+                <span class="skill">MongoDB</span>
+                <span class="skill">Redis</span>
+                <span class="skill">Apache Kafka</span>
+                <span class="skill">Elasticsearch</span>
+                <span class="skill">Docker</span>
+                <span class="skill">Kubernetes</span>
+                <span class="skill">AWS</span>
+                <span class="skill">GCP</span>
+                <span class="skill">Terraform</span>
+                <span class="skill">Ansible</span>
+                <span class="skill">Apache Airflow</span>
+                <span class="skill">Prometheus</span>
+                <span class="skill">Grafana</span>
+                <span class="skill">ArgoCD</span>
+                <span class="skill">Istio</span>
+                <span class="skill">gRPC</span>
+                <span class="skill">GraphQL</span>
+                <span class="skill">Microservices</span>
+                <span class="skill">Event Sourcing</span>
+                <span class="skill">CQRS</span>
+            </div>
+            
+            <br><strong>Лидерские навыки:</strong>
+            <div class="skills">
+                <span class="leadership-skill">Team Leadership</span>
+                <span class="leadership-skill">Technical Interviewing</span>
+                <span class="leadership-skill">Mentoring</span>
+                <span class="leadership-skill">Architecture Design</span>
+                <span class="leadership-skill">Code Review</span>
+                <span class="leadership-skill">Project Management</span>
+                <span class="leadership-skill">Agile/Scrum</span>
+                <span class="leadership-skill">Technical Strategy</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Опыт вождения</div>
+        <div>
+            Имеется собственный автомобиль<br>
+            Права категории B
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Дополнительная информация</div>
+        <div>
+            <strong>Обо мне:</strong> Senior Python Developer и технический лидер с 5+ годами опыта создания высоконагруженных distributed систем. 
+            Специализируюсь на архитектуре микросервисов, cloud-native решениях и управлении техническими командами. 
+            Имею успешный опыт масштабирования команд от 3 до 15 человек и внедрения enterprise-grade решений. 
+            Страстно увлечен техническим менторством и развитием инженерной культуры в команде.<br><br>
+            
+            <strong>Контакты:</strong><br>
+            • GitHub: https://github.com/dmitry-kozlov-senior<br>
+            • LinkedIn: https://linkedin.com/in/dmitry-kozlov-senior<br>
+            • Telegram: @dmitry_tech_lead<br>
+            • Personal Tech Blog: https://dmitry-tech-lead.dev<br><br>
+            
+            <strong>Публичная деятельность:</strong><br>
+            - <span class="highlight">Keynote спикер</span> на PyCon Russia 2024: "Building High-Load Python Services at Scale"<br>
+            - Доклады на Highload++ 2023, 2024: "Event-Driven Architecture" и "ML in Production"<br>
+            - Ведущий подкаста "Python at Scale" (12 эпизодов, 50k+ слушателей)<br>
+            - Автор курса "System Design for Python Developers" на Stepik (5k+ студентов)<br><br>
+            
+            <strong>Open Source вклад:</strong><br>
+            - Core contributor в FastAPI (15+ merged PRs)<br>
+            - Maintainer библиотеки async-kafka-client (3k+ звезд на GitHub)<br>
+            - Создатель k8s-python-operator-template (популярный шаблон для Kubernetes операторов)<br><br>
+            
+            <strong>Достижения и награды:</strong><br>
+            - <span class="highlight">Лучший технический лидер года</span> в Сбер Технологии 2023<br>
+            - Победитель внутреннего хакатона по FinTech решениям (команда из 6 человек)<br>
+            - Наставник в программе Yandex.Practicum для Senior разработчиков<br><br>
+            
+            <strong>Интересы:</strong> Distributed systems, Machine Learning Operations, Technical Leadership, Open Source
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px; color: #7f8c8d; font-size: 12px;">
+        Резюме обновлено 23 июля 2025
+    </div>
+</body>
+</html>

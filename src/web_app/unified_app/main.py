@@ -43,12 +43,38 @@ from src.models.resume_models import ResumeInfo
 from src.security.auth import SimpleAuth
 from src.security.health_dashboard import add_health_dashboard_routes
 
+# Импорт демо-системы
+from src.demo_cache.demo_manager import DemoManager
+
 # PDF генераторы
 from src.web_app.gap_analysis.pdf_generator import GapAnalysisPDFGenerator
 from src.web_app.cover_letter.pdf_generator import CoverLetterPDFGenerator
 from src.web_app.interview_checklist.pdf_generator import InterviewChecklistPDFGenerator
 
 logger = get_logger()
+
+def extract_profile_from_session_or_id(request_id: str, default: str = "middle") -> str:
+    """
+    Извлекает уровень профиля из ID запроса или сессии.
+    Для демо-режима пытается определить уровень по паттернам в ID.
+    """
+    if not request_id:
+        return default
+    
+    request_id_lower = request_id.lower()
+    
+    # Ищем индикаторы уровня в ID
+    if any(pattern in request_id_lower for pattern in ['junior', 'джуниор', 'начинающий']):
+        return "junior"
+    elif any(pattern in request_id_lower for pattern in ['senior', 'сеньор', 'старший', 'lead']):
+        return "senior"
+    elif any(pattern in request_id_lower for pattern in ['middle', 'мидл', 'средний']):
+        return "middle"
+    
+    # Используем хеш от ID для детерминированного выбора
+    id_hash = hash(request_id) % 3
+    levels = ["junior", "middle", "senior"]
+    return levels[id_hash]
 
 app = FastAPI(title="AI Resume Assistant - Unified Web App")
 
@@ -465,6 +491,24 @@ async def generate_cover_letter(
 async def download_cover_letter_pdf(letter_id: str, _: bool = Depends(auth_system.require_auth)):
     """Скачивание PDF сопроводительного письма"""
     try:
+        demo_manager = DemoManager()
+        
+        # Проверяем демо-режим
+        if demo_manager.is_demo_mode():
+            # Определяем уровень профиля по letter_id (или используем сессию)
+            profile_level = extract_profile_from_session_or_id(letter_id, "middle")  # default fallback
+            demo_pdf_path = demo_manager.get_pdf_path("cover_letter", profile_level)
+            
+            if demo_pdf_path and os.path.exists(demo_pdf_path):
+                filename = f"Cover_Letter_{profile_level}.pdf"
+                logger.info(f"🎭 Serving demo PDF: {demo_pdf_path}")
+                return FileResponse(
+                    path=demo_pdf_path,
+                    filename=filename,
+                    media_type='application/pdf'
+                )
+        
+        # Обычный режим
         if letter_id not in cover_letter_storage:
             raise HTTPException(404, "Сопроводительное письмо не найдено")
         
@@ -568,6 +612,23 @@ async def generate_interview_checklist(
 async def download_interview_checklist_pdf(checklist_id: str, _: bool = Depends(auth_system.require_auth)):
     """Скачивание PDF чек-листа"""
     try:
+        demo_manager = DemoManager()
+        
+        # Проверяем демо-режим
+        if demo_manager.is_demo_mode():
+            profile_level = extract_profile_from_session_or_id(checklist_id, "middle")
+            demo_pdf_path = demo_manager.get_pdf_path("interview_checklist", profile_level)
+            
+            if demo_pdf_path and os.path.exists(demo_pdf_path):
+                filename = f"Interview_Checklist_{profile_level}.pdf"
+                logger.info(f"🎭 Serving demo PDF: {demo_pdf_path}")
+                return FileResponse(
+                    path=demo_pdf_path,
+                    filename=filename,
+                    media_type='application/pdf'
+                )
+        
+        # Обычный режим
         if checklist_id not in checklist_storage:
             raise HTTPException(404, "Чек-лист не найден")
         
@@ -737,6 +798,23 @@ async def get_simulation_result(simulation_id: str, _: bool = Depends(auth_syste
 async def download_interview_simulation_pdf(simulation_id: str, _: bool = Depends(auth_system.require_auth)):
     """Скачивание PDF отчета симуляции интервью"""
     try:
+        demo_manager = DemoManager()
+        
+        # Проверяем демо-режим
+        if demo_manager.is_demo_mode():
+            profile_level = extract_profile_from_session_or_id(simulation_id, "middle")
+            demo_pdf_path = demo_manager.get_pdf_path("interview_simulation", profile_level)
+            
+            if demo_pdf_path and os.path.exists(demo_pdf_path):
+                filename = f"Interview_Simulation_{profile_level}.pdf"
+                logger.info(f"🎭 Serving demo PDF: {demo_pdf_path}")
+                return FileResponse(
+                    path=demo_pdf_path,
+                    filename=filename,
+                    media_type='application/pdf'
+                )
+        
+        # Обычный режим
         if simulation_id not in simulation_storage:
             raise HTTPException(404, "Результаты симуляции не найдены")
         

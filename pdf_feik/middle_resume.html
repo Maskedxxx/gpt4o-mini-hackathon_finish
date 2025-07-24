@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Резюме - Middle Python Developer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .name {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        .contact-info {
+            color: #666;
+            font-size: 14px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 1px solid #bdc3c7;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        .job {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #e67e22;
+        }
+        .job-period {
+            color: #7f8c8d;
+            font-style: italic;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .job-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .job-company {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .achievements {
+            margin-top: 10px;
+        }
+        .project {
+            background-color: #ecf0f1;
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 5px;
+            border-left: 3px solid #e67e22;
+        }
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .skill {
+            background-color: #e67e22;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .salary {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e67e22;
+            margin: 10px 0;
+        }
+        .education-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .course-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-left: 3px solid #e67e22;
+            background-color: #fdf6f0;
+        }
+        .metric {
+            font-weight: bold;
+            color: #e67e22;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="name">Смирнова Екатерина Владимировна</div>
+        <div class="contact-info">
+            Женщина, 27 лет, родилась 8 мая 1997<br>
+            +7 (985) 234-56-78 — предпочитаемый способ связи<br>
+            ekaterina.smirnova@gmail.com<br>
+            Telegram: @kate_python_dev<br>
+            Проживает: Москва<br>
+            Гражданство: Россия, есть разрешение на работу: Россия<br>
+            Готова к переезду, готова к командировкам
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Желаемая должность и зарплата</div>
+        <div><strong>Middle Python Developer</strong></div>
+        <div class="salary">190 000 ₽ на руки</div>
+        <div style="margin-top: 15px;">
+            <strong>Специализации:</strong><br>
+            — Backend-разработчик<br>
+            — Python-разработчик<br>
+            — Fullstack-разработчик<br><br>
+            
+            <strong>Занятость:</strong> полная занятость, частичная занятость, проектная работа<br>
+            <strong>График работы:</strong> полный день, гибкий график, удаленная работа
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Опыт работы — 2 года 8 месяцев</div>
+        
+        <div class="job">
+            <div class="job-period">Апрель 2023 — настоящее время (1 год 4 месяца)</div>
+            <div class="job-title">Middle Python Developer</div>
+            <div class="job-company">FinTech Solutions | Москва | fintech-solutions.ru<br>
+            Финансовые технологии, банковские решения</div>
+            
+            <div class="achievements">
+                <strong>Ключевые достижения:</strong><br>
+                - Разработала микросервисную архитектуру платежной системы на FastAPI<br>
+                - Увеличила производительность API на <span class="metric">250%</span> через асинхронное программирование<br>
+                - Внедрила CI/CD pipeline с автоматическим деплоем в Docker-контейнерах<br>
+                - Менторила 2 junior разработчиков, провела <span class="metric">15+ code review</span><br>
+                - Оптимизировала базу данных, сократив время запросов на <span class="metric">60%</span>
+            </div>
+            
+            <div class="project">
+                <strong>ПРОЕКТ 1: Микросервисная платежная система</strong><br>
+                <strong>Результат:</strong> Высоконагруженная система обрабатывающая 10k+ транзакций/день с uptime 99.9%<br>
+                <strong>Задача:</strong> Переписать монолитную систему платежей в микросервисную архитектуру<br>
+                <strong>Решение:</strong><br>
+                - Спроектировала 5 независимых микросервисов на FastAPI<br>
+                - Реализовала асинхронную обработку через Celery + Redis<br>
+                - Настроила мониторинг производительности с Prometheus + Grafana<br>
+                - Внедрила автоматическое тестирование с покрытием 95%<br>
+                <strong>Технический стек:</strong> Python, FastAPI, PostgreSQL, Redis, Celery, Docker, Kubernetes, Prometheus
+            </div>
+
+            <div class="project">
+                <strong>ПРОЕКТ 2: API интеграции с банковскими системами</strong><br>
+                <strong>Результат:</strong> Успешная интеграция с 8 крупными банками, сокращение времени транзакций в 3 раза<br>
+                <strong>Задача:</strong> Создать универсальный API для интеграции с различными банковскими API<br>
+                <strong>Решение:</strong><br>
+                - Разработала адаптеры для различных банковских протоколов<br>
+                - Реализовала систему failover и retry механизмы<br>
+                - Настроила real-time мониторинг статусов транзакций<br>
+                - Создала подробную документацию и SDK для клиентов<br>
+                <strong>Масштаб:</strong> API обслуживает 50+ корпоративных клиентов ежедневно
+            </div>
+        </div>
+
+        <div class="job">
+            <div class="job-period">Сентябрь 2021 — Март 2023 (1 год 7 месяцев)</div>
+            <div class="job-title">Python Developer</div>
+            <div class="job-company">DataCorp Analytics | Москва | datacorp.ru<br>
+            Аналитика данных, машинное обучение</div>
+            
+            <div class="achievements">
+                <strong>Ключевые достижения:</strong><br>
+                - Разработала ETL-пайплайны для обработки больших данных (10+ ГБ/день)<br>
+                - Создала Django-приложение для визуализации аналитических отчетов<br>
+                - Автоматизировала процессы сбора данных, сократив ручную работу на <span class="metric">80%</span><br>
+                - Участвовала в проектировании архитектуры data warehouse<br>
+                - Внедрила систему версионирования данных с DVC
+            </div>
+
+            <div class="project">
+                <strong>ПРОЕКТ: Платформа бизнес-аналитики</strong><br>
+                <strong>Результат:</strong> Полноценная BI-платформа с интерактивными дашбордами для 200+ пользователей<br>
+                <strong>Задача:</strong> Создать единую платформу для анализа бизнес-метрик компании<br>
+                <strong>Решение:</strong><br>
+                - Разработала RESTful API на Django REST Framework<br>
+                - Интегрировала с Apache Airflow для оркестрации ETL-процессов<br>
+                - Реализовала real-time дашборды с WebSocket подключениями<br>
+                - Настроила кэширование с Redis для ускорения запросов<br>
+                <strong>Технический стек:</strong> Python, Django, PostgreSQL, Apache Airflow, Redis, Pandas, Plotly
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Образование</div>
+        <div class="education-item">
+            <strong>Высшее</strong><br>
+            <strong>2015-2019</strong> Московский физико-технический институт (МФТИ), Москва<br>
+            Факультет управления и прикладной математики, Прикладная математика и информатика<br>
+            <em>Диплом бакалавра, средний балл: 4.6 (с отличием)</em>
+        </div>
+        <div class="education-item">
+            <strong>Магистратура</strong><br>
+            <strong>2019-2021</strong> Московский физико-технический институт (МФТИ), Москва<br>
+            Анализ данных и машинное обучение<br>
+            <em>Диплом магистра, средний балл: 4.8</em>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Повышение квалификации, курсы</div>
+        <div class="course-item">
+            <strong>2024</strong> System Design для Python разработчиков<br>
+            Яндекс Практикум, Senior Backend Developer
+        </div>
+        <div class="course-item">
+            <strong>2023</strong> Kubernetes и микросервисы<br>
+            OTUS, DevOps Engineer
+        </div>
+        <div class="course-item">
+            <strong>2023</strong> Advanced FastAPI и асинхронное программирование<br>
+            Udemy, Backend Developer
+        </div>
+        <div class="course-item">
+            <strong>2022</strong> AWS Certified Developer<br>
+            Amazon Web Services, Cloud Developer
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Сертификаты</div>
+        <div class="course-item">
+            <strong>2024</strong> AWS Certified Solutions Architect – Associate<br>
+            Amazon Web Services
+        </div>
+        <div class="course-item">
+            <strong>2023</strong> Certified Kubernetes Application Developer (CKAD)<br>
+            The Linux Foundation
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Навыки</div>
+        <div>
+            <strong>Знание языков:</strong> Русский — Родной, Английский — B2 (Upper-Intermediate)<br><br>
+            
+            <strong>Технические навыки:</strong>
+            <div class="skills">
+                <span class="skill">Python</span>
+                <span class="skill">FastAPI</span>
+                <span class="skill">Django</span>
+                <span class="skill">Flask</span>
+                <span class="skill">PostgreSQL</span>
+                <span class="skill">Redis</span>
+                <span class="skill">Celery</span>
+                <span class="skill">Docker</span>
+                <span class="skill">Kubernetes</span>
+                <span class="skill">AWS</span>
+                <span class="skill">Apache Airflow</span>
+                <span class="skill">Prometheus</span>
+                <span class="skill">Grafana</span>
+                <span class="skill">pytest</span>
+                <span class="skill">Git</span>
+                <span class="skill">CI/CD</span>
+                <span class="skill">Microservices</span>
+                <span class="skill">REST API</span>
+                <span class="skill">GraphQL</span>
+                <span class="skill">SQLAlchemy</span>
+                <span class="skill">Pandas</span>
+                <span class="skill">NumPy</span>
+                <span class="skill">Linux</span>
+                <span class="skill">Nginx</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Опыт вождения</div>
+        <div>
+            Имеется собственный автомобиль<br>
+            Права категории B
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Дополнительная информация</div>
+        <div>
+            <strong>Обо мне:</strong> Опытный Python-разработчик с 2.5+ годами коммерческого опыта в создании высоконагруженных backend-систем. 
+            Специализируюсь на микросервисной архитектуре, API-интеграциях и оптимизации производительности. 
+            Имею опыт менторства младших разработчиков и участия в архитектурных решениях. 
+            Активно изучаю cloud-native технологии и современные подходы к разработке.<br><br>
+            
+            <strong>GitHub:</strong> https://github.com/kate-python-dev<br>
+            <strong>LinkedIn:</strong> https://linkedin.com/in/ekaterina-smirnova-dev<br><br>
+            
+            <strong>Открытые проекты:</strong><br>
+            - FastAPI шаблон для микросервисов с полным CI/CD (1200+ звезд на GitHub)<br>
+            - Python SDK для интеграции с платежными системами (в разработке)<br>
+            - Серия статей на Habr о производительности FastAPI (25k+ просмотров)<br><br>
+            
+            <strong>Достижения:</strong><br>
+            - Докладчик на PyCon Russia 2024: "Микросервисы на FastAPI: от идеи до продакшена"<br>
+            - Участник хакатона FinTech Challenge 2023 (2 место)<br>
+            - Контрибьютор в open-source проекты: FastAPI, Celery<br><br>
+            
+            <strong>Интересы:</strong> Машинное обучение, распределенные системы, техническое менторство
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px; color: #7f8c8d; font-size: 12px;">
+        Резюме обновлено 23 июля 2025
+    </div>
+</body>
+</html>

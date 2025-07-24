@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Резюме - Junior Python Developer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .name {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        .contact-info {
+            color: #666;
+            font-size: 14px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 1px solid #bdc3c7;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        .job {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+        }
+        .job-period {
+            color: #7f8c8d;
+            font-style: italic;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .job-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .job-company {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .achievements {
+            margin-top: 10px;
+        }
+        .project {
+            background-color: #ecf0f1;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .skill {
+            background-color: #3498db;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .salary {
+            font-size: 20px;
+            font-weight: bold;
+            color: #27ae60;
+            margin: 10px 0;
+        }
+        .education-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .course-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-left: 3px solid #e74c3c;
+            background-color: #fdf2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="name">Петров Алексей Сергеевич</div>
+        <div class="contact-info">
+            Мужчина, 22 года, родился 15 марта 2002<br>
+            +7 (999) 123-45-67 — предпочитаемый способ связи<br>
+            aleksey.petrov@gmail.com<br>
+            Telegram: @aleksey_dev<br>
+            Проживает: Москва<br>
+            Гражданство: Россия, есть разрешение на работу: Россия<br>
+            Не готов к переезду, готов к командировкам
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Желаемая должность и зарплата</div>
+        <div><strong>Junior Python Developer</strong></div>
+        <div class="salary">120 000 ₽ на руки</div>
+        <div style="margin-top: 15px;">
+            <strong>Специализации:</strong><br>
+            — Python-разработчик<br>
+            — Веб-разработчик<br><br>
+            
+            <strong>Занятость:</strong> полная занятость, частичная занятость, стажировка<br>
+            <strong>График работы:</strong> полный день, гибкий график, удаленная работа
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Опыт работы — 1 год 2 месяца</div>
+        
+        <div class="job">
+            <div class="job-period">Январь 2024 — настоящее время (8 месяцев)</div>
+            <div class="job-title">Junior Python Developer</div>
+            <div class="job-company">ТехСтарт | Москва | techstart.ru<br>
+            Информационные технологии, разработка ПО</div>
+            
+            <div class="achievements">
+                <strong>Ключевые достижения:</strong><br>
+                - Разработал REST API для внутренней системы учета на Django REST Framework<br>
+                - Написал автоматические тесты, покрытие кода увеличилось до 85%<br>
+                - Оптимизировал SQL-запросы, ускорив загрузку отчетов на 30%<br>
+                - Участвовал в code review и следовал принципам Clean Code
+            </div>
+            
+            <div class="project">
+                <strong>ПРОЕКТ: API системы управления заказами</strong><br>
+                <strong>Результат:</strong> Полнофункциональный REST API с аутентификацией и валидацией<br>
+                <strong>Задача:</strong> Создать API для мобильного приложения заказов<br>
+                <strong>Решение:</strong><br>
+                - Спроектировал RESTful API с использованием Django REST Framework<br>
+                - Реализовал JWT-аутентификацию и систему ролей<br>
+                - Написал comprehensive документацию с помощью drf-spectacular<br>
+                - Покрыл код unit и integration тестами (pytest)<br>
+                <strong>Технический стек:</strong> Python, Django, DRF, PostgreSQL, Redis, JWT, pytest
+            </div>
+        </div>
+
+        <div class="job">
+            <div class="job-period">Сентябрь 2023 — Декабрь 2023 (4 месяца)</div>
+            <div class="job-title">Python Developer (стажировка)</div>
+            <div class="job-company">WebSolutions | Москва<br>
+            Веб-разработка, стартап</div>
+            
+            <div class="achievements">
+                <strong>Обязанности:</strong><br>
+                - Изучение существующего кода и архитектуры проекта<br>
+                - Исправление багов и мелкие доработки функционала<br>
+                - Написание unit-тестов для legacy кода<br>
+                - Участие в ежедневных standup встречах команды<br><br>
+                
+                <strong>Достижения:</strong><br>
+                - Успешно закрыл 15+ задач в Jira<br>
+                - Изучил основы Agile/Scrum методологии<br>
+                - Получил опыт работы с Git Flow в команде<br><br>
+                
+                <strong>Технический стек:</strong> Python, Flask, SQLAlchemy, MySQL, Git
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Образование</div>
+        <div class="education-item">
+            <strong>Высшее</strong><br>
+            <strong>2020-2024</strong> Московский государственный технический университет им. Н.Э. Баумана, Москва<br>
+            Факультет информатики и систем управления, Программная инженерия<br>
+            <em>Диплом бакалавра, средний балл: 4.2</em>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Повышение квалификации, курсы</div>
+        <div class="course-item">
+            <strong>2024</strong> Python для веб-разработки<br>
+            Яндекс Практикум, Backend-разработчик
+        </div>
+        <div class="course-item">
+            <strong>2023</strong> Основы алгоритмов и структур данных<br>
+            Coursera (Алгоритмы: теория и практика), Программист
+        </div>
+        <div class="course-item">
+            <strong>2023</strong> Git и GitHub для командной разработки<br>
+            Udemy, Разработчик ПО
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Навыки</div>
+        <div>
+            <strong>Знание языков:</strong> Русский — Родной, Английский — B1<br><br>
+            
+            <strong>Технические навыки:</strong>
+            <div class="skills">
+                <span class="skill">Python</span>
+                <span class="skill">Django</span>
+                <span class="skill">Django REST Framework</span>
+                <span class="skill">Flask</span>
+                <span class="skill">PostgreSQL</span>
+                <span class="skill">SQLAlchemy</span>
+                <span class="skill">Git</span>
+                <span class="skill">Docker</span>
+                <span class="skill">pytest</span>
+                <span class="skill">HTML/CSS</span>
+                <span class="skill">JavaScript (basics)</span>
+                <span class="skill">Linux</span>
+                <span class="skill">REST API</span>
+                <span class="skill">Agile/Scrum</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Опыт вождения</div>
+        <div>
+            Имеется собственный автомобиль<br>
+            Права категории B
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Дополнительная информация</div>
+        <div>
+            <strong>Обо мне:</strong> Начинающий Python-разработчик с горячим желанием расти и развиваться в IT. 
+            Имею базовый коммерческий опыт разработки веб-приложений и REST API. 
+            Быстро учусь, ответственно подхожу к задачам и всегда готов к новым вызовам. 
+            Активно изучаю новые технологии и лучшие практики разработки.<br><br>
+            
+            <strong>GitHub:</strong> https://github.com/aleksey-petrov-dev<br><br>
+            <strong>Pet-проекты:</strong><br>
+            - Telegram-бот для отслеживания курсов валют (Python, aiogram, API)<br>
+            - Веб-приложение "Личный планировщик задач" (Django, PostgreSQL, Bootstrap)<br>
+            - CLI-утилита для резервного копирования файлов (Python, argparse, shutil)
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px; color: #7f8c8d; font-size: 12px;">
+        Резюме обновлено 23 июля 2025
+    </div>
+</body>
+</html>

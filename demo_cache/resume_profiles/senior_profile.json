@@ -1,0 +1,159 @@
+{
+  "first_name": "Дмитрий",
+  "last_name": "Козлов",
+  "phone": "+7 (916) 345-67-89",
+  "email": "dmitry.kozlov.senior@gmail.com",
+  "total_experience": 84,
+  "position_title": "Senior Python Developer / Tech Lead",
+  "skills": [
+    "Python",
+    "FastAPI",
+    "Django",
+    "Flask",
+    "PostgreSQL",
+    "MongoDB",
+    "Redis",
+    "Celery",
+    "Docker",
+    "Kubernetes",
+    "AWS",
+    "GCP",
+    "Terraform",
+    "Apache Kafka",
+    "RabbitMQ",
+    "Elasticsearch",
+    "Prometheus",
+    "Grafana",
+    "Jenkins",
+    "GitLab CI",
+    "pytest",
+    "Git",
+    "Architecture Design",
+    "Team Leadership",
+    "Microservices",
+    "REST API",
+    "GraphQL",
+    "gRPC",
+    "System Design",
+    "Performance Optimization",
+    "Code Review",
+    "Mentoring",
+    "Technical Interviews",
+    "Agile/Scrum",
+    "DevOps"
+  ],
+  "experience": [
+    {
+      "company": "Enterprise Tech Solutions",
+      "position": "Senior Python Developer / Tech Lead",
+      "period": "Январь 2022 — настоящее время (2 года 7 месяцев)",
+      "description": "Руководство командой из 8 разработчиков. Архитектура высоконагруженных распределенных систем обрабатывающих 1M+ запросов в день. Внедрение best practices разработки и code review процессов. Техническое интервьюирование кандидатов. Планирование технического развития продукта."
+    },
+    {
+      "company": "FinTech Innovations",
+      "position": "Senior Python Developer",
+      "period": "Июнь 2020 — Декабрь 2021 (1 год 7 месяцев)",
+      "description": "Разработка криптовалютной торговой платформы с real-time обработкой данных. Оптимизация алгоритмов торговли, увеличение скорости обработки на 400%. Интеграция с 15+ криптобиржами через WebSocket и REST API. Ментиринг middle разработчиков."
+    },
+    {
+      "company": "Data Analytics Corp",
+      "position": "Python Developer",
+      "period": "Март 2018 — Май 2020 (2 года 3 месяца)",
+      "description": "Разработка ML-пайплайнов для обработки больших данных. Создание рекомендательных систем с использованием TensorFlow и scikit-learn. Проектирование и внедрение data lake архитектуры. Оптимизация ETL процессов."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Московский государственный университет им. М.В. Ломоносова",
+      "degree": "Магистр, Прикладная математика и информатика",
+      "year": "2017",
+      "faculty": "Факультет вычислительной математики и кибернетики"
+    }
+  ],
+  "projects": [
+    {
+      "name": "Высоконагруженная платформа электронной коммерции",
+      "description": "Масштабируемая e-commerce платформа обслуживающая 100k+ пользователей с peak нагрузкой 50k RPS",
+      "technologies": [
+        "Python",
+        "FastAPI",
+        "PostgreSQL",
+        "Redis",
+        "Kafka",
+        "Kubernetes",
+        "AWS",
+        "Terraform"
+      ],
+      "achievements": [
+        "Микросервисная архитектура из 25+ сервисов",
+        "Event-driven архитектура с Apache Kafka",
+        "Auto-scaling в Kubernetes",
+        "Мониторинг с Prometheus/Grafana/ELK stack",
+        "99.99% uptime в production"
+      ]
+    },
+    {
+      "name": "ML-платформа для финансовой аналитики",
+      "description": "Платформа машинного обучения для прогнозирования рыночных трендов с обработкой 10TB+ данных в день",
+      "technologies": [
+        "Python",
+        "TensorFlow",
+        "Kubernetes",
+        "Apache Airflow",
+        "Kafka",
+        "ClickHouse",
+        "Docker"
+      ],
+      "achievements": [
+        "Real-time feature engineering pipeline",
+        "A/B testing framework для ML моделей",
+        "Автоматическое переобучение моделей",
+        "Model serving с latency < 10ms"
+      ]
+    }
+  ],
+  "leadership_experience": {
+    "team_size": "8 разработчиков",
+    "mentoring": "15+ разработчиков за карьеру",
+    "interviews_conducted": "50+ технических интервью",
+    "talks_given": [
+      "Python Meetup Moscow",
+      "BackendConf 2024",
+      "HighLoad++ 2023"
+    ],
+    "open_source": [
+      "Maintainer популярной Python библиотеки (5k+ stars)",
+      "Contributor в FastAPI, Django"
+    ]
+  },
+  "certifications": [
+    "AWS Certified Solutions Architect – Professional (2024)",
+    "Certified Kubernetes Administrator (CKA) (2023)",
+    "Google Cloud Professional Data Engineer (2023)"
+  ],
+  "github": "https://github.com/dmitry-senior-dev",
+  "linkedin": "https://linkedin.com/in/dmitry-kozlov-senior",
+  "salary_expectations": 350000,
+  "location": "Москва",
+  "age": 32,
+  "languages": [
+    {
+      "name": "Русский",
+      "level": {
+        "name": "Родной"
+      }
+    },
+    {
+      "name": "Английский",
+      "level": {
+        "name": "C1"
+      }
+    }
+  ],
+  "achievements": [
+    "Tech Lead года в Enterprise Tech Solutions (2023)",
+    "Speaker на HighLoad++ 2023: 'Архитектура микросервисов на Python'",
+    "Автор статей на Habr (50k+ просмотров)",
+    "Maintainer open-source библиотеки с 5k+ stars на GitHub"
+  ]
+}

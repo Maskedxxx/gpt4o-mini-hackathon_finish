@@ -17,6 +17,7 @@ from src.llm_interview_simulation.formatter import (
     create_candidate_profile_and_config
 )
 from src.security.openai_control import openai_controller
+from src.demo_cache.demo_manager import DemoManager
 
 from src.utils import get_logger
 logger = get_logger()
@@ -534,6 +535,44 @@ class ProfessionalInterviewSimulator:
         parsed_vacancy: Данные вакансии
         progress_callback: Функция для обновления прогресса (current_round, total_rounds)
         """
+        demo_manager = DemoManager()
+        
+        # Проверяем демо-режим
+        if demo_manager.is_demo_mode():
+            profile_level = demo_manager.detect_profile_level(parsed_resume)
+            cached_response = demo_manager.load_cached_response("interview_simulation", profile_level)
+            
+            if cached_response:
+                logger.info(f"🎭 Using cached interview simulation response for {profile_level} profile")
+                try:
+                    # Симулируем прогресс для демо
+                    if progress_callback:
+                        total_rounds = cached_response.get('configuration', {}).get('target_rounds', 5)
+                        for round_num in range(1, total_rounds + 1):
+                            await progress_callback(round_num, total_rounds)
+                    
+                    return InterviewSimulation.model_validate(cached_response)
+                except ValidationError as ve:
+                    logger.error(f"❌ Invalid cached response format: {ve}")
+                    # Fallback to real generation if cache is corrupted
+        
+        # Продолжаем с реальной генерацией (живой режим или fallback)
+        return await self._simulate_real_interview(parsed_resume, parsed_vacancy, progress_callback, config_overrides, demo_manager)
+    
+    async def _simulate_real_interview(self, parsed_resume: Dict[str, Any], 
+                                     parsed_vacancy: Dict[str, Any],
+                                     progress_callback: Optional[Callable[[int, int], Awaitable[None]]] = None,
+                                     config_overrides: Optional[Dict[str, Any]] = None,
+                                     demo_manager: DemoManager = None) -> Optional[InterviewSimulation]:
+        """
+        Выполняет реальную симуляцию интервью через OpenAI API
+        
+        Args:
+        parsed_resume: Данные резюме
+        parsed_vacancy: Данные вакансии
+        progress_callback: Функция для обновления прогресса (current_round, total_rounds)
+        demo_manager: Менеджер демо-режима для сохранения ответов
+        """
         # Проверка разрешения использования OpenAI API
         openai_controller.check_api_permission()
         
@@ -657,6 +696,15 @@ class ProfessionalInterviewSimulator:
                     'candidate_role': candidate_profile.detected_role.value
                 }
             )
+            
+            # Сохраняем результат для демо-режима (если активен)
+            if demo_manager and demo_manager.is_demo_mode():
+                try:
+                    profile_level = demo_manager.detect_profile_level(parsed_resume)
+                    demo_manager.save_response("interview_simulation", profile_level, simulation.model_dump())
+                    logger.info(f"💾 Saved interview simulation response for demo cache: {profile_level}")
+                except Exception as save_error:
+                    logger.warning(f"⚠️ Failed to save response to demo cache: {save_error}")
             
             logger.info("Профессиональная симуляция интервью успешно завершена")
             return simulation

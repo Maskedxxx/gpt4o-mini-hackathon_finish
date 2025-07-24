@@ -1,0 +1,106 @@
+{
+  "first_name": "Алексей",
+  "last_name": "Петров",
+  "title": "Junior Python Developer",
+  "total_experience": 14,
+  "skills": [
+    "Python",
+    "Django",
+    "Django REST Framework",
+    "Flask",
+    "PostgreSQL",
+    "SQLAlchemy",
+    "Git",
+    "Docker",
+    "pytest",
+    "HTML/CSS",
+    "JavaScript",
+    "Linux",
+    "REST API",
+    "Agile/Scrum"
+  ],
+  "experience": [
+    {
+      "company": "ТехСтарт",
+      "position": "Junior Python Developer",
+      "start": "2024-01",
+      "end": null,
+      "description": "Разработал REST API для внутренней системы учета на Django REST Framework. Написал автоматические тесты, покрытие кода увеличилось до 85%. Оптимизировал SQL-запросы, ускорив загрузку отчетов на 30%. Участвовал в code review и следовал принципам Clean Code."
+    },
+    {
+      "company": "WebSolutions",
+      "position": "Python Developer (стажировка)",
+      "start": "2023-09",
+      "end": "2023-12",
+      "description": "Изучение существующего кода и архитектуры проекта. Исправление багов и мелкие доработки функционала. Написание unit-тестов для legacy кода. Участие в ежедневных standup встречах команды."
+    }
+  ],
+  "employments": [
+    "Полная занятость"
+  ],
+  "schedules": [
+    "Полный день",
+    "Гибкий график"
+  ],
+  "languages": [
+    {
+      "name": "Русский",
+      "level": {
+        "name": "Родной"
+      }
+    },
+    {
+      "name": "Английский",
+      "level": {
+        "name": "B1"
+      }
+    }
+  ],
+  "professional_roles": [
+    {
+      "name": "Backend-разработчик"
+    },
+    {
+      "name": "Python-разработчик"
+    }
+  ],
+  "salary": {
+    "amount": 120000
+  },
+  "education": {
+    "level": {
+      "name": "Высшее"
+    },
+    "primary": [
+      {
+        "name": "Московский государственный технический университет им. Н.Э. Баумана",
+        "organization": "Факультет информатики и систем управления",
+        "result": "Бакалавр, Программная инженерия",
+        "year": 2024
+      }
+    ],
+    "additional": []
+  },
+  "contact": [
+    {
+      "type": {
+        "name": "Телефон"
+      },
+      "value": "+7 (999) 123-45-67"
+    },
+    {
+      "type": {
+        "name": "Электронная почта"
+      },
+      "value": "aleksey.petrov@gmail.com"
+    }
+  ],
+  "site": [
+    {
+      "type": {
+        "name": "GitHub"
+      },
+      "url": "https://github.com/aleksey-petrov-dev"
+    }
+  ]
+}

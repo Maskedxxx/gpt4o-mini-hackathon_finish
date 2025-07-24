@@ -1,0 +1,132 @@
+{
+  "first_name": "Екатерина",
+  "last_name": "Смирнова",
+  "phone": "+7 (985) 234-56-78",
+  "email": "ekaterina.smirnova@gmail.com",
+  "total_experience": 32,
+  "position_title": "Middle Python Developer",
+  "skills": [
+    "Python",
+    "FastAPI",
+    "Django",
+    "Flask",
+    "PostgreSQL",
+    "Redis",
+    "Celery",
+    "Docker",
+    "Kubernetes",
+    "AWS",
+    "Apache Airflow",
+    "Prometheus",
+    "Grafana",
+    "pytest",
+    "Git",
+    "CI/CD",
+    "Microservices",
+    "REST API",
+    "GraphQL",
+    "SQLAlchemy",
+    "Pandas",
+    "NumPy",
+    "Linux",
+    "Nginx"
+  ],
+  "experience": [
+    {
+      "company": "FinTech Solutions",
+      "position": "Middle Python Developer",
+      "period": "Апрель 2023 — настоящее время (1 год 4 месяца)",
+      "description": "Разработала микросервисную архитектуру платежной системы на FastAPI. Увеличила производительность API на 250% через асинхронное программирование. Внедрила CI/CD pipeline с автоматическим деплоем в Docker-контейнерах. Менторила 2 junior разработчиков, провела 15+ code review. Оптимизировала базу данных, сократив время запросов на 60%."
+    },
+    {
+      "company": "DataCorp Analytics",
+      "position": "Python Developer",
+      "period": "Сентябрь 2021 — Март 2023 (1 год 7 месяцев)",
+      "description": "Разработала ETL-пайплайны для обработки больших данных (10+ ГБ/день). Создала Django-приложение для визуализации аналитических отчетов. Автоматизировала процессы сбора данных, сократив ручную работу на 80%. Участвовала в проектировании архитектуры data warehouse."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Московский физико-технический институт (МФТИ)",
+      "degree": "Магистр, Анализ данных и машинное обучение",
+      "year": "2021",
+      "faculty": "Факультет управления и прикладной математики"
+    },
+    {
+      "institution": "Московский физико-технический институт (МФТИ)",
+      "degree": "Бакалавр, Прикладная математика и информатика",
+      "year": "2019",
+      "faculty": "Факультет управления и прикладной математики"
+    }
+  ],
+  "projects": [
+    {
+      "name": "Микросервисная платежная система",
+      "description": "Высоконагруженная система обрабатывающая 10k+ транзакций/день с uptime 99.9%",
+      "technologies": [
+        "Python",
+        "FastAPI",
+        "PostgreSQL",
+        "Redis",
+        "Celery",
+        "Docker",
+        "Kubernetes",
+        "Prometheus"
+      ],
+      "achievements": [
+        "5 независимых микросервисов",
+        "Асинхронная обработка через Celery + Redis",
+        "Мониторинг с Prometheus + Grafana",
+        "Автоматическое тестирование с покрытием 95%"
+      ]
+    },
+    {
+      "name": "Платформа бизнес-аналитики",
+      "description": "Полноценная BI-платформа с интерактивными дашбордами для 200+ пользователей",
+      "technologies": [
+        "Python",
+        "Django",
+        "PostgreSQL",
+        "Apache Airflow",
+        "Redis",
+        "Pandas",
+        "Plotly"
+      ],
+      "achievements": [
+        "RESTful API на Django REST Framework",
+        "Интеграция с Apache Airflow",
+        "Real-time дашборды с WebSocket",
+        "Кэширование с Redis"
+      ]
+    }
+  ],
+  "certifications": [
+    "AWS Certified Solutions Architect – Associate (2024)",
+    "Certified Kubernetes Application Developer (CKAD) (2023)",
+    "AWS Certified Developer (2022)"
+  ],
+  "github": "https://github.com/kate-python-dev",
+  "linkedin": "https://linkedin.com/in/ekaterina-smirnova-dev",
+  "salary_expectations": 190000,
+  "location": "Москва",
+  "age": 27,
+  "languages": [
+    {
+      "name": "Русский",
+      "level": {
+        "name": "Родной"
+      }
+    },
+    {
+      "name": "Английский",
+      "level": {
+        "name": "B2"
+      }
+    }
+  ],
+  "achievements": [
+    "Докладчик на PyCon Russia 2024",
+    "Участник хакатона FinTech Challenge 2023 (2 место)",
+    "Контрибьютор в FastAPI, Celery"
+  ]
+}

@@ -11,6 +11,7 @@ from src.llm_cover_letter.formatter import (
     format_cover_letter_context
 )
 from src.security.openai_control import openai_controller
+from src.demo_cache.demo_manager import DemoManager
 
 from src.utils import get_logger
 logger = get_logger()
@@ -236,10 +237,41 @@ class EnhancedLLMCoverLetterGenerator:
     async def generate_enhanced_cover_letter(self, parsed_resume: Dict[str, Any], parsed_vacancy: Dict[str, Any]) -> Optional[EnhancedCoverLetter]:
         """
         Генерирует профессиональное сопроводительное письмо.
+        Поддерживает демо-режим с кешированием ответов.
         
         Args:
             parsed_resume: Словарь с данными резюме
             parsed_vacancy: Словарь с данными вакансии
+        
+        Returns:
+            EnhancedCoverLetter или None в случае ошибки
+        """
+        demo_manager = DemoManager()
+        
+        # Проверяем демо-режим
+        if demo_manager.is_demo_mode():
+            profile_level = demo_manager.detect_profile_level(parsed_resume)
+            cached_response = demo_manager.load_cached_response("cover_letter", profile_level)
+            
+            if cached_response:
+                logger.info(f"🎭 Using cached cover letter response for {profile_level} profile")
+                try:
+                    return EnhancedCoverLetter.model_validate(cached_response)
+                except ValidationError as ve:
+                    logger.error(f"❌ Invalid cached response format: {ve}")
+                    # Fallback to real generation if cache is corrupted
+        
+        # Продолжаем с реальной генерацией (живой режим или fallback)
+        return await self._generate_real_response(parsed_resume, parsed_vacancy, demo_manager)
+    
+    async def _generate_real_response(self, parsed_resume: Dict[str, Any], parsed_vacancy: Dict[str, Any], demo_manager: DemoManager = None) -> Optional[EnhancedCoverLetter]:
+        """
+        Выполняет реальную генерацию через OpenAI API
+        
+        Args:
+            parsed_resume: Словарь с данными резюме
+            parsed_vacancy: Словарь с данными вакансии
+            demo_manager: Менеджер демо-режима для сохранения ответов
         
         Returns:
             EnhancedCoverLetter или None в случае ошибки
@@ -294,6 +326,15 @@ class EnhancedLLMCoverLetterGenerator:
             if self.validate_quality and not self._validate_quality(cover_letter, parsed_vacancy):
               logger.warning("Письмо не прошло проверку качества")
               return None
+            
+            # 8. Сохраняем ответ для демо-режима (если активен)
+            if demo_manager and demo_manager.is_demo_mode():
+                try:
+                    profile_level = demo_manager.detect_profile_level(parsed_resume)
+                    demo_manager.save_response("cover_letter", profile_level, cover_letter.model_dump())
+                    logger.info(f"💾 Saved cover letter response for demo cache: {profile_level}")
+                except Exception as save_error:
+                    logger.warning(f"⚠️ Failed to save response to demo cache: {save_error}")
                 
             logger.info("Профессиональное сопроводительное письмо успешно сгенерировано.")
             return cover_letter
